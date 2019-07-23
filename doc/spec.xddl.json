@@ -1,0 +1,99 @@
+{
+  "description": "This is an xDDL specification for the xDDL specification. The idea here is that the specification should become self-validating",
+  "types": [
+    {
+      "@type": "Type",
+      "name": "long_text",
+      "core": "TEXT"
+    },
+    {
+      "@type": "Type",
+      "name": "string",
+      "core": "STRING"
+    },
+    {
+      "@type": "Type",
+      "name": "coreTypes",
+      "description": "This is the enumeration of core type values",
+      "core": "STRING",
+      "allowable": [
+        {
+          "value": "STRING",
+          "description": "A character sequence value, assumed to be short (less than 255 characters)"
+        },
+        {
+          "value": "TEXT",
+          "description": "A character sequence value that is long and generally free text."
+        },
+        {
+          "value": "DATE",
+          "description": "A Gregorian calendar date with no time zone information. ISO-9601"
+        },
+        {
+          "value": "TIME",
+          "description": "A time of day with no time zone information."
+        },
+        {
+          "value": "DATETIME",
+          "description": "A Zulu timestamp in ISO-9601 date time format."
+        },
+        {
+          "value": "LONG",
+          "description": "A 64 bit integer"
+        },
+        {
+          "value": "INTEGER",
+          "description": "A 32 bit integer"
+        },
+        {
+          "value": "BOOLEAN",
+          "description": "A true or false value"
+        },
+        {
+          "value": "DOUBLE",
+          "description": "A 64 bit floating point value"
+        },
+        {
+          "value": "FLOAT",
+          "description": "A 32 bit floating point value"
+        },
+        {
+          "value": "BIG_INTEGER",
+          "description": "An integer value of unlimited size"
+        },
+        {
+          "value": "BIG_DECIMAL",
+          "description": "A floating point value of unlimited size, and arbitrary precision"
+        }
+      ]
+    }
+  ],
+  "structures": [
+    {
+      "@type": "Structure",
+      "name": "BaseType",
+      "description": "A structure representing the base of a @type values"
+    },
+    {
+      "@type":"Structure",
+      "name": "Specification",
+      "description": "An xDDL specification",
+      "properties": {
+        "description": {
+          "@type": "Reference",
+          "name": "description",
+          "ref": "long_text"
+        },
+        "types": {
+          "@type": "List",
+          "description": "A list of type definitions. These should generally be simple, basic types for use as 'References' in the 'structures' array.",
+          "type": {
+            "@type": "Reference",
+            "ref": "BaseType"
+          }
+
+        }
+      }
+    }
+  ]
+}

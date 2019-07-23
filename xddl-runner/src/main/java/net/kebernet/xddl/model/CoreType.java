@@ -19,6 +19,7 @@ public enum CoreType {
   STRING,
   TEXT,
   DATE,
+  TIME,
   DATETIME,
   INTEGER,
   LONG,
@@ -26,5 +27,5 @@ public enum CoreType {
   FLOAT,
   DOUBLE,
   BIG_INTEGER,
-  BIG_DECIMAL
+  BIG_DECIMAL;
 }

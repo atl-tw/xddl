@@ -1,0 +1,49 @@
+{
+  "description": "testing the extended properties on core types.",
+
+  "structures":[
+      {
+        "@type": "Structure",
+        "name": "Test",
+        "properties": [
+          {
+            "@type": "Type",
+            "core": "DATETIME",
+            "name": "timestamp",
+            "required": true
+          },
+          {
+            "@type": "Type",
+            "core": "DATE",
+            "name": "date",
+            "required": true
+          },
+          {
+            "@type": "Type",
+            "core": "TIME",
+            "name": "time"
+          },
+          {
+            "@type": "Type",
+            "core": "BIG_INTEGER",
+            "name": "bigint"
+          },
+          {
+            "@type": "Type",
+            "core": "BIG_DECIMAL",
+            "name": "bigdec"
+          },
+          {
+            "@type": "Type",
+            "core": "BIG_INTEGER",
+            "name": "positiveInt",
+            "ext" : {
+              "json": {
+                "format": "^\\d*$"
+              }
+            }
+          }
+        ]
+      }
+  ]
+}

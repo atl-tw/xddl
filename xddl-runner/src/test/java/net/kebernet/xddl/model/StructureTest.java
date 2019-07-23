@@ -15,19 +15,34 @@
  */
 package net.kebernet.xddl.model;
 
-import static org.junit.Assert.*;
+import static com.google.common.truth.Truth.assertThat;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
+import org.junit.Before;
 import org.junit.Test;
 
 public class StructureTest {
 
-  @Test
-  public void testSimpleParse() throws IOException {
-    ObjectMapper mapper = new ObjectMapper();
-    Specification spec =
+  private ObjectMapper mapper;
+  private Specification spec;
+
+  @Before
+  public void setup() throws IOException {
+    mapper = new ObjectMapper();
+    spec =
         mapper.readValue(
             StructureTest.class.getResourceAsStream("/sample.json"), Specification.class);
+  }
+
+  @Test
+  public void testSimpleParse() throws IOException {
+
+    Specification spec2 =
+        mapper.readValue(
+            StructureTest.class.getResourceAsStream("/sample.json"), Specification.class);
+    assertThat(spec).isEqualTo(spec2);
+    spec2.getStructures().stream().findFirst().ifPresent(s -> s.setDescription("FOO"));
+    assertThat(spec).isNotEqualTo(spec2);
   }
 }

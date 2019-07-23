@@ -16,6 +16,8 @@
 package net.kebernet.xddl.jsonschema;
 
 import static com.google.common.truth.Truth.assertThat;
+import static net.kebernet.xddl.jsonschema.JsonSchemaPlugin.PATTERN_BIG_DECIMAL;
+import static net.kebernet.xddl.jsonschema.JsonSchemaPlugin.PATTERN_BIG_INTEGER;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.File;
@@ -37,6 +39,7 @@ public class JsonSchemaPluginTest {
             JsonSchemaPlugin.class.getResourceAsStream("/sample.json"), Specification.class);
     Context ctx = new Context(mapper, spec);
     File basicDir = new File("build/test/basic");
+    //noinspection ResultOfMethodCallIgnored
     basicDir.getParentFile().mkdirs();
     instance.generateArtifacts(ctx, basicDir);
   }
@@ -60,6 +63,7 @@ public class JsonSchemaPluginTest {
     assertThat(values.getMaxLength()).isEqualTo(2);
     assertThat(values.getItems().getMinLength()).isEqualTo(4);
     assertThat(values.getItems().getMaxLength()).isEqualTo(5);
+    mapper.writeValue(new File("build/test/basic/list.json"), schema);
   }
 
   @Test
@@ -82,5 +86,65 @@ public class JsonSchemaPluginTest {
     Definition nonExclusive = def.getProperties().get("nonExclusiveValue");
     assertThat(nonExclusive.getMinimum()).isEqualTo(4);
     assertThat(nonExclusive.getMaximum()).isEqualTo(5);
+  }
+
+  @Test
+  public void testStringType() throws IOException {
+    JsonSchemaPlugin instance = new JsonSchemaPlugin();
+    ObjectMapper mapper = new ObjectMapper();
+    Specification spec =
+        mapper.readValue(
+            JsonSchemaPlugin.class.getResourceAsStream("/strings.json"), Specification.class);
+    Context ctx = new Context(mapper, spec);
+    Schema schema = instance.createSchema(ctx);
+    assertThat(schema.getDefinitions()).containsKey("Whatever");
+    Definition def = schema.getDefinitions().get("Whatever");
+    assertThat(def.getProperties().get("phoneNumberValue").getPattern())
+        .isEqualTo("(\\d\\d\\d) \\d\\d\\d-\\d\\d\\d\\d$");
+    assertThat(def.getProperties().get("lengthsValue").getMinLength()).isEqualTo(2);
+    assertThat(def.getProperties().get("lengthsValue").getMaxLength()).isEqualTo(3);
+    mapper.writeValue(new File("build/test/basic/strings.json"), schema);
+  }
+
+  @Test
+  public void testCoreTypeExtendedProperties() throws IOException {
+    JsonSchemaPlugin instance = new JsonSchemaPlugin();
+    ObjectMapper mapper = new ObjectMapper();
+    Specification spec =
+        mapper.readValue(
+            JsonSchemaPlugin.class.getResourceAsStream("/extended-core-types.json"),
+            Specification.class);
+    Context ctx = new Context(mapper, spec);
+    Schema schema = instance.createSchema(ctx);
+    Definition def = schema.getDefinitions().get("Test");
+    assertThat(def.getProperties().get("timestamp").getType()).isEqualTo("string");
+    assertThat(def.getProperties().get("timestamp").getFormat()).isEqualTo("date-time");
+    assertThat(def.getProperties().get("date").getType()).isEqualTo("string");
+    assertThat(def.getProperties().get("date").getFormat()).isEqualTo("date");
+    assertThat(def.getProperties().get("time").getType()).isEqualTo("string");
+    assertThat(def.getProperties().get("time").getFormat()).isEqualTo("time");
+    assertThat(def.getProperties().get("bigint").getType()).isEqualTo("string");
+    assertThat(def.getProperties().get("bigint").getPattern()).isEqualTo(PATTERN_BIG_INTEGER);
+    assertThat(def.getProperties().get("bigdec").getType()).isEqualTo("string");
+    assertThat(def.getProperties().get("bigdec").getPattern())
+        .isEqualTo(JsonSchemaPlugin.PATTERN_BIG_DECIMAL);
+    assertThat(def.getProperties().get("positiveInt").getFormat()).isEqualTo("^\\d*$");
+    assertThat(def.getRequired()).contains("timestamp");
+    assertThat(def.getRequired()).contains("date");
+    assertThat(def.getRequired()).doesNotContain("time");
+  }
+
+  @Test
+  public void testNumberPatterns() {
+    assertThat("-123").matches(PATTERN_BIG_INTEGER);
+    assertThat("-123").matches(PATTERN_BIG_DECIMAL);
+    assertThat("42").matches(PATTERN_BIG_INTEGER);
+    assertThat("42").matches(PATTERN_BIG_DECIMAL);
+    assertThat("-42.").matches(PATTERN_BIG_DECIMAL);
+    assertThat("44.33").matches(PATTERN_BIG_DECIMAL);
+    assertThat("4 3 1").doesNotMatch(PATTERN_BIG_INTEGER);
+    assertThat("4 3 1").doesNotMatch(PATTERN_BIG_DECIMAL);
+    assertThat("42z").doesNotMatch(PATTERN_BIG_INTEGER);
+    assertThat("42z").doesNotMatch(PATTERN_BIG_DECIMAL);
   }
 }

@@ -1,4 +1,4 @@
-{
+  {
   "description": "This is a test that uses a size limited array with a size limited string value to demonstrate that extension values are property propagated through references",
   "types": [
     {

@@ -22,6 +22,7 @@ import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
+@SuppressWarnings("WeakerAccess")
 public abstract class ModelUtil {
 
   public static <T> void maybeSet(Consumer<T> consumer, T value, T defaultValue) {
@@ -48,6 +49,7 @@ public abstract class ModelUtil {
     }
   }
 
+  @SuppressWarnings("unchecked")
   public static <T extends BaseType> T merge(T newValue, T originalValue, Reference reference) {
     maybeSet(newValue::setName, reference.getName(), originalValue.getName());
     maybeSet(newValue::setDescription, reference.getDescription(), originalValue.getDescription());

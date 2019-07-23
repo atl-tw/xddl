@@ -1,0 +1,43 @@
+{
+  "types": [
+    {
+      "@type": "Type",
+      "name": "lengths",
+      "core": "STRING",
+      "ext": {
+        "json": {
+          "minLength": 2,
+          "maxLength": 3
+        }
+      }
+    },
+    {
+      "@type": "Type",
+      "name": "phoneNumber",
+      "core": "STRING",
+      "ext": {
+        "json": {
+          "pattern": "(\\d\\d\\d) \\d\\d\\d-\\d\\d\\d\\d$"
+        }
+      }
+    }
+  ],
+  "structures": [
+    {
+      "@type": "Structure",
+      "name": "Whatever",
+      "properties": [
+        {
+          "@type": "Reference",
+          "name": "lengthsValue",
+          "ref": "lengths"
+        },
+        {
+          "@type": "Reference",
+          "name": "phoneNumberValue",
+          "ref": "phoneNumber"
+        }
+      ]
+    }
+  ]
+}

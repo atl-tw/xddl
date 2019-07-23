@@ -22,6 +22,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.File;
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
@@ -37,35 +38,56 @@ import net.kebernet.xddl.plugins.Context;
 import net.kebernet.xddl.plugins.Plugin;
 
 public class JsonSchemaPlugin implements Plugin {
-
-  private static Map<CoreType, String> CORE_TYPES =
-      new HashMap<CoreType, String>() {
-        {
-          put(CoreType.BIG_DECIMAL, "string");
-          put(CoreType.BIG_INTEGER, "string");
-          put(CoreType.BOOLEAN, "boolean");
-          put(CoreType.INTEGER, "integer");
-          put(CoreType.LONG, "integer");
-          put(CoreType.FLOAT, "number");
-          put(CoreType.DOUBLE, "number");
-          put(CoreType.DATETIME, "string");
-          put(CoreType.DATE, "string");
-          put(CoreType.TEXT, "string");
-          put(CoreType.STRING, "string");
-        }
-      };
-
+  static final String PATTERN_BIG_DECIMAL = "^-?\\d*(\\.\\d*)?$";
+  static final String PATTERN_BIG_INTEGER = "^-?\\d*$";
+  private static final String STRING = "string";
+  private static final Map<CoreType, String> STRING_FORMATS =
+      Collections.unmodifiableMap(
+          new HashMap<CoreType, String>() {
+            {
+              put(CoreType.DATE, "date");
+              put(CoreType.TIME, "time");
+              put(CoreType.DATETIME, "date-time");
+            }
+          });
+  private static final Map<CoreType, String> NUMBER_PATTERNS =
+      Collections.unmodifiableMap(
+          new HashMap<CoreType, String>() {
+            {
+              put(CoreType.BIG_DECIMAL, PATTERN_BIG_DECIMAL);
+              put(CoreType.BIG_INTEGER, PATTERN_BIG_INTEGER);
+            }
+          });
   private static Map<CoreType, Function<JsonNode, ? extends Number>> CORE_NUMBER_READERS =
-      new HashMap<CoreType, Function<JsonNode, ? extends Number>>() {
-        {
-          put(CoreType.BIG_INTEGER, JsonNode::bigIntegerValue);
-          put(CoreType.BIG_DECIMAL, (node) -> new BigDecimal(node.asText()));
-          put(CoreType.INTEGER, JsonNode::intValue);
-          put(CoreType.LONG, JsonNode::longValue);
-          put(CoreType.FLOAT, JsonNode::floatValue);
-          put(CoreType.DOUBLE, JsonNode::doubleValue);
-        }
-      };
+      Collections.unmodifiableMap(
+          new HashMap<CoreType, Function<JsonNode, ? extends Number>>() {
+            {
+              put(CoreType.BIG_INTEGER, JsonNode::bigIntegerValue);
+              put(CoreType.BIG_DECIMAL, (node) -> new BigDecimal(node.asText()));
+              put(CoreType.INTEGER, JsonNode::intValue);
+              put(CoreType.LONG, JsonNode::longValue);
+              put(CoreType.FLOAT, JsonNode::floatValue);
+              put(CoreType.DOUBLE, JsonNode::doubleValue);
+            }
+          });
+  private static Map<CoreType, String> CORE_TYPES =
+      Collections.unmodifiableMap(
+          new HashMap<CoreType, String>() {
+            {
+              put(CoreType.BIG_DECIMAL, STRING);
+              put(CoreType.BIG_INTEGER, STRING);
+              put(CoreType.BOOLEAN, "boolean");
+              put(CoreType.INTEGER, "integer");
+              put(CoreType.LONG, "integer");
+              put(CoreType.FLOAT, "number");
+              put(CoreType.DOUBLE, "number");
+              put(CoreType.DATETIME, STRING);
+              put(CoreType.DATE, STRING);
+              put(CoreType.TIME, STRING);
+              put(CoreType.TEXT, STRING);
+              put(CoreType.STRING, STRING);
+            }
+          });
 
   @Override
   public String getName() {
@@ -75,6 +97,7 @@ public class JsonSchemaPlugin implements Plugin {
   @Override
   public String generateArtifacts(Context context, File outputDirectory) throws IOException {
     File file = new File(outputDirectory, "schema.json");
+    //noinspection ResultOfMethodCallIgnored
     file.getParentFile().mkdirs();
 
     ObjectMapper mapper = context.getMapper();
@@ -91,7 +114,7 @@ public class JsonSchemaPlugin implements Plugin {
   private void visit(Context context, Structure s, Schema schema) {
     Definition def = new Definition();
     if (def.getRef() != null) {
-      context.stateException("Can't have a reference as a stop level definition", s);
+      throw context.stateException("Can't have a reference as a stop level definition", s);
     }
     def.setTitle(s.getName());
     def.setDescription(s.getDescription());
@@ -179,9 +202,18 @@ public class JsonSchemaPlugin implements Plugin {
               "exclusiveMaximum",
               CORE_NUMBER_READERS.get(type.getCore()));
         },
-        schemaType -> {
-          definition.setType(CORE_TYPES.get(type.getCore()));
-        });
+        schemaType -> definition.setType(CORE_TYPES.get(type.getCore())));
+
+    doCoreTypeSupport(type, definition);
+  }
+
+  private void doCoreTypeSupport(Type type, Definition definition) {
+    if (definition.getFormat() == null && STRING_FORMATS.containsKey(type.getCore())) {
+      definition.setFormat(STRING_FORMATS.get(type.getCore()));
+    }
+    if (definition.getPattern() == null && NUMBER_PATTERNS.containsKey(type.getCore())) {
+      definition.setPattern(NUMBER_PATTERNS.get(type.getCore()));
+    }
   }
 
   private void doBaseTypeExtensions(Context context, BaseType type, Definition definition) {
@@ -189,7 +221,7 @@ public class JsonSchemaPlugin implements Plugin {
         "json",
         type,
         jsonNode -> {
-          if (jsonNode.has("format")) definition.setFormat(jsonNode.get("format").asText());
+          maybeSet(definition::setFormat, jsonNode, "format", JsonNode::asText);
           maybeSet(
               definition::setAdditionalProperties,
               jsonNode,

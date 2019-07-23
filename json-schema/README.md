@@ -1,4 +1,4 @@
-JSON-Schema
+json-schema
 ===========
 
 Purpose
