@@ -1,0 +1,13 @@
+plugins {
+    id 'java'
+}
+
+group 'net.kebernet.xddl'
+version '1.0-SNAPSHOT'
+
+sourceCompatibility = 1.8
+
+dependencies {
+    implementation project(":xddl-runner")
+    implementation project(":json-schema")
+}

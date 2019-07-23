@@ -1,0 +1,47 @@
+{
+  "types": [
+    {
+      "@type": "Type",
+      "name": "exclusive",
+      "core": "INTEGER",
+      "ext": {
+        "json": {
+          "exclusiveMinimum": 2,
+          "exclusiveMaximum": 3
+        }
+      }
+    },
+    {
+      "@type": "Type",
+      "name": "nonExclusive",
+      "core": "INTEGER",
+      "ext": {
+        "json": {
+          "minimum": 4,
+          "maximum": 5
+        }
+      }
+    }
+  ],
+  "structures": [
+    {
+      "@type": "Structure",
+      "name": "HasRanges",
+      "description": "Has some int ranges",
+      "properties": [
+        {
+          "@type": "Reference",
+          "name": "exclusiveValue",
+          "description": "An exclusive int value",
+          "ref": "exclusive"
+        },
+        {
+          "@type": "Reference",
+          "name": "nonExclusiveValue",
+          "description": "A non exclusive int value",
+          "ref": "nonExclusive"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,41 @@
+{
+  "description": "This is a test that uses a size limited array with a size limited string value to demonstrate that extension values are property propagated through references",
+  "types": [
+    {
+      "@type": "Type",
+      "name": "simple_string",
+      "description": "A simple string value",
+      "core": "STRING",
+      "ext": {
+        "json": {
+          "minLength": 4,
+          "maxLength": 5
+        }
+      }
+    }
+  ],
+  "structures": [
+    {
+      "@type": "Structure",
+      "name": "HasAnArray",
+      "description": "Has an array of string",
+      "properties": [
+        {
+          "@type": "List",
+          "name": "values",
+          "description": "The List of Values",
+          "ext": {
+            "json": {
+              "minLength": 1,
+              "maxLength": 2
+            }
+          },
+          "type": {
+            "@type": "Reference",
+            "ref": "simple_string"
+          }
+        }
+      ]
+    }
+  ]
+}
