@@ -118,7 +118,7 @@ Simple Example
 
 A specification is defined as such: 
 
-```json
+```javascript
 {
   "description" : "A description of the general spec",
   "types": [], // A list of low level types. Basically these are references
