@@ -24,6 +24,11 @@ subprojects {
     apply plugin: 'com.github.hierynomus.license'
     apply plugin: 'com.diffplug.gradle.spotless'
 
+    group 'net.kebernet.xddl'
+    version rootProject.version
+
+    sourceCompatibility = 1.8
+
     repositories {
         jcenter()
         mavenCentral()
