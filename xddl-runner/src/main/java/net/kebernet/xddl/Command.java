@@ -10,7 +10,7 @@ import lombok.Data;
 public class Command {
 
     @Parameter(names = {"--input-file", "-i"},
-            description = "The directory to output generated artifacts to.",
+            description = "The specification file.",
             required = true)
     private File inputFile;
     @Parameter(names = {"--output-directory", "-o"},

@@ -169,7 +169,7 @@ Usage: net.kebernet.xddl.Runner [options]
     --help
       Show this help text
   * --input-file, -i
-      The directory to output generated artifacts to.
+      The specification file.
   * --output-directory, -o
       The directory to output generated artifacts to.
 
