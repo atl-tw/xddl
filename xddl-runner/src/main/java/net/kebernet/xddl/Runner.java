@@ -30,7 +30,7 @@ public class Runner {
                 jCommander.usage();
                 return;
             }
-            new RunnerBuilder().outputDirectory(command.getOutputDirectory())
+            Runner.builder().outputDirectory(command.getOutputDirectory())
                     .plugins(command.getFormats())
                     .specificationFile(command.getInputFile())
                     .build()
