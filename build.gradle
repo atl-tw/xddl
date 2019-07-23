@@ -1,4 +1,16 @@
-
+buildscript {
+    repositories {
+        jcenter()
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'org.owasp:dependency-check-gradle:5.1.0'
+    }
+}
+plugins {
+    id 'com.github.hierynomus.license' version "0.15.0"
+    id 'com.diffplug.gradle.spotless' version '3.23.1'
+}
 
 group 'net.kebernet'
 version '1.0-SNAPSHOT'
@@ -6,7 +18,11 @@ version '1.0-SNAPSHOT'
 
 subprojects {
     apply plugin: 'java'
+    apply plugin: 'groovy'
     apply plugin: 'jacoco'
+    apply plugin: 'org.owasp.dependencycheck'
+    apply plugin: 'com.github.hierynomus.license'
+    apply plugin: 'com.diffplug.gradle.spotless'
 
     repositories {
         jcenter()
@@ -21,6 +37,34 @@ subprojects {
         testImplementation 'junit:junit:4.12'
     }
 
+    spotless {
+        groovy {
+            excludeJava()
+            paddedCell()
+        }
+        java {
+            googleJavaFormat()
+        }
+        kotlin {
+            ktlint().userData(['indent_size': '4', 'continuation_indent_size': '4'])
+        }
+    }
+
+    dependencyCheck {
+        suppressionFile = rootProject.file("src/etc/suppression.xml")
+        format = 'ALL'
+    }
+
+
+    license {
+        header rootProject.file('src/etc/HEADER')
+        strictCheck true
+        mapping("java", "SLASHSTAR_STYLE")
+        exclude "**/*.json"
+    }
+
+
+
     jacocoTestReport {
         additionalSourceDirs = files(sourceSets.main.allSource.srcDirs)
         sourceDirectories = files(sourceSets.main.allSource.srcDirs)
@@ -31,18 +75,8 @@ subprojects {
             csv.enabled = false
         }
     }
-}
 
-task jacocoRootReport(type: org.gradle.testing.jacoco.tasks.JacocoReport) {
-    dependsOn = subprojects.test
-    additionalSourceDirs = files(subprojects.sourceSets.main.allSource.srcDirs)
-    sourceDirectories = files(subprojects.sourceSets.main.allSource.srcDirs)
-    classDirectories =  files(subprojects.sourceSets.main.output)
-    executionData = files(subprojects.jacocoTestReport.executionData)
-    reports {
-        html.enabled = true
-        xml.enabled = true
-        csv.enabled = false
-    }
+    check.dependsOn dependencyCheckAnalyze
+    check.dependsOn licenseFormat
+    check.finalizedBy jacocoTestReport
 }
-

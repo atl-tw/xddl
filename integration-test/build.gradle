@@ -1,6 +1,3 @@
-plugins {
-    id 'java'
-}
 
 group 'net.kebernet.xddl'
 version '1.0-SNAPSHOT'

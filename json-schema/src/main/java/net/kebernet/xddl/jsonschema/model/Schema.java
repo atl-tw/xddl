@@ -1,22 +1,36 @@
+/*
+ * Copyright 2019 Robert Cooper, ThoughtWorks
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package net.kebernet.xddl.jsonschema.model;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import java.util.HashMap;
 import java.util.Map;
-
-import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 
 @Data
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class Schema {
-    private String schema = "http://json-schema.org/draft-07/schema#";
-    private String ref;
-    private Map<String, Definition> definitions;
+  private String schema = "http://json-schema.org/draft-07/schema#";
+  private String ref;
+  private Map<String, Definition> definitions;
 
-    public Map<String, Definition> definitions(){
-        if(this.definitions == null){
-            this.definitions = new HashMap<>();
-        }
-        return definitions;
+  public Map<String, Definition> definitions() {
+    if (this.definitions == null) {
+      this.definitions = new HashMap<>();
     }
+    return definitions;
+  }
 }
