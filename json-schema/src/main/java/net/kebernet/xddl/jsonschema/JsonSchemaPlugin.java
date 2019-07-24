@@ -158,11 +158,12 @@ public class JsonSchemaPlugin implements Plugin {
   }
 
   private Definition doReference(Context context, Reference reference) {
-    if (context.isStructure(reference)) {
+    if (context.pointsToStructure(reference)) {
       Definition def = new Definition();
       def.setRef("#/definitions/" + reference.getRef());
-    } else if (context.isType(reference)) {
-      return doType(context, (Type) context.resolveReference(reference));
+    } else if (context.pointsToType(reference)) {
+      //noinspection OptionalGetWithoutIsPresent
+      return doType(context, (Type) context.resolveReference(reference).get());
     }
     throw context.stateException("Unable to resolve reference " + reference.getRef(), reference);
   }

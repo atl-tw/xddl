@@ -82,6 +82,13 @@ public class Context {
     references.put(type.getName(), type);
   }
 
+  /**
+   * Constructs a new illegal state exception with a mes
+   *
+   * @param message A message for the excetion
+   * @param offending an offending object that will be serialized into the exception.
+   * @return A constructed exception.
+   */
   public IllegalStateException stateException(String message, Object offending) {
     try {
       return new IllegalStateException(
@@ -91,19 +98,49 @@ public class Context {
     }
   }
 
-  public boolean isStructure(Reference reference) {
-    return resolveReference(reference) != null && resolveReference(reference) instanceof Structure;
+  /**
+   * Resolves a reference to the target type and merges the metadata from the reference into the new
+   * fully resolved type.
+   *
+   * @param reference The reference to resolve
+   * @param <T> The target type
+   * @return The type or
+   */
+  @SuppressWarnings("unchecked")
+  public <T extends BaseType<T>> Optional<T> resolveReference(Reference reference) {
+    Optional<T> result = ofNullable((T) references.get(reference.getRef()));
+    return result.map(t -> t.merge(reference));
   }
 
-  public BaseType resolveReference(Reference reference) {
-    BaseType type = references.get(reference.getRef());
-    return type.merge(reference);
+  /**
+   * Returns true if the given reference resolves to a base type.
+   *
+   * @param reference The ref to resulve.
+   * @return true if it is a structure.
+   */
+  public boolean pointsToType(Reference reference) {
+    return resolveReference(reference).filter(r -> r instanceof Type).isPresent();
   }
 
-  public boolean isType(Reference reference) {
-    return resolveReference(reference) != null && resolveReference(reference) instanceof Type;
+  /**
+   * Returns true if the given reference points to a structure.
+   *
+   * @param reference The reference
+   * @return true if it is a structure.
+   */
+  public boolean pointsToStructure(Reference reference) {
+    return resolveReference(reference).filter(r -> r instanceof Structure).isPresent();
   }
 
+  /**
+   * Evaluates if a type has a extension of a given name
+   *
+   * @param extType The name of the extension type
+   * @param type The type to check
+   * @param ifTrue a consumer called if it has the plugin.
+   * @param ifFalse a consumer called if it doesn't have the plugin
+   * @param <T> The type.
+   */
   public <T extends BaseType> void hasPlugin(
       String extType, T type, Consumer<JsonNode> ifTrue, Consumer<T> ifFalse) {
     Optional<JsonNode> value = ofNullable((JsonNode) type.ext().get(extType));
