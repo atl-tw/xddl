@@ -9,3 +9,27 @@ application {
     startScripts.classpath += files('plugins/*')
 }
 
+publishing {
+    publications {
+        dist(MavenPublication) {
+            groupId project.group
+            artifactId project.name
+            version rootProject.version
+            artifact distZip {
+                classifier "distribution"
+            }
+        }
+    }
+}
+
+if (project.hasProperty("kebernet_bintray")) {
+
+    bintray {
+        user = getProperty("kebernet_bintray")
+        key = getProperty("kebernet_bintray_api")
+        pkg {
+            publications += 'dist'
+        }
+    }
+}
+

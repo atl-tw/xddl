@@ -10,11 +10,25 @@ buildscript {
 plugins {
     id 'com.github.hierynomus.license' version "0.15.0"
     id 'com.diffplug.gradle.spotless' version '3.23.1'
+    id 'com.jfrog.bintray' version "1.8.4"
 }
 
 group 'net.kebernet'
-version '1.0-SNAPSHOT'
+version '0.0.1'
 
+if(project.hasProperty("kebernet_bintray")) {
+    bintray {
+        user = getProperty("kebernet_bintray")
+        key = getProperty("kebernet_bintray_api")
+        pkg {
+            repo = 'maven'
+            name = 'xddl'
+            publish = true
+            licenses = ['Apache-2.0']
+
+        }
+    }
+}
 
 subprojects {
     apply plugin: 'java'
@@ -24,6 +38,12 @@ subprojects {
     apply plugin: 'org.owasp.dependencycheck'
     apply plugin: 'com.github.hierynomus.license'
     apply plugin: 'com.diffplug.gradle.spotless'
+    apply plugin: 'maven-publish'
+    if(project.name != "integration-test" ) {
+
+        apply plugin: 'com.jfrog.bintray'
+    }
+
 
     group 'net.kebernet.xddl'
     version rootProject.version
@@ -41,6 +61,46 @@ subprojects {
         annotationProcessor 'org.projectlombok:lombok:1.18.8'
         testImplementation 'com.google.truth:truth:1.0'
         testImplementation 'junit:junit:4.12'
+    }
+
+    task sourceJar(type: Jar) {
+        from sourceSets.main.allJava
+    }
+    task packageJavadoc(type: Jar, dependsOn: 'javadoc') {
+        from javadoc.destinationDir
+        classifier = 'javadoc'
+    }
+
+
+    publishing {
+        publications {
+            java(MavenPublication) {
+                from components.java
+                groupId project.group
+                artifactId project.name
+                version rootProject.version
+                artifact sourceJar {
+                    classifier "sources"
+                }
+                artifact packageJavadoc
+            }
+        }
+    }
+
+    if(project.hasProperty("kebernet_bintray") && project.name != "integration-test") {
+
+        bintray {
+            user = getProperty("kebernet_bintray")
+            key = getProperty("kebernet_bintray_api")
+            pkg {
+                repo = 'maven'
+                name = 'xddl'
+                publish = true
+                licenses = ['Apache-2.0']
+                publications = ['java']
+
+            }
+        }
     }
 
     spotless {
@@ -82,6 +142,9 @@ subprojects {
         }
     }
 
+
+    build.dependsOn sourceJar
+    build.dependsOn packageJavadoc
     check.dependsOn dependencyCheckAnalyze
     check.dependsOn licenseFormat
     check.finalizedBy jacocoTestReport
