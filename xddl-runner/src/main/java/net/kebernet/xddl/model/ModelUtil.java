@@ -53,7 +53,7 @@ public abstract class ModelUtil {
   public static <T extends BaseType> T merge(T newValue, T originalValue, Reference reference) {
     maybeSet(newValue::setName, reference.getName(), originalValue.getName());
     maybeSet(newValue::setDescription, reference.getDescription(), originalValue.getDescription());
-    newValue.setRequired(originalValue.isRequired());
+    newValue.setRequired(originalValue.getRequired());
     Map<String, JsonNode> ext = reference.ext();
     ofNullable(originalValue.getExt()).ifPresent(ext::putAll);
     newValue.setExt(ext);

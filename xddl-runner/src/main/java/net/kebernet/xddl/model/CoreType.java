@@ -28,5 +28,6 @@ public enum CoreType {
   FLOAT,
   DOUBLE,
   BIG_INTEGER,
-  BIG_DECIMAL
+  BIG_DECIMAL,
+  BINARY
 }

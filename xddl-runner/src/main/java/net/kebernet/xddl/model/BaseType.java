@@ -21,6 +21,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 import java.util.HashMap;
 import java.util.Map;
 import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
 /**
  * A core type from which all other descend
@@ -28,6 +30,8 @@ import lombok.Data;
  * @param <T> The subtype reference used for the merge operation
  */
 @Data
+@SuperBuilder
+@NoArgsConstructor
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "@type")
 @JsonSubTypes({
   @JsonSubTypes.Type(value = Reference.class, name = "Reference"),
@@ -39,7 +43,7 @@ public abstract class BaseType<T extends BaseType> {
   private String name;
   private String description;
   private Map<String, JsonNode> ext;
-  private boolean required;
+  private Boolean required;
 
   /**
    * Returns the ext map, creating it if it is null

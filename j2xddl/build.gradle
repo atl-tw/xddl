@@ -5,8 +5,10 @@ plugins {
 apply plugin: 'application'
 
 dependencies {
-    implementation 'com.beust:jcommander:1.72'
     implementation project(":xddl-runner")
+    implementation 'com.beust:jcommander:1.72'
+    implementation 'org.hibernate:hibernate-validator:6.0.17.Final'
+    implementation 'io.swagger.core.v3:swagger-annotations:2.0.1'
 }
 
 

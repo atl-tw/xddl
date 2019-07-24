@@ -87,6 +87,7 @@ public class JsonSchemaPlugin implements Plugin {
               put(CoreType.TIME, STRING);
               put(CoreType.TEXT, STRING);
               put(CoreType.STRING, STRING);
+              put(CoreType.BINARY, STRING);
             }
           });
 

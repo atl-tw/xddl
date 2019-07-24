@@ -18,10 +18,14 @@ package net.kebernet.xddl.model;
 import java.util.List;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
 @Data
+@SuperBuilder
+@NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
-public class Structure extends BaseType {
+public class Structure extends BaseType<Structure> {
   List<BaseType> properties;
 
   @Override
