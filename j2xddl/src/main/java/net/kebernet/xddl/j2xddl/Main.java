@@ -15,18 +15,17 @@
  */
 package net.kebernet.xddl.j2xddl;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.HashSet;
-import java.util.List;
+import static net.kebernet.xddl.j2xddl.Reflection.findClasses;
 
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.ParameterException;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
-
-import static net.kebernet.xddl.j2xddl.Reflection.findClasses;
+import java.io.File;
+import java.io.IOException;
+import java.util.HashSet;
+import java.util.List;
 
 public class Main {
 
@@ -56,8 +55,7 @@ public class Main {
     }
   }
 
-  void run(List<String> packageNames, File outputFile)
-      throws IOException, ClassNotFoundException {
+  void run(List<String> packageNames, File outputFile) throws IOException, ClassNotFoundException {
     HashSet<Class> classes = new HashSet<>();
     for (String s : packageNames) {
       classes.addAll(findClasses(s));
@@ -65,6 +63,4 @@ public class Main {
     Generator generator = new Generator(mapper, classes);
     mapper.writeValue(outputFile, generator.generate());
   }
-
-
 }

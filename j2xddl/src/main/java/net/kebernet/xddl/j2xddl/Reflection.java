@@ -16,7 +16,6 @@
 package net.kebernet.xddl.j2xddl;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import java.io.File;
 import java.io.IOException;
 import java.lang.annotation.Annotation;
@@ -75,8 +74,7 @@ abstract class Reflection {
     return classes;
   }
 
-  static List<Class> findClasses(File directory, String packageName)
-          throws ClassNotFoundException {
+  static List<Class> findClasses(File directory, String packageName) throws ClassNotFoundException {
     List<Class> classes = new ArrayList<>();
     if (!directory.exists()) {
       return classes;
@@ -88,8 +86,8 @@ abstract class Reflection {
         classes.addAll(findClasses(file, packageName + "." + file.getName()));
       } else if (file.getName().endsWith(".class")) {
         classes.add(
-                Class.forName(
-                        packageName + '.' + file.getName().substring(0, file.getName().length() - 6)));
+            Class.forName(
+                packageName + '.' + file.getName().substring(0, file.getName().length() - 6)));
       }
     }
     return classes;
