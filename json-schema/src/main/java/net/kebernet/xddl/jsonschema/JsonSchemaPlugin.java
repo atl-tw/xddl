@@ -152,7 +152,7 @@ public class JsonSchemaPlugin implements Plugin {
     if (p instanceof Type) {
       return doType(context, (Type) p);
     }
-    throw new IllegalArgumentException("Unknown base type " + p.getName());
+    throw new IllegalArgumentException("Unknown base contains " + p.getName());
   }
 
   private Definition doList(Context context, List list) {
@@ -161,7 +161,7 @@ public class JsonSchemaPlugin implements Plugin {
     def.setDescription(list.getDescription());
     def.setType("array");
     doBaseTypeExtensions(context, list, def);
-    def.setItems(visitBaseType(context, list.getType()));
+    def.setItems(visitBaseType(context, list.getContains()));
     return def;
   }
 
@@ -193,7 +193,7 @@ public class JsonSchemaPlugin implements Plugin {
           maybeSet(
               definition::setType,
               jsonNode,
-              "type",
+              "contains",
               JsonNode::asText,
               CORE_TYPES.get(type.getCore()));
           maybeSet(

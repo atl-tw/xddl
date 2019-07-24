@@ -99,12 +99,12 @@ public class Context {
   }
 
   /**
-   * Resolves a reference to the target type and merges the metadata from the reference into the new
-   * fully resolved type.
+   * Resolves a reference to the target contains and merges the metadata from the reference into the
+   * new fully resolved contains.
    *
    * @param reference The reference to resolve
-   * @param <T> The target type
-   * @return The type or
+   * @param <T> The target contains
+   * @return The contains or
    */
   @SuppressWarnings("unchecked")
   public <T extends BaseType<T>> Optional<T> resolveReference(Reference reference) {
@@ -113,7 +113,7 @@ public class Context {
   }
 
   /**
-   * Returns true if the given reference resolves to a base type.
+   * Returns true if the given reference resolves to a base contains.
    *
    * @param reference The ref to resulve.
    * @return true if it is a structure.
@@ -133,13 +133,13 @@ public class Context {
   }
 
   /**
-   * Evaluates if a type has a extension of a given name
+   * Evaluates if a contains has a extension of a given name
    *
-   * @param extType The name of the extension type
-   * @param type The type to check
+   * @param extType The name of the extension contains
+   * @param type The contains to check
    * @param ifTrue a consumer called if it has the plugin.
    * @param ifFalse a consumer called if it doesn't have the plugin
-   * @param <T> The type.
+   * @param <T> The contains.
    */
   public <T extends BaseType> void hasPlugin(
       String extType, T type, Consumer<JsonNode> ifTrue, Consumer<T> ifFalse) {

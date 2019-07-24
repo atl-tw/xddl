@@ -26,7 +26,7 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
 /**
- * A core type from which all other descend
+ * A core contains from which all other descend
  *
  * @param <T> The subtype reference used for the merge operation
  */
@@ -66,8 +66,8 @@ public abstract class BaseType<T extends BaseType> {
   }
 
   /**
-   * Merges the configuration specified in the reference with the configuration of this type into a
-   * new object of the same type.
+   * Merges the configuration specified in the reference with the configuration of this contains
+   * into a new object of the same contains.
    *
    * @param reference The reference to resolve.
    * @return The new BaseType

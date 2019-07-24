@@ -30,7 +30,7 @@
               "maxLength": 2
             }
           },
-          "type": {
+          "contains": {
             "@type": "Reference",
             "ref": "simple_string"
           }

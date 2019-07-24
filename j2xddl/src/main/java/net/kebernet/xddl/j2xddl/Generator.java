@@ -169,7 +169,6 @@ class Generator {
   private BaseType resolveDataType(Field field) {
     Class<?> fieldType = field.getType();
     HashMap<String, JsonNode> ext = new HashMap<>();
-
     if (DATA_TYPES.containsKey(field.getType())) {
       return buildType(field, ext);
     } else if (Collection.class.isAssignableFrom(field.getType())) {
@@ -185,20 +184,15 @@ class Generator {
       ext.put("type", mapper.valueToTree(field.getType().getCanonicalName()));
     }
     HashMap<String, JsonNode> childExt = new HashMap<>();
-    if (INCLUDE_TYPE.contains(nested) || INCLUDE_TYPE.contains(DATA_TYPES.get(nested))) {
+    if (requiresJavaType(nested)) {
       childExt.put("type", mapper.valueToTree(nested.getCanonicalName()));
-    }
-
-    if (INCLUDE_TYPE.contains(field.getType())
-        || INCLUDE_TYPE.contains(DATA_TYPES.get(field.getType()))) {
-      ext.put("type", mapper.valueToTree(field.getType().getCanonicalName()));
     }
     return addSwaggerFields(
         field,
         net.kebernet.xddl.model.List.builder()
             .name(field.getName())
             .required(hasAnyOf(field, NotNull.class, NonNull.class) ? TRUE : null)
-            .type(
+            .contains(
                 DATA_TYPES.containsKey(nested)
                     ? Type.builder()
                         .core(DATA_TYPES.get(nested))
@@ -208,9 +202,13 @@ class Generator {
             .build());
   }
 
+  @SuppressWarnings("SuspiciousMethodCalls")
+  private boolean requiresJavaType(java.lang.reflect.Type type) {
+    return INCLUDE_TYPE.contains(type) || INCLUDE_TYPE.contains(DATA_TYPES.get(type));
+  }
+
   private BaseType buildType(Field field, HashMap<String, JsonNode> ext) {
-    if (INCLUDE_TYPE.contains(field.getType())
-        || INCLUDE_TYPE.contains(DATA_TYPES.get(field.getType()))) {
+    if (requiresJavaType(field.getType())) {
       ext.put("type", mapper.valueToTree(field.getType().getCanonicalName()));
     }
     //noinspection unchecked

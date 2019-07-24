@@ -15,6 +15,7 @@
  */
 package net.kebernet.xddl.model;
 
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -24,13 +25,14 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
+@JsonPropertyOrder({"name", "description", "contains"})
 public class List extends BaseType<List> {
-  BaseType type;
+  BaseType contains;
 
   @Override
   public List merge(Reference reference) {
     List newValue = ModelUtil.merge(new List(), this, reference);
-    newValue.setType(this.type);
+    newValue.setContains(this.contains);
     return newValue;
   }
 }

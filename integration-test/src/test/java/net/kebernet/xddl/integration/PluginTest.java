@@ -21,7 +21,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
+import java.util.Collections;
 import net.kebernet.xddl.Runner;
 import org.junit.Test;
 
@@ -53,7 +53,7 @@ public class PluginTest {
   public void jsonSchemaTestWithBuilder() throws IOException {
     Runner.builder()
         .outputDirectory(new File("build/test/schema-test-2/"))
-        .plugins(Arrays.asList("json"))
+        .plugins(Collections.singletonList("json"))
         .specificationFile(new File("src/test/resources/int-range.json"))
         .build()
         .run();
