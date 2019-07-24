@@ -16,6 +16,7 @@
 package net.kebernet.xddl.j2xddl;
 
 import com.beust.jcommander.Parameter;
+import java.io.File;
 import java.util.List;
 import lombok.Data;
 
@@ -27,4 +28,16 @@ public class Command {
       description = "Package name to import. May be provided multiple times",
       required = true)
   private List<String> packageNames;
+
+  @Parameter(
+      names = {"-o", "--output-file"},
+      description = "The output file path",
+      required = true)
+  private File outputFile;
+
+  @Parameter(
+      names = {"--help"},
+      description = "Help",
+      help = true)
+  private boolean help;
 }

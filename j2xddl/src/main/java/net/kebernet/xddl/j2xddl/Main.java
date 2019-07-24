@@ -15,16 +15,57 @@
  */
 package net.kebernet.xddl.j2xddl;
 
+import com.beust.jcommander.JCommander;
+import com.beust.jcommander.ParameterException;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Enumeration;
+import java.util.HashSet;
 import java.util.List;
 
 public class Main {
 
-  public static void main(String... args) {}
+  private final ObjectMapper mapper = new ObjectMapper();
+
+  {
+    mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+    mapper.enable(SerializationFeature.INDENT_OUTPUT);
+  }
+
+  public static void main(String... args) {
+    Command command = new Command();
+    JCommander jCommander;
+    try {
+      jCommander = JCommander.newBuilder().addObject(command).args(args).build();
+      if (command.isHelp()) {
+        jCommander.usage();
+        return;
+      }
+      new Main().run(command.getPackageNames(), command.getOutputFile());
+    } catch (ParameterException e) {
+      System.err.println(e.getMessage());
+      JCommander.newBuilder().addObject(command).build().usage();
+    } catch (Exception e) {
+      e.printStackTrace();
+      JCommander.newBuilder().addObject(command).build().usage();
+    }
+  }
+
+  public void run(List<String> packageNames, File outputFile)
+      throws IOException, ClassNotFoundException {
+    HashSet<Class> classes = new HashSet<>();
+    for (String s : packageNames) {
+      classes.addAll(Arrays.asList(getClasses(s)));
+    }
+    Generator generator = new Generator(mapper, classes);
+    mapper.writeValue(outputFile, generator.generate());
+  }
 
   private static Class[] getClasses(String packageName) throws ClassNotFoundException, IOException {
     ClassLoader classLoader = Thread.currentThread().getContextClassLoader();

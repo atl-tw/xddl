@@ -5,7 +5,7 @@ plugins {
 apply plugin: 'application'
 
 dependencies {
-    implementation project(":xddl-runner")
+    api project(":xddl-runner")
     implementation 'com.beust:jcommander:1.72'
     implementation 'org.hibernate:hibernate-validator:6.0.17.Final'
     implementation 'io.swagger.core.v3:swagger-annotations:2.0.1'
@@ -31,7 +31,6 @@ publishing {
 }
 
 if (project.hasProperty("kebernet_bintray")) {
-
     bintray {
         user = getProperty("kebernet_bintray")
         key = getProperty("kebernet_bintray_api")

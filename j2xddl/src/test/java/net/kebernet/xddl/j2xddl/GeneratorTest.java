@@ -25,6 +25,8 @@ import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
+import net.kebernet.xddl.j2xddl.test.ListTest;
+import net.kebernet.xddl.j2xddl.test.SimpleTest;
 import net.kebernet.xddl.model.BaseType;
 import net.kebernet.xddl.model.Specification;
 import net.kebernet.xddl.model.Structure;

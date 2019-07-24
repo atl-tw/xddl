@@ -26,7 +26,7 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
-@JsonPropertyOrder({"core", "examples", "allowable"})
+@JsonPropertyOrder({"name", "core", "desciption", "examples", "allowable"})
 public class Type extends BaseType<Type> {
 
   private CoreType core;

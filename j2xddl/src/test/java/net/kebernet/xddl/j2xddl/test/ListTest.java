@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.kebernet.xddl.j2xddl;
+package net.kebernet.xddl.j2xddl.test;
 
 import java.time.Instant;
 import java.util.List;
