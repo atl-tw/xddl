@@ -16,6 +16,7 @@
 package net.kebernet.xddl;
 
 import com.beust.jcommander.JCommander;
+import com.beust.jcommander.ParameterException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.File;
 import java.io.IOException;
@@ -29,6 +30,7 @@ import net.kebernet.xddl.plugins.Plugin;
 
 @Builder(access = AccessLevel.PUBLIC)
 public class Runner {
+  private static final String JAVA_COMMAND = "java -jar xddl-runner-all.jar";
   private File specificationFile;
   private File outputDirectory;
   private List<String> plugins;
@@ -49,6 +51,9 @@ public class Runner {
           .specificationFile(command.getInputFile())
           .build()
           .run();
+    } catch (ParameterException e) {
+      System.err.println(e.getMessage());
+      JCommander.newBuilder().addObject(command).build().usage();
     } catch (Exception e) {
       e.printStackTrace();
       JCommander.newBuilder().addObject(command).build().usage();

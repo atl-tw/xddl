@@ -1,3 +1,24 @@
+plugins {
+    id 'com.github.johnrengelman.shadow' version '5.1.0'
+}
+
+apply plugin: 'application'
+
 dependencies {
+    implementation 'com.beust:jcommander:1.72'
     implementation project(":xddl-runner")
 }
+
+
+application {
+    mainClassName = 'net.kebernet.xddl.j2xddl.Main'
+    startScripts.classpath += files('plugins/*')
+}
+
+import com.github.jengelman.gradle.plugins.shadow.tasks.ConfigureShadowRelocation
+
+task relocateShadowJar(type: ConfigureShadowRelocation) {
+    target = tasks.shadowJar
+}
+tasks.build.dependsOn tasks.shadowJar
+tasks.shadowJar.dependsOn tasks.relocateShadowJar
