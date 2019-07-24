@@ -131,7 +131,7 @@ public class JsonSchemaPlugin implements Plugin {
         .forEach(
             p -> {
               def.properties().put(p.getName(), this.visitBaseType(context, p));
-              if (p.isRequired()) {
+              if (Boolean.TRUE.equals(p.getRequired())) {
                 def.required().add(p.getName());
               }
             });

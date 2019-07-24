@@ -15,9 +15,10 @@
  */
 package net.kebernet.xddl.j2xddl;
 
-public class SimpleTest {
+import java.time.Instant;
+import java.util.List;
 
-  String field1;
-  int field2;
-  Boolean field3;
+public class ListTest {
+  List<Instant> field1;
+  List<ListTest> field2;
 }

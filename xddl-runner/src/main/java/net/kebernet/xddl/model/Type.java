@@ -15,6 +15,7 @@
  */
 package net.kebernet.xddl.model;
 
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import java.util.List;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -25,6 +26,7 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
+@JsonPropertyOrder({"core", "examples", "allowable"})
 public class Type extends BaseType<Type> {
 
   private CoreType core;

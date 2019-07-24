@@ -15,6 +15,7 @@
  */
 package net.kebernet.xddl.model;
 
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -39,6 +40,7 @@ import lombok.experimental.SuperBuilder;
   @JsonSubTypes.Type(value = Type.class, name = "Type"),
   @JsonSubTypes.Type(value = List.class, name = "List")
 })
+@JsonPropertyOrder({"name", "description", "required", "ext"})
 public abstract class BaseType<T extends BaseType> {
   private String name;
   private String description;
@@ -55,6 +57,12 @@ public abstract class BaseType<T extends BaseType> {
       this.ext = new HashMap<>();
     }
     return this.ext;
+  }
+
+  @SuppressWarnings("unchecked")
+  public <T extends BaseType> T putExt(String key, JsonNode node) {
+    if (node.fieldNames().hasNext()) this.ext().put(key, node);
+    return (T) this;
   }
 
   /**
