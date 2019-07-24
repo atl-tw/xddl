@@ -15,6 +15,7 @@
  */
 package net.kebernet.xddl.jsonschema;
 
+import static java.util.Optional.ofNullable;
 import static net.kebernet.xddl.model.ModelUtil.maybeSet;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -107,6 +108,12 @@ public class JsonSchemaPlugin implements Plugin {
 
   Schema createSchema(Context context) {
     final Schema schema = new Schema();
+
+    schema.setRef(
+        ofNullable(context.getSpecification().ext().get("json"))
+            .map(n -> n.get("ref"))
+            .map(JsonNode::asText)
+            .orElse(null));
     context.getSpecification().getStructures().forEach(s -> this.visit(context, s, schema));
     return schema;
   }

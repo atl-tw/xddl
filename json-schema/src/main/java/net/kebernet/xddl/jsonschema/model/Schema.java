@@ -16,6 +16,7 @@
 package net.kebernet.xddl.jsonschema.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.HashMap;
 import java.util.Map;
 import lombok.Data;
@@ -23,8 +24,12 @@ import lombok.Data;
 @Data
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class Schema {
+  @JsonProperty("$schema")
   private String schema = "http://json-schema.org/draft-07/schema#";
+
+  @JsonProperty("$ref")
   private String ref;
+
   private Map<String, Definition> definitions;
 
   public Map<String, Definition> definitions() {

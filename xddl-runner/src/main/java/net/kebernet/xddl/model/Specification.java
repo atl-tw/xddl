@@ -15,7 +15,10 @@
  */
 package net.kebernet.xddl.model;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import lombok.Data;
 
 @Data
@@ -23,4 +26,17 @@ public class Specification {
   private String description;
   private List<Type> types;
   private List<Structure> structures;
+  private Map<String, JsonNode> ext;
+
+  /**
+   * Returns the ext map, creating it if it is null
+   *
+   * @return a map of strings to json nodes.
+   */
+  public Map<String, JsonNode> ext() {
+    if (this.ext == null) {
+      this.ext = new HashMap<>();
+    }
+    return this.ext;
+  }
 }

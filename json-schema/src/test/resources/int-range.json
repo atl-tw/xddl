@@ -1,4 +1,9 @@
 {
+  "ext": {
+    "json":{
+      "ref": "#/definitions/HasRanges"
+    }
+  },
   "types": [
     {
       "@type": "Type",

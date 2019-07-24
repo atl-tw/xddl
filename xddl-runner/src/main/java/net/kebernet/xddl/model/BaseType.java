@@ -22,6 +22,11 @@ import java.util.HashMap;
 import java.util.Map;
 import lombok.Data;
 
+/**
+ * A core type from which all other descend
+ *
+ * @param <T> The subtype reference used for the merge operation
+ */
 @Data
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "@type")
 @JsonSubTypes({
@@ -36,6 +41,11 @@ public abstract class BaseType<T extends BaseType> {
   private Map<String, JsonNode> ext;
   private boolean required;
 
+  /**
+   * Returns the ext map, creating it if it is null
+   *
+   * @return a map of strings to json nodes.
+   */
   public Map<String, JsonNode> ext() {
     if (this.ext == null) {
       this.ext = new HashMap<>();
@@ -43,5 +53,12 @@ public abstract class BaseType<T extends BaseType> {
     return this.ext;
   }
 
+  /**
+   * Merges the configuration specified in the reference with the configuration of this type into a
+   * new object of the same type.
+   *
+   * @param reference The reference to resolve.
+   * @return The new BaseType
+   */
   public abstract T merge(Reference reference);
 }

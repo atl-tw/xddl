@@ -1,4 +1,9 @@
 {
+  "ext": {
+    "json":{
+      "ref": "#/definitions/Whatever"
+    }
+  },
   "types": [
     {
       "@type": "Type",

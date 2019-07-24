@@ -15,6 +15,7 @@
  */
 package net.kebernet.xddl.model;
 
+/** An enum of the core data types. */
 public enum CoreType {
   STRING,
   TEXT,
