@@ -33,6 +33,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.OffsetTime;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
@@ -50,6 +51,7 @@ import net.kebernet.xddl.model.Reference;
 import net.kebernet.xddl.model.Specification;
 import net.kebernet.xddl.model.Structure;
 import net.kebernet.xddl.model.Type;
+import net.kebernet.xddl.model.Value;
 
 class Generator {
 
@@ -101,18 +103,27 @@ class Generator {
 
   Specification generate() {
     Specification specification = new Specification();
-    specification.setStructures(classes.stream().map(this::doClass).collect(Collectors.toList()));
+    classes.forEach(c -> doClass(specification, c));
     return specification;
   }
 
-  private Structure doClass(Class clazz) {
-    return addSwaggerFields(
-        clazz,
-        Structure.builder()
-            .name(clazz.getSimpleName())
-            .properties(
-                listFields(clazz).stream().map(this::resolveDataType).collect(Collectors.toList()))
-            .build());
+  private void doClass(Specification specification, Class clazz) {
+    if (clazz.isEnum()) {
+      specification.types().add(buildEnum(clazz));
+    } else {
+      specification
+          .structures()
+          .add(
+              addSwaggerFields(
+                  clazz,
+                  Structure.builder()
+                      .name(clazz.getSimpleName())
+                      .properties(
+                          listFields(clazz).stream()
+                              .map(this::resolveDataType)
+                              .collect(Collectors.toList()))
+                      .build()));
+    }
   }
 
   private <T extends BaseType> T addSwaggerFields(AnnotatedElement element, T type) {
@@ -174,8 +185,34 @@ class Generator {
     } else if (Collection.class.isAssignableFrom(field.getType())) {
       return buildList(field, fieldType, ext);
     }
+    return buildReference(field);
+  }
 
-    return null;
+  /**
+   * TODO: We need to make sure we can support enums of non-string types at some point.
+   *
+   * @param
+   * @return
+   */
+  private Type buildEnum(Class type) {
+    return addSwaggerFields(
+        type,
+        Type.builder()
+            .core(CoreType.STRING)
+            .name(type.getSimpleName())
+            .allowable(
+                Arrays.stream(type.getEnumConstants())
+                    .map(String::valueOf)
+                    .map(s -> Value.builder().value(mapper.valueToTree(s)).build())
+                    .collect(Collectors.toList()))
+            .build());
+  }
+
+  private BaseType buildReference(Field field) {
+    Reference reference = new Reference();
+    reference.setName(field.getName());
+    reference.setRef(field.getType().getSimpleName());
+    return reference;
   }
 
   private BaseType buildList(Field field, Class<?> fieldType, HashMap<String, JsonNode> ext) {

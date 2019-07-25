@@ -74,6 +74,14 @@ abstract class Reflection {
     return classes;
   }
 
+  /**
+   * TODO We need to crawl through JARS and this isn't doing that. :/
+   *
+   * @param directory
+   * @param packageName
+   * @return
+   * @throws ClassNotFoundException
+   */
   static List<Class> findClasses(File directory, String packageName) throws ClassNotFoundException {
     List<Class> classes = new ArrayList<>();
     if (!directory.exists()) {
