@@ -30,7 +30,6 @@ import net.kebernet.xddl.plugins.Plugin;
 
 @Builder(access = AccessLevel.PUBLIC)
 public class Runner {
-  private static final String JAVA_COMMAND = "java -jar xddl-runner-all.jar";
   private File specificationFile;
   private File outputDirectory;
   private List<String> plugins;

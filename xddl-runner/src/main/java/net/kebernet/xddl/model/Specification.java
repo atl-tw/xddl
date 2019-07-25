@@ -16,6 +16,7 @@
 package net.kebernet.xddl.model;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -33,10 +34,24 @@ public class Specification {
    *
    * @return a map of strings to json nodes.
    */
-  public Map<String, JsonNode> ext() {
+  public synchronized Map<String, JsonNode> ext() {
     if (this.ext == null) {
       this.ext = new HashMap<>();
     }
     return this.ext;
+  }
+
+  public synchronized List<Structure> structures() {
+    if (this.structures == null) {
+      this.structures = new ArrayList<>();
+    }
+    return this.structures;
+  }
+
+  public synchronized List<Type> types() {
+    if (this.types == null) {
+      this.types = new ArrayList<>();
+    }
+    return this.types;
   }
 }

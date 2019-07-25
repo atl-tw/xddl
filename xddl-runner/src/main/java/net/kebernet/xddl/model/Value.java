@@ -15,11 +15,14 @@
  */
 package net.kebernet.xddl.model;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import lombok.Builder;
 import lombok.Data;
 
 @SuppressWarnings("WeakerAccess")
 @Data
+@Builder
 public class Value {
-  Object value;
+  JsonNode value;
   String description;
 }
