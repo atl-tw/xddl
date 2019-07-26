@@ -149,7 +149,7 @@ public class MarkdownPlugin implements Plugin {
   }
 
   private void generateListProperty(PrintWriter pw, int indentationLevel, List list) {
-    int indent = indentationLevel+1;
+    int indent = indentationLevel + 1;
     int subindent = indent + 1;
     if (list.getContains() instanceof Reference) {
       Reference ref = (Reference) list.getContains();
@@ -161,20 +161,23 @@ public class MarkdownPlugin implements Plugin {
               + "](#"
               + ref.getRef()
               + "))");
-      ifNotNullOrEmpty(ref.getDescription(),
-                s -> pw.println(bullet(subindent) + replaceLineBreaks(subindent + 1, s)));
       ifNotNullOrEmpty(
-                ref.getComment(),
-                s -> pw.println(bullet(subindent) + "```" + replaceLineBreaks(subindent + 4, s) + "```"));
+          ref.getDescription(),
+          s -> pw.println(bullet(subindent) + replaceLineBreaks(subindent + 1, s)));
+      ifNotNullOrEmpty(
+          ref.getComment(),
+          s -> pw.println(bullet(subindent) + "```" + replaceLineBreaks(subindent + 4, s) + "```"));
     } else {
-      pw.println(bullet(indent) + list.getName()+ " (List of...)");
+      pw.println(bullet(indent) + list.getName() + " (List of...)");
     }
     ifNotNullOrEmpty(
         list.getDescription(),
-        s -> pw.println(bullet(indentationLevel) + replaceLineBreaks(indentationLevel +1, s)));
+        s -> pw.println(bullet(indentationLevel) + replaceLineBreaks(indentationLevel + 1, s)));
     ifNotNullOrEmpty(
         list.getComment(),
-        s -> pw.println(bullet(indent) + "```" + replaceLineBreaks(indentationLevel+ 4, s) + "```"));
+        s ->
+            pw.println(
+                bullet(indent) + "```" + replaceLineBreaks(indentationLevel + 4, s) + "```"));
     isaType(list.getContains(), (t) -> generateType(pw, indent, t, false));
     isaStructure(list.getContains(), (sub) -> generateStructureProperty(pw, indent, sub));
     isaList(list.getContains(), (l) -> generateListProperty(pw, indent, l));
@@ -195,10 +198,10 @@ public class MarkdownPlugin implements Plugin {
         .getProperties()
         .forEach(
             p -> {
-              isaType(p, (t) -> generateType(pw, subindent +1, t, false));
-              isaReference(p, (r) -> generateReferenceProperty(pw, subindent+1, r));
-              isaStructure(p, (sub) -> generateStructureProperty(pw, subindent+1, sub));
-              isaList(p, (list) -> generateListProperty(pw, subindent+1, list));
+              isaType(p, (t) -> generateType(pw, subindent + 1, t, false));
+              isaReference(p, (r) -> generateReferenceProperty(pw, subindent + 1, r));
+              isaStructure(p, (sub) -> generateStructureProperty(pw, subindent + 1, sub));
+              isaList(p, (list) -> generateListProperty(pw, subindent + 1, list));
             });
   }
 
