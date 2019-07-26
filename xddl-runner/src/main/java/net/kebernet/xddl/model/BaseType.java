@@ -44,6 +44,7 @@ import lombok.experimental.SuperBuilder;
 public abstract class BaseType<T extends BaseType> {
   private String name;
   private String description;
+  private String comment;
   private Map<String, JsonNode> ext;
   private Boolean required;
 

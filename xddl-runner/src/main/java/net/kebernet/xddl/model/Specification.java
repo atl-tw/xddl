@@ -24,7 +24,10 @@ import lombok.Data;
 
 @Data
 public class Specification {
+  private String title;
   private String description;
+  private String comment;
+  private String version;
   private List<Type> types;
   private List<Structure> structures;
   private Map<String, JsonNode> ext;

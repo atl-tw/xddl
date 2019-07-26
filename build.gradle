@@ -58,6 +58,7 @@ subprojects {
     dependencies {
         api 'com.fasterxml.jackson.core:jackson-databind:2.9.9.1'
         implementation 'org.projectlombok:lombok:1.18.8'
+        implementation 'com.google.guava:guava:28.0-jre'
         annotationProcessor 'org.projectlombok:lombok:1.18.8'
         testImplementation 'com.google.truth:truth:1.0'
         testImplementation 'junit:junit:4.12'

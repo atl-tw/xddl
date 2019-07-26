@@ -59,4 +59,22 @@ public abstract class ModelUtil {
     newValue.setExt(ext);
     return newValue;
   }
+
+  public static <T extends BaseType> void isaType(T type, Consumer<Type> consumer) {
+    if (type instanceof Type) {
+      consumer.accept(((Type) type));
+    }
+  }
+
+  public static <T extends BaseType> void isaReference(T type, Consumer<Reference> consumer) {
+    if (type instanceof Reference) {
+      consumer.accept(((Reference) type));
+    }
+  }
+
+  public static <T extends BaseType> void isaStructure(T type, Consumer<Structure> consumer) {
+    if (type instanceof Structure) {
+      consumer.accept(((Structure) type));
+    }
+  }
 }

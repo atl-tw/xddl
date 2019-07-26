@@ -15,15 +15,24 @@
  */
 package net.kebernet.xddl.model;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import lombok.Builder;
-import lombok.Data;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.function.Consumer;
 
-@SuppressWarnings("WeakerAccess")
-@Data
-@Builder
-public class Value {
-  private JsonNode value;
-  private String description;
-  private String comment;
+public abstract class XDDLCollections {
+  private XDDLCollections() {}
+
+  public static <T> Collection<T> neverNull(Collection<T> value) {
+    if (value == null || value.isEmpty()) {
+      return Collections.emptyList();
+    } else {
+      return value;
+    }
+  }
+
+  public static <T> void ifNotNullOrEmpty(Collection<T> value, Consumer<Collection<T>> consumer) {
+    if (!neverNull(value).isEmpty()) {
+      consumer.accept(value);
+    }
+  }
 }
