@@ -1,10 +1,9 @@
 package net.kebernet.xddl.markdown;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import java.io.File;
 import java.io.IOException;
-
-import com.fasterxml.jackson.databind.SerializationFeature;
 import net.kebernet.xddl.model.Specification;
 import net.kebernet.xddl.plugins.Context;
 import org.junit.Test;

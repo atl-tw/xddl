@@ -52,7 +52,6 @@ public class MarkdownPlugin implements Plugin {
 
     File outputFile = new File(outputDirectory, filename);
     try (PrintWriter pw = new PrintWriter(new FileWriter(outputFile, false))) {
-
       generateStructures(pw, context.getSpecification());
       pw.println();
       pw.println();
@@ -131,10 +130,9 @@ public class MarkdownPlugin implements Plugin {
 
   private void generateType(PrintWriter pw, int indentationLevel, Type type) {
     int indent = indentationLevel + 1;
-    pw.println(bullet(indent) + type.getName());
+    pw.println(bullet(indent) + type.getName() + " (" + type.getCore() + ")");
     int subindent = indent + 1;
     ifNotNullOrEmpty(type.getDescription(), s -> pw.println(bullet(subindent) + s));
-    pw.println(bullet(subindent) + "core type: " + type.getCore());
     ifNotNullOrEmpty(type.getComment(), s -> pw.println(bullet(subindent) + "```" + s + "```"));
     ifNotNullOrEmpty(
         type.getExamples(),
@@ -148,10 +146,10 @@ public class MarkdownPlugin implements Plugin {
     ifNotNullOrEmpty(
         type.getExt(),
         ext -> {
-            pw.println(bullet(subindent) + "Extensions:");
-            pw.println("```json");
-            pw.println(writeValueAsString(ext));
-            pw.println("```");
+          pw.println(bullet(subindent) + "Extensions:");
+          pw.println("```json");
+          pw.println(writeValueAsString(ext));
+          pw.println("```");
         });
   }
 
