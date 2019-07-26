@@ -17,7 +17,9 @@ package net.kebernet.xddl;
 
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.ParameterException;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
@@ -33,7 +35,6 @@ public class Runner {
   private File specificationFile;
   private File outputDirectory;
   private List<String> plugins;
-  @Builder.Default private ObjectMapper mapper = new ObjectMapper();
 
   public static void main(String... args) {
     Command command = new Command();
@@ -60,7 +61,10 @@ public class Runner {
   }
 
   public void run() throws IOException {
-    Specification spec = this.mapper.readValue(specificationFile, Specification.class);
+    ObjectMapper mapper = new ObjectMapper();
+    mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+    mapper.enable(SerializationFeature.INDENT_OUTPUT);
+    Specification spec = mapper.readValue(specificationFile, Specification.class);
     Context context = new Context(mapper, spec);
     ServiceLoader<Plugin> implementations = ServiceLoader.load(Plugin.class);
     for (Plugin plugin : implementations) {
