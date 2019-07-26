@@ -32,8 +32,9 @@
   "structures": [
     {
       "@type": "Structure",
-      "name": "currency",
+      "name": "Currency",
       "description": "An expression of a currency value.",
+      "comment": "This is my comment.",
       "properties": [
         {
           "@type": "Type",

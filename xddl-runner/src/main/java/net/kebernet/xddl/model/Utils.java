@@ -15,12 +15,15 @@
  */
 package net.kebernet.xddl.model;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.google.common.base.Strings;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Map;
 import java.util.function.Consumer;
 
-public abstract class XDDLCollections {
-  private XDDLCollections() {}
+public abstract class Utils {
+  private Utils() {}
 
   public static <T> Collection<T> neverNull(Collection<T> value) {
     if (value == null || value.isEmpty()) {
@@ -33,6 +36,19 @@ public abstract class XDDLCollections {
   public static <T> void ifNotNullOrEmpty(Collection<T> value, Consumer<Collection<T>> consumer) {
     if (!neverNull(value).isEmpty()) {
       consumer.accept(value);
+    }
+  }
+
+  public static void ifNotNullOrEmpty(String s, Consumer<String> consumer) {
+    if (!Strings.isNullOrEmpty(s)) {
+      consumer.accept(s);
+    }
+  }
+
+  public static void ifNotNullOrEmpty(
+      Map<String, JsonNode> node, Consumer<Map<String, JsonNode>> consumer) {
+    if (node != null && !node.isEmpty()) {
+      consumer.accept(node);
     }
   }
 }

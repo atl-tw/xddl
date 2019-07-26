@@ -17,16 +17,16 @@ package net.kebernet.xddl.markdown;
 
 import static java.util.Optional.ofNullable;
 import static net.kebernet.xddl.model.ModelUtil.*;
-import static net.kebernet.xddl.model.XDDLCollections.ifNotNullOrEmpty;
+import static net.kebernet.xddl.model.Utils.ifNotNullOrEmpty;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import net.kebernet.xddl.model.List;
 import net.kebernet.xddl.model.Reference;
 import net.kebernet.xddl.model.Specification;
 import net.kebernet.xddl.model.Structure;
@@ -52,6 +52,7 @@ public class MarkdownPlugin implements Plugin {
 
     File outputFile = new File(outputDirectory, filename);
     try (PrintWriter pw = new PrintWriter(new FileWriter(outputFile, false))) {
+
       generateStructures(pw, context.getSpecification());
       pw.println();
       pw.println();
@@ -76,17 +77,18 @@ public class MarkdownPlugin implements Plugin {
 
   private void generateStructures(PrintWriter pw, Specification specification) {
     pw.println("Structures");
-    pw.println("==========");
+    pw.println("----------");
     pw.println();
     specification
         .structures()
         .forEach(
             s -> {
-              pw.print("###");
+              pw.print("### ");
               pw.print(s.getName());
               pw.println();
               pw.println(s.getDescription());
               pw.println();
+              ifNotNullOrEmpty(s.getComment(), c -> pw.println("\n```" + c + "```"));
               pw.println("#### Properties");
               pw.println();
               s.getProperties()
@@ -101,25 +103,55 @@ public class MarkdownPlugin implements Plugin {
 
   private void generateStructure(PrintWriter pw, int i, Structure s) {}
 
-  private void generateReference(PrintWriter pw, int indentationLevel, Reference r) {}
+  private void generateReference(PrintWriter pw, int indentationLevel, Reference ref) {
+    int indent = indentationLevel + 1;
+    int subindent = indent + 1;
+    context
+        .resolveReference(ref)
+        .ifPresent(
+            type -> {
+              String typeLabel =
+                  type instanceof Structure
+                      ? "Structure"
+                      : type instanceof List ? "List" : ((Type) type).getCore().toString();
+              pw.println(
+                  bullet(indent)
+                      + "["
+                      + ref.getName()
+                      + " ("
+                      + ref.getRef()
+                      + ")](#"
+                      + ref.getRef()
+                      + ")");
+              ifNotNullOrEmpty(ref.getDescription(), s -> pw.println(bullet(subindent) + s));
+              ifNotNullOrEmpty(
+                  ref.getComment(), s -> pw.println(bullet(subindent) + "```" + s + "```"));
+            });
+  }
 
   private void generateType(PrintWriter pw, int indentationLevel, Type type) {
     int indent = indentationLevel + 1;
     pw.println(bullet(indent) + type.getName());
-    indent++;
-    pw.println(bullet(indent) + type.getDescription());
-    pw.println(bullet(indent) + "Core Type: " + type.getCore());
-    pw.println(bullet(indent) + "```" + type.getComment() + "```");
-    int finalIndent = indent;
+    int subindent = indent + 1;
+    ifNotNullOrEmpty(type.getDescription(), s -> pw.println(bullet(subindent) + s));
+    pw.println(bullet(subindent) + "core type: " + type.getCore());
+    ifNotNullOrEmpty(type.getComment(), s -> pw.println(bullet(subindent) + "```" + s + "```"));
     ifNotNullOrEmpty(
         type.getExamples(),
         ex -> {
-          pw.println(bullet(finalIndent) + "Examples:");
+          pw.println(bullet(subindent) + "Examples:");
           ex.forEach(
-              v -> {
-                pw.println(
-                    bullet(finalIndent) + code(finalIndent + 2, writeValueAsString(v.getValue())));
-              });
+              v ->
+                  pw.println(
+                      bullet(subindent) + code(subindent + 2, writeValueAsString(v.getValue()))));
+        });
+    ifNotNullOrEmpty(
+        type.getExt(),
+        ext -> {
+            pw.println(bullet(subindent) + "Extensions:");
+            pw.println("```json");
+            pw.println(writeValueAsString(ext));
+            pw.println("```");
         });
   }
 
@@ -127,7 +159,7 @@ public class MarkdownPlugin implements Plugin {
     return indent(indent) + "'''\n" + indent(indent, value) + "\n" + indent(indent) + "'''\n";
   }
 
-  private String writeValueAsString(JsonNode value) {
+  private String writeValueAsString(Object value) {
     try {
       return context.getMapper().writeValueAsString(value);
     } catch (JsonProcessingException e) {
