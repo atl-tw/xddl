@@ -19,6 +19,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.base.Strings;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.function.Consumer;
 
@@ -50,5 +51,14 @@ public abstract class Utils {
     if (node != null && !node.isEmpty()) {
       consumer.accept(node);
     }
+  }
+
+  public static <T> Iterable<T> asIterable(Iterator<T> iterator) {
+    return new Iterable<T>() {
+      @Override
+      public Iterator<T> iterator() {
+        return iterator;
+      }
+    };
   }
 }

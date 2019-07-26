@@ -66,6 +66,12 @@ public abstract class ModelUtil {
     }
   }
 
+  public static <T extends BaseType> void isaList(T type, Consumer<List> consumer) {
+    if (type instanceof List) {
+      consumer.accept(((List) type));
+    }
+  }
+
   public static <T extends BaseType> void isaReference(T type, Consumer<Reference> consumer) {
     if (type instanceof Reference) {
       consumer.accept(((Reference) type));
