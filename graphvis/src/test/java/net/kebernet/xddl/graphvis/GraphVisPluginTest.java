@@ -48,7 +48,7 @@ public class GraphVisPluginTest {
     mapper.enable(SerializationFeature.INDENT_OUTPUT);
     Specification spec =
         mapper.readValue(
-            GraphVisPlugin.class.getResourceAsStream("/package.json"), Specification.class);
+            GraphVisPlugin.class.getResourceAsStream("/ingestion-schema.json"), Specification.class);
     Context ctx = new Context(mapper, spec);
     File basicDir = new File("build/test/basic");
     basicDir.mkdirs();

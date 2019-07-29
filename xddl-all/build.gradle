@@ -27,12 +27,11 @@ publishing {
 }
 
 if (project.hasProperty("kebernet_bintray")) {
-
     bintray {
         user = getProperty("kebernet_bintray")
         key = getProperty("kebernet_bintray_api")
         pkg {
-            publications += 'dist'
+            publications = ['dist']
         }
     }
 }
