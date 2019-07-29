@@ -4,6 +4,7 @@ dependencies {
     api project(':xddl-runner')
     api project(':markdown')
     api project(':json-schema')
+    api project(':graphvis')
 }
 
 application {

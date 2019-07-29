@@ -114,7 +114,7 @@ public class JsonSchemaPlugin implements Plugin {
         ofNullable(context.getSpecification().ext().get("json"))
             .map(n -> n.get("ref"))
             .map(JsonNode::asText)
-            .orElse(null));
+            .orElse("#/definitions/" + context.getSpecification().getEntryRef()));
     context.getSpecification().getStructures().forEach(s -> this.visit(context, s, schema));
     return schema;
   }

@@ -28,6 +28,7 @@ public class Specification {
   private String description;
   private String comment;
   private String version;
+  private String entryRef;
   private List<Type> types;
   private List<Structure> structures;
   private Map<String, JsonNode> ext;

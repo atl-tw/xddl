@@ -203,7 +203,7 @@ class Generator {
             .allowable(
                 Arrays.stream(type.getEnumConstants())
                     .map(String::valueOf)
-                    .map(s -> Value.builder().value(mapper.valueToTree(s)).build())
+                    .map(s -> new Value(mapper.valueToTree(s), null, null))
                     .collect(Collectors.toList()))
             .build());
   }
