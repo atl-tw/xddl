@@ -4,4 +4,5 @@ include 'json-schema'
 include 'integration-test'
 include 'j2xddl'
 include 'markdown'
+include 'xddl-all'
 

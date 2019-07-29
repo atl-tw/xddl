@@ -162,22 +162,17 @@ public class MarkdownPlugin implements Plugin {
               + ref.getRef()
               + "))");
       ifNotNullOrEmpty(
-          ref.getDescription(),
-          s -> pw.println(bullet(subindent) + replaceLineBreaks(subindent + 1, s)));
+          ref.getDescription(), s -> pw.println(bullet(subindent) + replaceLineBreaks(s)));
       ifNotNullOrEmpty(
           ref.getComment(),
-          s -> pw.println(bullet(subindent) + "```" + replaceLineBreaks(subindent + 4, s) + "```"));
+          s -> pw.println(bullet(subindent) + "```" + replaceLineBreaks(s) + "```"));
     } else {
       pw.println(bullet(indent) + list.getName() + " (List of...)");
     }
     ifNotNullOrEmpty(
-        list.getDescription(),
-        s -> pw.println(bullet(indentationLevel) + replaceLineBreaks(indentationLevel + 1, s)));
+        list.getDescription(), s -> pw.println(bullet(indentationLevel) + replaceLineBreaks(s)));
     ifNotNullOrEmpty(
-        list.getComment(),
-        s ->
-            pw.println(
-                bullet(indent) + "```" + replaceLineBreaks(indentationLevel + 4, s) + "```"));
+        list.getComment(), s -> pw.println(bullet(indent) + "```" + replaceLineBreaks(s) + "```"));
     isaType(list.getContains(), (t) -> generateType(pw, indent, t, false));
     isaStructure(list.getContains(), (sub) -> generateStructureProperty(pw, indent, sub));
     isaList(list.getContains(), (l) -> generateListProperty(pw, indent, l));
@@ -188,11 +183,8 @@ public class MarkdownPlugin implements Plugin {
     pw.println(bullet(indent) + struct.getName() + " (Structure)");
     int subindent = indent + 1;
     ifNotNullOrEmpty(
-        struct.getDescription(),
-        s -> pw.println(bullet(subindent) + replaceLineBreaks(subindent + 1, s)));
-    ifNotNullOrEmpty(
-        struct.getComment(),
-        s -> pw.println(bullet(subindent) + "```" + replaceLineBreaks(subindent + 4, s) + "```"));
+        struct.getDescription(), s -> pw.println(bullet(subindent) + replaceLineBreaks(s)));
+    ifNotNullOrEmpty(struct.getComment(), s -> pw.println(bullet(subindent) + "``\n" + s + "``"));
     pw.println(bullet(subindent) + " properties");
     struct
         .getProperties()
@@ -205,7 +197,6 @@ public class MarkdownPlugin implements Plugin {
             });
   }
 
-  @SuppressWarnings("SpellCheckingInspection")
   private void generateReferenceProperty(PrintWriter pw, int indentationLevel, Reference ref) {
     int indent = indentationLevel + 1;
     int subindent = indent + 1;
@@ -213,10 +204,6 @@ public class MarkdownPlugin implements Plugin {
         .resolveReference(ref)
         .ifPresent(
             type -> {
-              String typeLabel =
-                  type instanceof Structure
-                      ? "Structure"
-                      : type instanceof List ? "List" : ((Type) type).getCore().toString();
               pw.println(
                   bullet(indent)
                       + ref.getName()
@@ -227,17 +214,14 @@ public class MarkdownPlugin implements Plugin {
                       + ref.getRef()
                       + "))");
               ifNotNullOrEmpty(
-                  ref.getDescription(),
-                  s -> pw.println(bullet(subindent) + replaceLineBreaks(subindent + 1, s)));
+                  ref.getDescription(), s -> pw.println(bullet(subindent) + replaceLineBreaks(s)));
               ifNotNullOrEmpty(
                   ref.getComment(),
-                  s ->
-                      pw.println(
-                          bullet(subindent) + "```" + replaceLineBreaks(subindent + 4, s) + "```"));
+                  s -> pw.println(bullet(subindent) + "```" + replaceLineBreaks(s) + "```"));
             });
   }
 
-  private String replaceLineBreaks(int indentationLevel, String text) {
+  private String replaceLineBreaks(String text) {
     return Joiner.on("<br>").join(Splitter.on("\n").split(text));
   }
 
@@ -252,11 +236,8 @@ public class MarkdownPlugin implements Plugin {
     }
     int subindent = indent + 1;
     ifNotNullOrEmpty(
-        type.getDescription(),
-        s -> pw.println(bullet(subindent) + replaceLineBreaks(subindent + 1, s)));
-    ifNotNullOrEmpty(
-        type.getComment(),
-        s -> pw.println(bullet(subindent) + "```" + replaceLineBreaks(subindent + 4, s) + "```"));
+        type.getDescription(), s -> pw.println(bullet(subindent) + replaceLineBreaks(s)));
+    ifNotNullOrEmpty(type.getComment(), s -> pw.println(bullet(subindent) + "``" + s + "``"));
     ifNotNullOrEmpty(
         type.getExamples(),
         ex -> {

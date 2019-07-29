@@ -86,6 +86,23 @@
           "core": "INTEGER"
         },
         {
+          "@type": "Structure",
+          "name": "spouse",
+          "description": "this is the grandchild\nwith a line break",
+          "properties": [
+            {
+              "@type": "Type",
+              "name": "givenName",
+              "core": "STRING"
+            },
+            {
+              "@type": "Type",
+              "name": "surname",
+              "core": "STRING"
+            }
+          ]
+        },
+        {
           "@type": "List",
           "name": "children",
           "contains": {
@@ -126,6 +143,12 @@
                     "@type": "Type",
                     "name": "surname",
                     "core": "STRING"
+                  },
+                  {
+                    "@type": "Reference",
+                    "name": "christmas",
+                    "comment": "Do I really like this child?",
+                    "ref": "Currency"
                   }
                 ]
               }
