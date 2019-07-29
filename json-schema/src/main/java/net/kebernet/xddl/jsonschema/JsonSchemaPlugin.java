@@ -169,6 +169,7 @@ public class JsonSchemaPlugin implements Plugin {
     if (context.pointsToStructure(reference)) {
       Definition def = new Definition();
       def.setRef("#/definitions/" + reference.getRef());
+      return def;
     } else if (context.pointsToType(reference)) {
       //noinspection OptionalGetWithoutIsPresent
       return doType(context, (Type) context.resolveReference(reference).get());
