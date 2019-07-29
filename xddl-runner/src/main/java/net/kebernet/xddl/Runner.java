@@ -56,7 +56,7 @@ public class Runner {
           .specificationFile(command.getInputFile())
           .build()
           .run();
-    } catch (ParameterException e) {
+    } catch (IllegalStateException|ParameterException e) {
       System.err.println(e.getMessage());
       JCommander.newBuilder().addObject(command).build().usage();
     } catch (Exception e) {
