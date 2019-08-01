@@ -159,10 +159,21 @@ can use to generate their specific code.
 
 The ``json-schema`` module is a basic example of a code generator based on the ``json`` extension type.
 
+Download
+--------
+
+Distributions are available at [bintray](https://bintray.com/kebernet/maven/xddl). The simplest
+version is the "xddl" distribution zip that contains an executable packaged with the plugins.
+
+
+
 Execution
 ---------
+
+You can run ``xddl.bat`` or ``xddl`` depending on your OS.
+
 ```
-Usage: net.kebernet.xddl.Runner [options]
+Usage: <main class> [options]
   Options:
   * --format, -f
       The output plugin to generate
@@ -174,6 +185,14 @@ Usage: net.kebernet.xddl.Runner [options]
       The directory to output generated artifacts to.
 
 ```
+
+Format plugins available are:
+
+ * json (JSON Schema)
+ * graphvis (A ``dot`` file and a ``png`` file of your structure relationships)
+ * markdown (An ``md`` file and an ``html`` file of your documentation)
+ * elasticsearch (A ``mappings.json`` file with an elastic search index definition)
+ 
 
 Build
 -----
