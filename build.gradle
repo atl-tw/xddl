@@ -14,7 +14,7 @@ plugins {
 }
 
 group 'net.kebernet'
-version '0.0.5'
+version '0.0.6'
 
 if(project.hasProperty("kebernet_bintray")) {
     bintray {

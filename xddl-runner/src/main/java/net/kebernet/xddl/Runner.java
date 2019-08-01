@@ -20,15 +20,13 @@ import com.beust.jcommander.ParameterException;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import com.google.common.collect.Streams;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.ServiceLoader;
 import java.util.Set;
-import java.util.Spliterators;
 import java.util.stream.Collectors;
-
-import com.google.common.collect.Streams;
 import lombok.AccessLevel;
 import lombok.Builder;
 import net.kebernet.xddl.model.Specification;
@@ -56,7 +54,7 @@ public class Runner {
           .specificationFile(command.getInputFile())
           .build()
           .run();
-    } catch (IllegalStateException|ParameterException e) {
+    } catch (IllegalStateException | ParameterException e) {
       System.err.println(e.getMessage());
       JCommander.newBuilder().addObject(command).build().usage();
     } catch (Exception e) {
@@ -72,10 +70,11 @@ public class Runner {
     Specification spec = mapper.readValue(specificationFile, Specification.class);
     Context context = new Context(mapper, spec);
     ServiceLoader<Plugin> implementations = ServiceLoader.load(Plugin.class);
-    Set<String> known = Streams.stream(implementations).map(Plugin::getName).collect(Collectors.toSet());
-    for(String name : plugins){
-      if(!known.contains(name)){
-        throw context.stateException("Unknown plugin: "+name+" known plugins: "+known, null);
+    Set<String> known =
+        Streams.stream(implementations).map(Plugin::getName).collect(Collectors.toSet());
+    for (String name : plugins) {
+      if (!known.contains(name)) {
+        throw context.stateException("Unknown plugin: " + name + " known plugins: " + known, null);
       }
     }
     for (Plugin plugin : implementations) {

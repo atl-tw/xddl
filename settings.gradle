@@ -6,4 +6,5 @@ include 'j2xddl'
 include 'markdown'
 include 'xddl-all'
 include 'graphvis'
+include 'elasticsearch'
 

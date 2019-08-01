@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.kebernet.xddl.graphvis;
+package net.kebernet.xddl.elasticsearch;
 
 import static org.junit.Assert.*;
 
@@ -25,16 +25,17 @@ import net.kebernet.xddl.model.Specification;
 import net.kebernet.xddl.plugins.Context;
 import org.junit.Test;
 
-public class GraphVisPluginTest {
+public class ElasticSearchPluginTest {
 
-  @Test
+  @Test(expected = IllegalStateException.class)
   public void test() throws IOException {
-    GraphVisPlugin instance = new GraphVisPlugin();
+    ElasticSearchPlugin instance = new ElasticSearchPlugin();
     ObjectMapper mapper = new ObjectMapper();
     mapper.enable(SerializationFeature.INDENT_OUTPUT);
     Specification spec =
         mapper.readValue(
-            GraphVisPlugin.class.getResourceAsStream("/List.xddl.json"), Specification.class);
+            ElasticSearchPluginTest.class.getResourceAsStream("/List.xddl.json"),
+            Specification.class);
     Context ctx = new Context(mapper, spec);
     File basicDir = new File("build/test/basic");
     basicDir.mkdirs();
@@ -43,12 +44,13 @@ public class GraphVisPluginTest {
 
   @Test
   public void testPackage() throws IOException {
-    GraphVisPlugin instance = new GraphVisPlugin();
+    ElasticSearchPlugin instance = new ElasticSearchPlugin();
     ObjectMapper mapper = new ObjectMapper();
     mapper.enable(SerializationFeature.INDENT_OUTPUT);
     Specification spec =
         mapper.readValue(
-            GraphVisPlugin.class.getResourceAsStream("/package.json"), Specification.class);
+            ElasticSearchPluginTest.class.getResourceAsStream("/package.xddl.json"),
+            Specification.class);
     Context ctx = new Context(mapper, spec);
     File basicDir = new File("build/test/basic");
     basicDir.mkdirs();

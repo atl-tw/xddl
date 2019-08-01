@@ -94,10 +94,14 @@ public class GraphVisPlugin implements Plugin {
             .map(
                 p ->
                     p instanceof Reference
-                        ? context.resolveReference((Reference) p).map(r->{
-                          r.setName(((Reference) p).getRef());
-                          return r;
-                    }).orElse(null)
+                        ? context
+                            .resolveReference((Reference) p)
+                            .map(
+                                r -> {
+                                  r.setName(((Reference) p).getRef());
+                                  return r;
+                                })
+                            .orElse(null)
                         : p)
             .filter(p -> p instanceof Structure)
             .map(p -> (Structure) p)
