@@ -1,5 +1,5 @@
 rootProject.name = 'xDDL'
-include 'xddl-runner'
+include 'xddl-core'
 include 'json-schema'
 include 'integration-test'
 include 'j2xddl'

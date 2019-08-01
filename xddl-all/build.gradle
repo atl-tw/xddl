@@ -1,7 +1,7 @@
 apply plugin: 'application'
 
 dependencies {
-    api project(':xddl-runner')
+    api project(':xddl-core')
     api project(':markdown')
     api project(':json-schema')
     api project(':graphvis')

@@ -1,4 +1,4 @@
 dependencies {
-    api project(":xddl-runner")
+    api project(":xddl-core")
     compile 'guru.nidi:graphviz-java:0.8.10'
 }
