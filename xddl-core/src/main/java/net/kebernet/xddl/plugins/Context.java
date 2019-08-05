@@ -43,14 +43,11 @@ public class Context {
   public Context(ObjectMapper mapper, Specification specification) {
     this.mapper = mapper;
     this.specification = specification;
-    ofNullable(specification.getTypes())
-        .orElseGet(Collections::emptyList)
+    specification.types()
         .forEach(this::checkAndInsert);
-    ofNullable(specification.getStructures())
-        .orElseGet(Collections::emptyList)
+    specification.structures()
         .forEach(this::checkAndInsert);
-    ofNullable(specification.getStructures())
-        .orElseGet(Collections::emptyList)
+    specification.structures()
         .forEach(this::validateReferences);
   }
 

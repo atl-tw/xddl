@@ -179,10 +179,15 @@ Usage: <main class> [options]
       The output plugin to generate
     --help
       Show this help text
+    --include-dir, -d
+      Directory(ies) to scan for *.xddl.json files to include.
   * --input-file, -i
       The specification file.
   * --output-directory, -o
       The directory to output generated artifacts to.
+    --stacktrace
+      Show the stacktrace of an error
+      Default: false
 
 ```
 
@@ -192,6 +197,7 @@ Format plugins available are:
  * graphvis (A ``dot`` file and a ``png`` file of your structure relationships)
  * markdown (An ``md`` file and an ``html`` file of your documentation)
  * elasticsearch (A ``mappings.json`` file with an elastic search index definition)
+ 
  
 
 Build

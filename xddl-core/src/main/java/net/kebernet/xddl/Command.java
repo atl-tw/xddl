@@ -30,6 +30,11 @@ public class Command {
   private File inputFile;
 
   @Parameter(
+          names = {"--include-dir", "-d"},
+          description = "Directory(ies) to scan for *.xddl.json files to include.")
+  private List<File> includes;
+
+  @Parameter(
       names = {"--output-directory", "-o"},
       description = "The directory to output generated artifacts to.",
       required = true)
@@ -43,4 +48,8 @@ public class Command {
 
   @Parameter(names = "--help", description = "Show this help text", help = true)
   private boolean help = false;
+
+  @Parameter(names = "--stacktrace", description = "Show the stacktrace of an error")
+  private boolean stacktrace = false;
+
 }
