@@ -31,7 +31,6 @@ import java.io.IOException;
 import java.util.HashSet;
 import javax.lang.model.element.Modifier;
 import net.kebernet.xddl.model.BaseType;
-import net.kebernet.xddl.model.CoreType;
 import net.kebernet.xddl.model.Reference;
 import net.kebernet.xddl.model.Structure;
 import net.kebernet.xddl.model.Type;
@@ -123,10 +122,6 @@ public class StructureClass {
   }
 
   private FieldSpec doEnum(BaseType baseType, Type type) {
-    if (type.getCore() != CoreType.STRING) {
-      throw ctx.stateException(
-          "Enum types are only supported for STRING core types right now", baseType);
-    }
     Reference ref = null;
     if (baseType instanceof Reference) {
       ref = (Reference) baseType;
@@ -136,7 +131,11 @@ public class StructureClass {
           .filter(set -> set.equals(new HashSet<>(type.getAllowable())))
           .isPresent()) {
         // the type is a reference and the allowables came from the reference.
-        return doReferenceTo(type, ref.getName());
+        //noinspection OptionalGetWithoutIsPresent
+        return doReferenceTo(
+            type,
+            CaseFormat.LOWER_UNDERSCORE.to(
+                CaseFormat.UPPER_CAMEL, ctx.findType(ref.getRef()).get().getName()));
       }
     }
     // the type is a reference, but the allowable list is local, so we need to generate it

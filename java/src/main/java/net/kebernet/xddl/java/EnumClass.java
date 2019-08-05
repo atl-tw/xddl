@@ -18,9 +18,14 @@ package net.kebernet.xddl.java;
 import static net.kebernet.xddl.model.Utils.ifNotNullOrEmpty;
 
 import com.google.common.base.CaseFormat;
+import com.squareup.javapoet.JavaFile;
 import com.squareup.javapoet.TypeSpec;
+import java.io.File;
+import java.io.IOException;
 import java.io.Serializable;
+import javax.lang.model.element.Modifier;
 import net.kebernet.xddl.model.BaseType;
+import net.kebernet.xddl.model.CoreType;
 import net.kebernet.xddl.model.Type;
 import net.kebernet.xddl.plugins.Context;
 
@@ -28,11 +33,18 @@ public class EnumClass {
   private final Context ctx;
   private final BaseType base;
   private final Type resolved;
+  private final String packageName;
 
   public EnumClass(Context ctx, BaseType base, Type resolved) {
     this.ctx = ctx;
     this.base = base;
     this.resolved = resolved;
+    this.packageName = Resolver.resolvePackageName(ctx);
+    if (resolved.getCore() != CoreType.STRING) {
+      throw ctx.stateException(
+          "Enum types are only supported for STRING core types right now",
+          base != null ? base : resolved);
+    }
   }
 
   TypeSpec.Builder builder() {
@@ -41,7 +53,18 @@ public class EnumClass {
             ? CaseFormat.LOWER_UNDERSCORE.to(CaseFormat.UPPER_CAMEL, base.getName())
             : CaseFormat.LOWER_CAMEL.to(CaseFormat.UPPER_CAMEL, resolved.getName()) + "Type";
     TypeSpec.Builder builder = TypeSpec.enumBuilder(name).addSuperinterface(Serializable.class);
-    resolved.getAllowable().forEach(v -> builder.addEnumConstant(v.getValue().asText()));
+    resolved
+        .getAllowable()
+        .forEach(
+            v -> {
+              TypeSpec.Builder valueBuilder =
+                  TypeSpec.anonymousClassBuilder(""); // TODO multivariant enums here.
+              ifNotNullOrEmpty(v.getDescription(), (s) -> valueBuilder.addJavadoc(s + "\n"));
+              ifNotNullOrEmpty(
+                  v.getComment(), (s) -> valueBuilder.addJavadoc("Comment: " + s + "\n"));
+
+              builder.addEnumConstant(v.getValue().asText(), valueBuilder.build());
+            });
     if (base != null) {
       ifNotNullOrEmpty(base.getDescription(), s -> builder.addJavadoc(s + "\n"));
       ifNotNullOrEmpty(base.getComment(), s -> builder.addJavadoc("Comment: " + s + "\n"));
@@ -50,5 +73,11 @@ public class EnumClass {
       ifNotNullOrEmpty(resolved.getComment(), s -> builder.addJavadoc("Comment: " + s + "\n"));
     }
     return builder;
+  }
+
+  public void write(File directory) throws IOException {
+    JavaFile file =
+        JavaFile.builder(packageName, builder().addModifiers(Modifier.PUBLIC).build()).build();
+    file.writeTo(directory);
   }
 }
