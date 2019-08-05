@@ -15,21 +15,21 @@
  */
 package net.kebernet.xddl;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.ServiceLoader;
-import java.util.Set;
-import java.util.stream.Collectors;
+import static net.kebernet.xddl.model.Utils.neverNull;
 
 import com.beust.jcommander.JCommander;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.google.common.collect.Streams;
+import java.io.File;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+import java.util.ServiceLoader;
+import java.util.Set;
+import java.util.stream.Collectors;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -39,8 +39,6 @@ import net.kebernet.xddl.model.Structure;
 import net.kebernet.xddl.model.Type;
 import net.kebernet.xddl.plugins.Context;
 import net.kebernet.xddl.plugins.Plugin;
-
-import static net.kebernet.xddl.model.Utils.neverNull;
 
 @Builder(access = AccessLevel.PUBLIC)
 @Getter
@@ -70,7 +68,7 @@ public class Runner {
     } catch (Exception e) {
       JCommander.newBuilder().addObject(command).build().usage();
       System.err.print("Error:");
-      if(command.isStacktrace()){
+      if (command.isStacktrace()) {
         e.printStackTrace();
       } else {
         System.err.println(e.getMessage());
@@ -101,18 +99,20 @@ public class Runner {
     }
   }
 
-  void scanDirectories(Collection<File> files, ObjectMapper mapper, Specification specification){
+  void scanDirectories(Collection<File> files, ObjectMapper mapper, Specification specification) {
     neverNull(files)
-            .forEach(f->{
-              if(!f.isDirectory()){
-                throw new RuntimeException(f.getAbsolutePath()+" is not a directory");
+        .forEach(
+            f -> {
+              if (!f.isDirectory()) {
+                throw new RuntimeException(f.getAbsolutePath() + " is not a directory");
               }
-              File[] xddls = f.listFiles(scan-> scan.getName().toLowerCase().endsWith(".xddl.json"));
-              if(xddls != null){
+              File[] xddls =
+                  f.listFiles(scan -> scan.getName().toLowerCase().endsWith(".xddl.json"));
+              if (xddls != null) {
                 Arrays.stream(xddls).forEach(xddl -> readFile(xddl, mapper, specification));
               }
               File[] directories = f.listFiles(File::isDirectory);
-              if(directories != null){
+              if (directories != null) {
                 scanDirectories(Arrays.asList(directories), mapper, specification);
               }
             });
@@ -121,12 +121,15 @@ public class Runner {
   private void readFile(File xddl, ObjectMapper mapper, Specification specification) {
     try {
       BaseType type = mapper.readValue(xddl, BaseType.class);
-      if(type instanceof Structure){
+      if (type instanceof Structure) {
         specification.structures().add((Structure) type);
-      } else if(type instanceof Type){
+      } else if (type instanceof Type) {
         specification.types().add((Type) type);
       } else {
-        throw new RuntimeException(xddl.getAbsolutePath()+" contains an handle-able type "+type.getClass().getCanonicalName());
+        throw new RuntimeException(
+            xddl.getAbsolutePath()
+                + " contains an handle-able type "
+                + type.getClass().getCanonicalName());
       }
 
     } catch (IOException e) {

@@ -20,7 +20,6 @@ import static java.util.Optional.ofNullable;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -43,12 +42,9 @@ public class Context {
   public Context(ObjectMapper mapper, Specification specification) {
     this.mapper = mapper;
     this.specification = specification;
-    specification.types()
-        .forEach(this::checkAndInsert);
-    specification.structures()
-        .forEach(this::checkAndInsert);
-    specification.structures()
-        .forEach(this::validateReferences);
+    specification.types().forEach(this::checkAndInsert);
+    specification.structures().forEach(this::checkAndInsert);
+    specification.structures().forEach(this::validateReferences);
   }
 
   private void validateReferences(Structure structure) {

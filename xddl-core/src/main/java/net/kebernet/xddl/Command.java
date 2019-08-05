@@ -30,8 +30,8 @@ public class Command {
   private File inputFile;
 
   @Parameter(
-          names = {"--include-dir", "-d"},
-          description = "Directory(ies) to scan for *.xddl.json files to include.")
+      names = {"--include-dir", "-d"},
+      description = "Directory(ies) to scan for *.xddl.json files to include.")
   private List<File> includes;
 
   @Parameter(
@@ -51,5 +51,4 @@ public class Command {
 
   @Parameter(names = "--stacktrace", description = "Show the stacktrace of an error")
   private boolean stacktrace = false;
-
 }

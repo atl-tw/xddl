@@ -34,8 +34,8 @@ public abstract class Utils {
     }
   }
 
-  public static <T> Iterable<T> neverNull(Iterable<T> value){
-    if(value == null){
+  public static <T> Iterable<T> neverNull(Iterable<T> value) {
+    if (value == null) {
       return Collections.emptyList();
     } else {
       return value;

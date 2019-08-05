@@ -239,6 +239,16 @@ public class MarkdownPlugin implements Plugin {
         type.getDescription(), s -> pw.println(bullet(subindent) + replaceLineBreaks(s)));
     ifNotNullOrEmpty(type.getComment(), s -> pw.println(bullet(subindent) + "``" + s + "``"));
     ifNotNullOrEmpty(
+        type.getAllowable(),
+        ex -> {
+          pw.println(bullet(subindent) + "allowable values");
+          ex.forEach(
+              v -> {
+                pw.println(bullet(subindent + 1) + "``" + writeValueAsString(v.getValue()) + "``");
+                pw.println(bullet(subindent + 1) + v.getDescription());
+              });
+        });
+    ifNotNullOrEmpty(
         type.getExamples(),
         ex -> {
           pw.println(bullet(subindent) + "examples");
@@ -279,7 +289,7 @@ public class MarkdownPlugin implements Plugin {
   }
 
   private String code(int indent, String value) {
-    return indent(indent) + "'''\n" + indent(indent, value) + "\n" + indent(indent) + "'''\n";
+    return indent(indent) + "''\n" + value + "''\n";
   }
 
   private String writeValueAsString(Object value) {
