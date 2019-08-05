@@ -23,7 +23,7 @@ import java.util.Map;
 import lombok.Data;
 
 @Data
-public class Specification {
+public class Specification implements HasExtensions {
   private String title;
   private String description;
   private String comment;

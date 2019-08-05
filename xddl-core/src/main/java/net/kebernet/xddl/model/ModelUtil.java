@@ -19,6 +19,7 @@ import static java.util.Optional.ofNullable;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -82,5 +83,12 @@ public abstract class ModelUtil {
     if (type instanceof Structure) {
       consumer.accept(((Structure) type));
     }
+  }
+
+  public static Optional<String> extensionValueAsString(HasExtensions target, String extension, String key){
+    return ofNullable(target.ext().get(extension))
+            .filter(JsonNode::isObject)
+            .map(n-> n.get(key))
+            .filter(JsonNode::isTextual).map(JsonNode::asText);
   }
 }

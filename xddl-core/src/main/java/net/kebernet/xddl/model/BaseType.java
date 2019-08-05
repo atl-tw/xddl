@@ -41,7 +41,7 @@ import lombok.experimental.SuperBuilder;
   @JsonSubTypes.Type(value = List.class, name = "List")
 })
 @JsonPropertyOrder({"name", "description", "required", "ext"})
-public abstract class BaseType<T extends BaseType> {
+public abstract class BaseType<T extends BaseType> implements HasExtensions {
   private String name;
   private String description;
   private String comment;

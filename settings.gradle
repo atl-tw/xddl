@@ -7,4 +7,5 @@ include 'markdown'
 include 'xddl-all'
 include 'graphvis'
 include 'elasticsearch'
+include 'java'
 

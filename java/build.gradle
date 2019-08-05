@@ -1,0 +1,5 @@
+dependencies {
+    api project(":xddl-core")
+    implementation 'com.squareup:javapoet:1.11.1'
+    testImplementation 'org.jooq:joor-java-8:0.9.12'
+}
