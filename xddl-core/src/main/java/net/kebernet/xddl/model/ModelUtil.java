@@ -85,10 +85,12 @@ public abstract class ModelUtil {
     }
   }
 
-  public static Optional<String> extensionValueAsString(HasExtensions target, String extension, String key){
+  public static Optional<String> extensionValueAsString(
+      HasExtensions target, String extension, String key) {
     return ofNullable(target.ext().get(extension))
-            .filter(JsonNode::isObject)
-            .map(n-> n.get(key))
-            .filter(JsonNode::isTextual).map(JsonNode::asText);
+        .filter(JsonNode::isObject)
+        .map(n -> n.get(key))
+        .filter(JsonNode::isTextual)
+        .map(JsonNode::asText);
   }
 }

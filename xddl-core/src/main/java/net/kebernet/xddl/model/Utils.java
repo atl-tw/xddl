@@ -61,7 +61,7 @@ public abstract class Utils {
     }
   }
 
-  public static boolean isNullOrEmpty(Collection c){
+  public static boolean isNullOrEmpty(Collection c) {
     return c == null || c.isEmpty();
   }
 

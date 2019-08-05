@@ -89,19 +89,19 @@ public class MarkdownPlugin implements Plugin {
       pw.println();
       generateTypes(pw, spec);
       pw.println();
-        ifNotNullOrEmpty(
-            spec.getExt(),
-            ext -> {
-                pw.println("<a name=\"spec-extensions\"></a>");
-                pw.println("Extensions");
-                pw.println("----------");
-                pw.println();
-                ext.forEach(
-                        (key, value) -> {
-                            pw.println(bullet(2) + key);
-                            printJson(pw,3, value);
-                        });
-            });
+      ifNotNullOrEmpty(
+          spec.getExt(),
+          ext -> {
+            pw.println("<a name=\"spec-extensions\"></a>");
+            pw.println("Extensions");
+            pw.println("----------");
+            pw.println();
+            ext.forEach(
+                (key, value) -> {
+                  pw.println(bullet(2) + key);
+                  printJson(pw, 3, value);
+                });
+          });
     }
 
     Parser parser = Parser.builder().build();
@@ -124,9 +124,11 @@ public class MarkdownPlugin implements Plugin {
     spec.structures().forEach(s -> pw.println("   1. [" + s.getName() + "](#" + s.getName() + ")"));
     pw.println("1. Types");
     spec.getTypes().forEach(s -> pw.println("   1. [" + s.getName() + "](#" + s.getName() + ")"));
-    ifNotNullOrEmpty(spec.getExt(), e-> {
-        pw.println("1. [Extensions](#spec-extensions)");
-    });
+    ifNotNullOrEmpty(
+        spec.getExt(),
+        e -> {
+          pw.println("1. [Extensions](#spec-extensions)");
+        });
   }
 
   private void generateTypes(PrintWriter pw, Specification specification) {
@@ -148,10 +150,12 @@ public class MarkdownPlugin implements Plugin {
               pw.print("### ");
               pw.print(s.getName());
               pw.println();
-              ofNullable(s.getDescription()).ifPresent(d->{
-                  pw.println(d);
-                  pw.println();
-              });
+              ofNullable(s.getDescription())
+                  .ifPresent(
+                      d -> {
+                        pw.println(d);
+                        pw.println();
+                      });
 
               ifNotNullOrEmpty(s.getComment(), c -> pw.println("\n```" + c + "```"));
               pw.println("#### Properties");
@@ -262,8 +266,13 @@ public class MarkdownPlugin implements Plugin {
         ex -> {
           pw.println(bullet(subindent) + "allowable values");
           ex.forEach(
-              v -> pw.println(bullet(subindent + 1) + "``" + writeValueAsString(v.getValue()) + "``" +
-                      ofNullable(v.getDescription()).map(s->" "+s).orElse("")));
+              v ->
+                  pw.println(
+                      bullet(subindent + 1)
+                          + "``"
+                          + writeValueAsString(v.getValue())
+                          + "``"
+                          + ofNullable(v.getDescription()).map(s -> " " + s).orElse("")));
         });
     ifNotNullOrEmpty(
         type.getExamples(),
