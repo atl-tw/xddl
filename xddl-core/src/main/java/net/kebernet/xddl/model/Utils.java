@@ -61,6 +61,10 @@ public abstract class Utils {
     }
   }
 
+  public static boolean isNullOrEmpty(Collection c){
+    return c == null || c.isEmpty();
+  }
+
   public static <T> Iterable<T> asIterable(Iterator<T> iterator) {
     return new Iterable<T>() {
       @Override

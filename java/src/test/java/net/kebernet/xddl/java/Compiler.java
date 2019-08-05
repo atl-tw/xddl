@@ -1,0 +1,42 @@
+package net.kebernet.xddl.java;
+
+import java.io.File;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import javax.tools.JavaCompiler;
+import javax.tools.JavaFileObject;
+import javax.tools.StandardJavaFileManager;
+import javax.tools.ToolProvider;
+
+public class Compiler {
+
+    private final File directory;
+
+    public Compiler(File directory) {
+        this.directory = directory;
+    }
+
+    public List<File> javaFiles(File directory){
+        ArrayList<File> results = new ArrayList<>();
+        File[] java = directory.listFiles(f -> f.getName().endsWith(".java"));
+        if(java != null) results.addAll(Arrays.asList(java));
+        File[] dirs = directory.listFiles(File::isDirectory);
+        if(dirs != null) Arrays.stream(dirs).forEach(f->results.addAll(javaFiles(f)));
+        return results;
+    }
+
+    public ClassLoader compile() throws MalformedURLException {
+        File[] files = javaFiles(directory).toArray(new File[0]);
+        JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
+        StandardJavaFileManager fileManager = compiler.getStandardFileManager(null, null, null);
+        Iterable<? extends JavaFileObject> compilationUnits1 = fileManager.getJavaFileObjectsFromFiles(Arrays.asList(files));
+        compiler.getTask(null, fileManager, null, null, null, compilationUnits1).call();
+
+        return new CompositeClassLoader(Thread.currentThread().getContextClassLoader(),
+                new URLClassLoader(new URL[]{directory.toURI().toURL()}));
+    }
+}

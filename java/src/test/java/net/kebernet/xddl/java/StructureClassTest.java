@@ -24,6 +24,7 @@ import org.junit.Test;
 
 import static com.google.common.truth.Truth.assertThat;
 
+@SuppressWarnings("ResultOfMethodCallIgnored")
 public class StructureClassTest {
 
     @Test
@@ -66,6 +67,35 @@ public class StructureClassTest {
         assertThat(descriptors.get("intProperty").getReadMethod().getName()).isEqualTo("getIntProperty");
         assertThat(descriptors.get("intProperty").getWriteMethod().getName()).isEqualTo("setIntProperty");
         assertThat(descriptors.get("boolProperty").getReadMethod().getName()).isEqualTo("isBoolProperty");
+
+    }
+
+    @Test
+    public void testStructureReference() throws IOException, IntrospectionException, ClassNotFoundException, IllegalAccessException, InstantiationException {
+        ObjectMapper mapper = new ObjectMapper();
+        Specification spec = mapper.readValue(StructureClassTest.class.getResourceAsStream("/structureReference.json"), Specification.class);
+        Context ctx = new Context(mapper, spec);
+        StructureClass parent = new StructureClass(ctx, spec.structures().get(0));
+        StructureClass child = new StructureClass(ctx, spec.structures().get(1));
+        File output = new File("build/test-gen/testStructureReference");
+        output.mkdirs();
+        parent.write(output);
+        child.write(output);
+        String packageName = Resolver.resolvePackageName(ctx);
+        ClassLoader loader = new Compiler(output).compile();
+
+        Class parentClass = loader.loadClass(packageName+".Parent");
+        Class childClass = loader.loadClass(packageName+".Child");
+
+        BeanInfo beanInfo = Introspector.getBeanInfo(parentClass);
+        Map<String, PropertyDescriptor> descriptors = new HashMap<>();
+        for(PropertyDescriptor pd: beanInfo.getPropertyDescriptors()){
+            descriptors.put(pd.getName(), pd);
+        }
+
+        assertThat(descriptors.get("childProperty").getReadMethod().getName()).isEqualTo("getChildProperty");
+        assertThat(descriptors.get("childProperty").getReadMethod().getReturnType()).isEqualTo(childClass);
+
 
     }
 

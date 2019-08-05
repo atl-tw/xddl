@@ -2,7 +2,6 @@ package net.kebernet.xddl.java;
 
 import java.io.File;
 import java.io.IOException;
-
 import javax.lang.model.element.Modifier;
 
 import com.google.common.base.CaseFormat;
@@ -14,13 +13,13 @@ import com.squareup.javapoet.ParameterSpec;
 import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
 import net.kebernet.xddl.model.BaseType;
+import net.kebernet.xddl.model.Reference;
 import net.kebernet.xddl.model.Structure;
 import net.kebernet.xddl.model.Type;
 import net.kebernet.xddl.plugins.Context;
 
 import static net.kebernet.xddl.java.Resolver.resolvePackageName;
-import static net.kebernet.xddl.model.Utils.ifNotNullOrEmpty;
-import static net.kebernet.xddl.model.Utils.neverNull;
+import static net.kebernet.xddl.model.Utils.*;
 
 public class StructureClass {
 
@@ -46,7 +45,6 @@ public class StructureClass {
                 .peek(fieldSpec -> typeBuilder.addMethod(createGetter(fieldSpec)))
                 .peek(fieldSpec -> typeBuilder.addMethod(createSetter(fieldSpec)))
                 .peek(fieldSpec -> typeBuilder.addMethod(createBuilder(fieldSpec)))
-
                 .forEach(typeBuilder::addField);
 
     }
@@ -85,7 +83,7 @@ public class StructureClass {
                         ParameterSpec.builder(fieldSpec.type, "value", Modifier.FINAL).build()
                 )
                 .addCode("this."+fieldSpec.name+" = value;\n" +
-                        "return this;")
+                        "return this;\n")
                 .build();
     }
 
@@ -95,10 +93,32 @@ public class StructureClass {
     }
 
     private FieldSpec doPropertyType(BaseType baseType) {
-        if(baseType instanceof Type){
-            return doType((Type) baseType);
+        BaseType resolvedType = baseType;
+        if(baseType instanceof Reference){
+            resolvedType = ctx.resolveReference((Reference) baseType).orElseThrow(
+                    ()->ctx.stateException("Unable to resolve reference", baseType));
+        }
+        if(resolvedType instanceof Structure & baseType instanceof Reference){
+            return doReferenceTo((Structure) resolvedType, ((Reference) baseType).getRef());
+        }
+        if(resolvedType instanceof Type){
+            Type type = (Type) resolvedType;
+            return isNullOrEmpty(type.getAllowable()) ?
+                doType(type) :
+                doEnum(baseType, type);
         }
         throw ctx.stateException("Unsupported type ", baseType);
+    }
+
+    private FieldSpec doReferenceTo(Structure resolvedType, String referenceName) {
+        return FieldSpec.builder(
+                ClassName.get(packageName, referenceName),
+                resolvedType.getName(),
+                Modifier.PRIVATE).build();
+    }
+
+    private FieldSpec doEnum(BaseType baseType, Type type) {
+        throw ctx.stateException("Unsupported enum ", baseType);
     }
 
     private FieldSpec doType(Type type) {

@@ -1,0 +1,47 @@
+{
+  "title": "Sample Specification",
+  "entryRef": "Parent",
+  "version": "0.1.0",
+  "description": "This is my sample specification.\n\nThere are many like it but this one is mine.",
+  "comment": "Some comment with < and > and stuff.",
+  "structures": [
+    {
+      "@type": "Structure",
+      "name": "Parent",
+      "properties": [
+        {
+          "@type": "Type",
+          "core": "INTEGER",
+          "name": "intProperty",
+          "description": "An int property",
+          "required": true
+        },
+
+        {
+          "@type": "Reference",
+          "ref": "Child",
+          "name": "childProperty",
+          "description": "A childProperty"
+        }
+      ]
+    },
+    {
+      "@type": "Structure",
+      "name": "Child",
+      "properties": [
+        {
+          "@type": "Type",
+          "core": "INTEGER",
+          "name": "intProperty",
+          "description": "An int property",
+          "required": true
+        }
+      ]
+    }
+  ],
+  "ext": {
+    "java": {
+      "package": "n.k.basetypes"
+    }
+  }
+}
