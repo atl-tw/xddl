@@ -26,6 +26,10 @@ import java.util.function.Consumer;
 public abstract class Utils {
   private Utils() {}
 
+  public static String neverNull(String value) {
+    return value == null ? "" : value;
+  }
+
   public static <T> Collection<T> neverNull(Collection<T> value) {
     if (value == null) {
       return Collections.emptyList();

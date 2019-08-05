@@ -143,4 +143,8 @@ public class Context {
       ifFalse.accept(type);
     }
   }
+
+  public Optional<Type> findType(String refName) {
+    return ofNullable(references.get(refName)).filter(t -> t instanceof Type).map(t -> (Type) t);
+  }
 }

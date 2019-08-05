@@ -91,8 +91,7 @@ public class StructureClassTest {
 
   @Test
   public void structureReferenceResolves()
-      throws IOException, IntrospectionException, ClassNotFoundException, IllegalAccessException,
-          InstantiationException {
+      throws IOException, IntrospectionException, ClassNotFoundException {
     ObjectMapper mapper = new ObjectMapper();
     Specification spec =
         mapper.readValue(
@@ -121,5 +120,31 @@ public class StructureClassTest {
         .isEqualTo("getChildProperty");
     assertThat(descriptors.get("childProperty").getReadMethod().getReturnType())
         .isEqualTo(childClass);
+  }
+
+  @Test
+  public void nestedEnumGeneration()
+      throws IOException, IntrospectionException, ClassNotFoundException {
+    ObjectMapper mapper = new ObjectMapper();
+    Specification spec =
+        mapper.readValue(
+            StructureClassTest.class.getResourceAsStream("/nestedEnum.json"), Specification.class);
+    Context ctx = new Context(mapper, spec);
+    StructureClass struct = new StructureClass(ctx, spec.structures().get(0));
+    File output = new File("build/test-gen/nestedEnum");
+    struct.write(output);
+    ClassLoader loader = new Compiler(output).compile();
+    Class generated = loader.loadClass(Resolver.resolvePackageName(ctx) + ".Parent");
+    Class enumType =
+        loader.loadClass(Resolver.resolvePackageName(ctx) + ".Parent$EnumPropertyType");
+    BeanInfo beanInfo = Introspector.getBeanInfo(generated);
+    Map<String, PropertyDescriptor> descriptors = new HashMap<>();
+    for (PropertyDescriptor pd : beanInfo.getPropertyDescriptors()) {
+      descriptors.put(pd.getName(), pd);
+    }
+
+    assertThat(descriptors.get("enumProperty").getReadMethod().getName())
+        .isEqualTo("getEnumProperty");
+    assertThat(descriptors.get("enumProperty").getReadMethod().getReturnType()).isEqualTo(enumType);
   }
 }

@@ -28,8 +28,10 @@ import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
 import java.io.File;
 import java.io.IOException;
+import java.util.HashSet;
 import javax.lang.model.element.Modifier;
 import net.kebernet.xddl.model.BaseType;
+import net.kebernet.xddl.model.CoreType;
 import net.kebernet.xddl.model.Reference;
 import net.kebernet.xddl.model.Structure;
 import net.kebernet.xddl.model.Type;
@@ -105,7 +107,7 @@ public class StructureClass {
               .orElseThrow(() -> ctx.stateException("Unable to resolve reference", baseType));
     }
     if (resolvedType instanceof Structure & baseType instanceof Reference) {
-      return doReferenceTo((Structure) resolvedType, ((Reference) baseType).getRef());
+      return doReferenceTo(resolvedType, ((Reference) baseType).getRef());
     }
     if (resolvedType instanceof Type) {
       Type type = (Type) resolvedType;
@@ -114,14 +116,41 @@ public class StructureClass {
     throw ctx.stateException("Unsupported type ", baseType);
   }
 
-  private FieldSpec doReferenceTo(Structure resolvedType, String referenceName) {
+  private FieldSpec doReferenceTo(BaseType resolvedType, String referenceName) {
     return FieldSpec.builder(
             ClassName.get(packageName, referenceName), resolvedType.getName(), Modifier.PRIVATE)
         .build();
   }
 
   private FieldSpec doEnum(BaseType baseType, Type type) {
-    throw ctx.stateException("Unsupported enum ", baseType);
+    if (type.getCore() != CoreType.STRING) {
+      throw ctx.stateException(
+          "Enum types are only supported for STRING core types right now", baseType);
+    }
+    Reference ref = null;
+    if (baseType instanceof Reference) {
+      ref = (Reference) baseType;
+      if (ctx.findType(ref.getRef())
+          .map(Type::getAllowable)
+          .map(HashSet::new)
+          .filter(set -> set.equals(new HashSet<>(type.getAllowable())))
+          .isPresent()) {
+        // the type is a reference and the allowables came from the reference.
+        return doReferenceTo(type, ref.getName());
+      }
+    }
+    // the type is a reference, but the allowable list is local, so we need to generate it
+    // OR the type is 100% local. Either way, we need to generate a local type for it.
+
+    EnumClass enumClass = new EnumClass(ctx, ref, type);
+    TypeSpec nested = enumClass.builder().addModifiers(Modifier.PUBLIC).build();
+    typeBuilder.addType(nested);
+    return FieldSpec.builder(
+            ClassName.get(packageName, className.simpleName(), nested.name),
+            type.getName(),
+            Modifier.PRIVATE)
+        .addJavadoc(neverNull(type.getDescription()))
+        .build();
   }
 
   private FieldSpec doType(Type type) {
