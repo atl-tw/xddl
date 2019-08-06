@@ -6,6 +6,7 @@ dependencies {
     api project(':json-schema')
     api project(':graphvis')
     api project(':elasticsearch')
+    api project(':java')
 }
 
 application {

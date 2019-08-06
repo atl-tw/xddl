@@ -29,14 +29,12 @@ import net.kebernet.xddl.model.CoreType;
 import net.kebernet.xddl.model.Type;
 import net.kebernet.xddl.plugins.Context;
 
-public class EnumClass {
-  private final Context ctx;
+public class EnumClass implements Writable {
   private final BaseType base;
   private final Type resolved;
   private final String packageName;
 
   public EnumClass(Context ctx, BaseType base, Type resolved) {
-    this.ctx = ctx;
     this.base = base;
     this.resolved = resolved;
     this.packageName = Resolver.resolvePackageName(ctx);

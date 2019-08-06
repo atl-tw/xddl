@@ -15,8 +15,11 @@
  */
 package net.kebernet.xddl.java;
 
+import static net.kebernet.xddl.model.Utils.isNullOrEmpty;
+
 import java.io.File;
 import java.io.IOException;
+import java.util.stream.Stream;
 import net.kebernet.xddl.plugins.Context;
 import net.kebernet.xddl.plugins.Plugin;
 
@@ -28,6 +31,23 @@ public class JavaPlugin implements Plugin {
 
   @Override
   public String generateArtifacts(Context context, File outputDirectory) throws IOException {
-    return null;
+    Stream<EnumClass> enums =
+        context.getSpecification().types().stream()
+            .filter(t -> !isNullOrEmpty(t.getAllowable()))
+            .map(t -> new EnumClass(context, t, t));
+    Stream<StructureClass> structures =
+        context.getSpecification().structures().stream()
+            .map(s -> new StructureClass(context, s, s.getName()));
+
+    Stream<Writable> writables = Stream.concat(enums, structures);
+    writables.forEach(
+        w -> {
+          try {
+            w.write(outputDirectory);
+          } catch (IOException e) {
+            throw new RuntimeException(e.getMessage(), e);
+          }
+        });
+    return outputDirectory.getAbsolutePath();
   }
 }

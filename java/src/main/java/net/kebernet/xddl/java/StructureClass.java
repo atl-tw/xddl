@@ -38,17 +38,15 @@ import net.kebernet.xddl.model.Structure;
 import net.kebernet.xddl.model.Type;
 import net.kebernet.xddl.plugins.Context;
 
-public class StructureClass {
+public class StructureClass implements Writable {
 
   private final Context ctx;
-  private final Structure structure;
   private final TypeSpec.Builder typeBuilder;
   private final String packageName;
   private final ClassName className;
 
   public StructureClass(Context context, Structure structure, String name) {
     this.ctx = context;
-    this.structure = structure;
     this.packageName = resolvePackageName(context);
     this.className = ClassName.get(packageName, structure.getName());
     this.typeBuilder = TypeSpec.classBuilder(className).addModifiers(Modifier.PUBLIC);
@@ -179,14 +177,25 @@ public class StructureClass {
     if (contains instanceof List) {
       throw ctx.stateException("Lists of Lists not supported", listType);
     }
-    if(contains instanceof Reference && ctx.pointsToType((Reference) contains)){
+    if (contains instanceof Reference && ctx.pointsToType((Reference) contains)) {
       contains = ctx.resolveReference((Reference) contains).get();
+    } else if (contains instanceof Reference && ctx.pointsToStructure((Reference) contains)) {
+      FieldSpec.Builder builder =
+          FieldSpec.builder(
+              ParameterizedTypeName.get(
+                  ClassName.get(java.util.List.class),
+                  ClassName.get(packageName, ((Reference) contains).getRef())),
+              listType.getName());
+      ifNotNullOrEmpty(contains.getDescription(), s -> builder.addJavadoc(s + "\n"));
+      ifNotNullOrEmpty(contains.getComment(), s -> builder.addJavadoc("Comment: " + s + "\n"));
+      return builder.build();
     }
     if (contains instanceof Type) {
-      FieldSpec.Builder builder = FieldSpec.builder(
-              ParameterizedTypeName.get(ClassName.get(java.util.List.class),
-                      Resolver.resolveType(ctx, (Type) contains))
-              , listType.getName());
+      FieldSpec.Builder builder =
+          FieldSpec.builder(
+              ParameterizedTypeName.get(
+                  ClassName.get(java.util.List.class), Resolver.resolveType(ctx, (Type) contains)),
+              listType.getName());
       ifNotNullOrEmpty(contains.getDescription(), s -> builder.addJavadoc(s + "\n"));
       ifNotNullOrEmpty(contains.getComment(), s -> builder.addJavadoc("Comment: " + s + "\n"));
       return builder.build();
