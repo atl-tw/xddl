@@ -50,21 +50,29 @@ public class Runner {
   private Context context;
 
   public static void main(String... args) {
-    Command command = new Command();
+    GenerateCommand command = new GenerateCommand();
     JCommander jCommander;
     try {
-      jCommander = JCommander.newBuilder().addObject(command).args(args).build();
+      jCommander = JCommander.newBuilder().addCommand("generate", command).args(args).build();
       if (command.isHelp()) {
         jCommander.usage();
         return;
       }
-      Runner.builder()
-          .outputDirectory(command.getOutputDirectory())
-          .plugins(command.getFormats())
-          .specificationFile(command.getInputFile())
-          .includes(command.getIncludes())
-          .build()
-          .run();
+      switch (jCommander.getParsedCommand()) {
+        case "generate":
+          Runner.builder()
+              .outputDirectory(command.getOutputDirectory())
+              .plugins(command.getFormats())
+              .specificationFile(command.getInputFile())
+              .includes(command.getIncludes())
+              .build()
+              .run();
+          break;
+        default:
+          throw new UnsupportedOperationException(
+              "Unknown command " + jCommander.getParsedCommand());
+      }
+
     } catch (Exception e) {
       JCommander.newBuilder().addObject(command).build().usage();
       System.err.print("Error:");

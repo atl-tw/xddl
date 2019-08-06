@@ -30,6 +30,7 @@ public class PluginTest {
   @Test
   public void jsonSchemaTestWithMain() throws IOException {
     Runner.main(
+        "generate",
         "--input-file",
         "src/test/resources/int-range.json",
         "--output-directory",

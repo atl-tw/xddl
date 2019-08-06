@@ -21,7 +21,7 @@ import java.util.List;
 import lombok.Data;
 
 @Data
-public class Command {
+public class GenerateCommand {
 
   @Parameter(
       names = {"--input-file", "-i"},
