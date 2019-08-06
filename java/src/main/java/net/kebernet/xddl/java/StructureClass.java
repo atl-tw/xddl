@@ -179,6 +179,9 @@ public class StructureClass {
     if (contains instanceof List) {
       throw ctx.stateException("Lists of Lists not supported", listType);
     }
+    if(contains instanceof Reference && ctx.pointsToType((Reference) contains)){
+      contains = ctx.resolveReference((Reference) contains).get();
+    }
     if (contains instanceof Type) {
       FieldSpec.Builder builder = FieldSpec.builder(
               ParameterizedTypeName.get(ClassName.get(java.util.List.class),
