@@ -24,6 +24,7 @@ import com.squareup.javapoet.FieldSpec;
 import com.squareup.javapoet.JavaFile;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.ParameterSpec;
+import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
 import java.io.File;
@@ -31,6 +32,7 @@ import java.io.IOException;
 import java.util.HashSet;
 import javax.lang.model.element.Modifier;
 import net.kebernet.xddl.model.BaseType;
+import net.kebernet.xddl.model.List;
 import net.kebernet.xddl.model.Reference;
 import net.kebernet.xddl.model.Structure;
 import net.kebernet.xddl.model.Type;
@@ -44,7 +46,7 @@ public class StructureClass {
   private final String packageName;
   private final ClassName className;
 
-  public StructureClass(Context context, Structure structure) {
+  public StructureClass(Context context, Structure structure, String name) {
     this.ctx = context;
     this.structure = structure;
     this.packageName = resolvePackageName(context);
@@ -58,6 +60,14 @@ public class StructureClass {
         .peek(fieldSpec -> typeBuilder.addMethod(createSetter(fieldSpec)))
         .peek(fieldSpec -> typeBuilder.addMethod(createBuilder(fieldSpec)))
         .forEach(typeBuilder::addField);
+  }
+
+  public StructureClass(Context context, Structure structure) {
+    this(context, structure, structure.getName());
+  }
+
+  public TypeSpec.Builder builder() {
+    return typeBuilder;
   }
 
   private MethodSpec createGetter(FieldSpec fieldSpec) {
@@ -112,6 +122,10 @@ public class StructureClass {
       Type type = (Type) resolvedType;
       return isNullOrEmpty(type.getAllowable()) ? doType(type) : doEnum(baseType, type);
     }
+    if (resolvedType instanceof List) {
+      List list = (List) resolvedType;
+      return doListType(list);
+    }
     throw ctx.stateException("Unsupported type ", baseType);
   }
 
@@ -158,5 +172,39 @@ public class StructureClass {
     ifNotNullOrEmpty(type.getDescription(), s -> builder.addJavadoc(s + "\n"));
     ifNotNullOrEmpty(type.getComment(), s -> builder.addJavadoc("Comment: " + s + "\n"));
     return builder.build();
+  }
+
+  private FieldSpec doListType(List listType) {
+    BaseType contains = listType.getContains();
+    if (contains instanceof List) {
+      throw ctx.stateException("Lists of Lists not supported", listType);
+    }
+    if (contains instanceof Type) {
+      FieldSpec.Builder builder = FieldSpec.builder(
+              ParameterizedTypeName.get(ClassName.get(java.util.List.class),
+                      Resolver.resolveType(ctx, (Type) contains))
+              , listType.getName());
+      ifNotNullOrEmpty(contains.getDescription(), s -> builder.addJavadoc(s + "\n"));
+      ifNotNullOrEmpty(contains.getComment(), s -> builder.addJavadoc("Comment: " + s + "\n"));
+      return builder.build();
+    }
+    if (contains instanceof Structure) {
+      String typeName =
+          CaseFormat.LOWER_CAMEL.to(CaseFormat.UPPER_CAMEL, listType.getName()) + "Type";
+      StructureClass struct = new StructureClass(ctx, (Structure) contains, typeName);
+      TypeSpec type = struct.builder().addModifiers(Modifier.PUBLIC, Modifier.STATIC).build();
+      typeBuilder.addType(type);
+      return FieldSpec.builder(
+              ParameterizedTypeName.get(
+                  ClassName.get(java.util.List.class),
+                  ClassName.get(
+                      this.className.packageName(),
+                      typeName,
+                      this.className.simpleNames().toArray(new String[0]))),
+              listType.getName(),
+              Modifier.PRIVATE)
+          .build();
+    }
+    throw ctx.stateException("Unsupported list, ", listType);
   }
 }
