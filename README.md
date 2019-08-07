@@ -170,10 +170,10 @@ version is the "xddl" distribution zip that contains an executable packaged with
 Execution
 ---------
 
-You can run ``xddl.bat`` or ``xddl`` depending on your OS.
+You can run ``xddl.bat generate`` or ``xddl generate`` depending on your OS.
 
 ```
-Usage: <main class> [options]
+Usage: generate [options]
   Options:
   * --format, -f
       The output plugin to generate

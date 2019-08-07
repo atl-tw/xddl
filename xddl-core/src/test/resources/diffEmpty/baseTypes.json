@@ -1,0 +1,76 @@
+{
+  "title": "Sample Specification",
+  "entryRef": "TestBean",
+  "version": "0.1.0",
+  "description": "This is my sample specification.\n\nThere are many like it but this one is mine.",
+  "comment": "Some comment with < and > and stuff.",
+  "structures": [
+    {
+      "@type": "Structure",
+      "name": "TestBean",
+      "properties": [
+        {
+          "@type": "Type",
+          "core": "INTEGER",
+          "name": "intProperty",
+          "description": "An int property",
+          "required": true
+        },
+        {
+          "@type": "Type",
+          "core": "INTEGER",
+          "name": "integerProperty",
+          "description": "An Integer property"
+        },
+        {
+          "@type": "Type",
+          "core": "BOOLEAN",
+          "name": "boolProperty",
+          "description": "An bool property",
+          "required": true
+        },
+        {
+          "@type": "Type",
+          "core": "STRING",
+          "name": "stringProperty",
+          "description": "A string property"
+        },
+        {
+          "@type": "Type",
+          "core": "TEXT",
+          "name": "textProperty",
+          "description": "A string property"
+        },
+        {
+          "@type": "Type",
+          "core": "DATE",
+          "name": "dateProperty",
+          "description": "A date property"
+        },
+        {
+          "@type": "Type",
+          "core": "TIME",
+          "name": "timeProperty",
+          "description": "A time property"
+        },
+        {
+          "@type": "Type",
+          "core": "DATETIME",
+          "name": "dateTimeProperty",
+          "description": "A dateTIme property"
+        },
+        {
+          "@type": "Type",
+          "core": "BINARY",
+          "name": "binProperty",
+          "description": "A binary property"
+        }
+      ]
+    }
+  ],
+  "ext": {
+    "java": {
+      "package": "n.k.basetypes"
+    }
+  }
+}

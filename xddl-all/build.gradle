@@ -2,11 +2,11 @@ apply plugin: 'application'
 
 dependencies {
     api project(':xddl-core')
-    api project(':markdown')
-    api project(':json-schema')
-    api project(':graphvis')
+    api project(':xddl-plugin-markdown')
+    api project(':xddl-plugin-json-schema')
+    api project(':xddl-plugin-graphvis')
     api project(':elasticsearch')
-    api project(':java')
+    api project(':xddl-plugin-java')
 }
 
 application {

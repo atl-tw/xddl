@@ -147,4 +147,12 @@ public class Context {
   public Optional<Type> findType(String refName) {
     return ofNullable(references.get(refName)).filter(t -> t instanceof Type).map(t -> (Type) t);
   }
+
+  public BaseType resolve(BaseType type) {
+    if (type instanceof Reference) {
+      return resolveReference((Reference) type)
+          .orElseThrow(() -> this.stateException("Could not resolve reference", type));
+    }
+    return type;
+  }
 }

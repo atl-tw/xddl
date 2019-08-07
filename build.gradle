@@ -14,7 +14,7 @@ plugins {
 }
 
 group 'net.kebernet'
-version '0.0.11'
+version '0.0.13'
 
 if(project.hasProperty("kebernet_bintray")) {
     bintray {
@@ -40,7 +40,6 @@ subprojects {
     apply plugin: 'com.diffplug.gradle.spotless'
     apply plugin: 'maven-publish'
     if(project.name != "integration-test" ) {
-
         apply plugin: 'com.jfrog.bintray'
     }
 

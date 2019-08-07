@@ -1,0 +1,29 @@
+{
+  "title": "Sample Specification",
+  "entryRef": "Parent",
+  "description": "This is my sample specification.\n\nThere are many like it but this one is mine.",
+  "comment": "Some comment with < and > and stuff.",
+  "types": [
+    {
+      "@type": "Type",
+      "name": "string_type",
+      "core": "STRING"
+    }
+  ],
+  "structures": [
+    {
+      "@type": "Structure",
+      "name": "Parent",
+      "properties": [
+        {
+          "@type": "List",
+          "name": "listOfStrings",
+          "contains": {
+             "@type":"Reference",
+             "ref": "string_type"
+          }
+        }
+      ]
+    }
+  ]
+}

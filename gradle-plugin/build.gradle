@@ -1,0 +1,74 @@
+plugins {
+    id 'java-gradle-plugin'
+    id 'org.jetbrains.kotlin.jvm' version '1.3.31'
+}
+
+dependencies {
+    api project(":xddl-all")
+    api 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
+}
+
+sourceSets {
+    functionalTest {
+        groovy.srcDir file('src/functional/groovy')
+        java.srcDir file('src/functional/java')
+        resources.srcDir file('src/functional/resources')
+        compileClasspath += sourceSets.main.output + configurations.testRuntime
+        runtimeClasspath += output + compileClasspath
+    }
+}
+
+task functionalTest(type: Test) {
+    description = 'Runs the functional tests.'
+    group = 'verification'
+    testClassesDirs = sourceSets.functionalTest.output.classesDirs
+    classpath = sourceSets.functionalTest.runtimeClasspath
+    mustRunAfter test //, integrationTest
+    testLogging {
+        showStandardStreams = true
+    }
+    jacoco {
+        enabled = true
+        append = true
+        destinationFile = file("${buildDir}/jacoco/test.exec")
+    }
+}
+
+check.dependsOn functionalTest
+
+
+if(project.hasProperty("kebernet_bintray")) {
+    bintray {
+        user = getProperty("kebernet_bintray")
+        key = getProperty("kebernet_bintray_api")
+        pkg {
+            repo = 'maven'
+            name = 'net.kebernet.xddl'
+            publish = true
+            licenses = ['Apache-2.0']
+            publications = ['Plugin']
+        }
+    }
+}
+
+publishing {
+    publications {
+        Plugin(MavenPublication) {
+            from components.java
+            artifact source: "${project.buildDir}/libs/${project.name}-${project.version}-javadoc.jar", extension: 'jar', classifier: 'javadoc'
+            artifact source: "${project.buildDir}/libs/${project.name}-${project.version}-sources.jar", extension: 'jar', classifier: 'sources'
+            groupId "${project.group}.${project.name}"
+            artifactId "${project.group}.${project.name}.gradle.plugin"
+            version project.version
+        }
+    }
+}
+
+gradlePlugin {
+    plugins {
+        plugin {
+            id = 'net.kebernet.xddl'
+            implementationClass = 'net.kebernet.xddl.gradle.XDDLPlugin'
+        }
+    }
+}
