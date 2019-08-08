@@ -107,6 +107,18 @@ public class JsonSchemaPluginTest {
   }
 
   @Test
+  public void nestedStructure() throws IOException {
+    JsonSchemaPlugin instance = new JsonSchemaPlugin();
+    ObjectMapper mapper = new ObjectMapper();
+    Specification spec =
+            mapper.readValue(
+                    JsonSchemaPlugin.class.getResourceAsStream("/nested-structure.json"), Specification.class);
+    Context ctx = new Context(mapper, spec);
+    Schema schema = instance.createSchema(ctx);
+    mapper.writeValue(System.out, schema);
+  }
+
+  @Test
   public void testCoreTypeExtendedProperties() throws IOException {
     JsonSchemaPlugin instance = new JsonSchemaPlugin();
     ObjectMapper mapper = new ObjectMapper();

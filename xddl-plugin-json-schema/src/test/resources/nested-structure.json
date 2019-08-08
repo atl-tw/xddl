@@ -1,0 +1,161 @@
+{
+  "title": "Sample Specification",
+  "version": "0.1.0",
+  "description": "This is my sample specification.\n\nThere are many like it but this one is mine.",
+  "comment": "Some comment with < and > and stuff.",
+  "types": [
+    {
+      "@type": "Type",
+      "name": "optional_text",
+      "description": "An optional string value of any size that is searchable as text, not as a token value",
+      "core": "STRING",
+      "ext": {
+        "sql": {
+          "datatype": "CLOB default ''"
+        },
+        "elasticsearch": {
+          "type": "text"
+        }
+      }
+    },
+    {
+      "@type": "Type",
+      "name": "exact_short_string",
+      "description": "A string value searchable on exact value",
+      "core": "STRING",
+      "ext": {
+        "sql": {
+          "datatype": "VARCHAR(255) default null"
+        },
+        "elasticsearch": {
+          "type": "keyword"
+        }
+      }
+    }
+  ],
+  "structures": [
+    {
+      "@type": "Structure",
+      "name": "Currency",
+      "description": "An expression of a currency value.",
+      "comment": "This is my comment.",
+      "properties": [
+        {
+          "@type": "Type",
+          "name": "value",
+          "description": "The value in American decimal notation",
+          "comment": "this is my comment",
+          "core": "BIG_DECIMAL",
+          "required": true,
+          "ext": {
+            "java": {
+              "annotations": "@Column(precision = 12, scale = 3)"
+            },
+            "sql": {
+              "type": "NUMERIC(12,3)"
+            },
+            "elasticsearch": {
+              "type": "scaled_float",
+              "scaling_factor": 1000
+            }
+          }
+        },
+        {
+          "@type": "Reference",
+          "name": "formatted",
+          "description": "The value formatted to the correct locale.",
+          "ref": "optional_text"
+        },
+        {
+          "@type": "Reference",
+          "name": "code",
+          "description": "The ISO currency code represented by the value",
+          "ref": "exact_short_string",
+          "required": true
+        }
+      ]
+    },
+    {
+      "@type": "Structure",
+      "name": "Parent",
+      "description": "A parent structure",
+      "properties": [
+        {
+          "@type": "Type",
+          "name": "intProperty",
+          "core": "INTEGER"
+        },
+        {
+          "@type": "Structure",
+          "name": "spouse",
+          "description": "this is the grandchild\nwith a line break",
+          "properties": [
+            {
+              "@type": "Type",
+              "name": "givenName",
+              "core": "STRING"
+            },
+            {
+              "@type": "Type",
+              "name": "surname",
+              "core": "STRING"
+            }
+          ]
+        },
+        {
+          "@type": "List",
+          "name": "children",
+          "contains": {
+            "@type": "Structure",
+            "name": "child",
+            "comment": "this is the child",
+            "properties": [
+              {
+                "@type": "List",
+                "name": "allowances",
+                "contains": {
+                  "@type": "Reference",
+                  "description": "Weekly allowance",
+                  "ref": "Currency"
+                }
+              },
+              {
+                "@type": "Type",
+                "name": "givenName",
+                "core": "STRING"
+              },
+              {
+                "@type": "Type",
+                "name": "surname",
+                "core": "STRING"
+              },
+              {
+                "@type": "Structure",
+                "name": "grandchild",
+                "description": "this is the grandchild\nwith a line break",
+                "properties": [
+                  {
+                    "@type": "Type",
+                    "name": "givenName",
+                    "core": "STRING"
+                  },
+                  {
+                    "@type": "Type",
+                    "name": "surname",
+                    "core": "STRING"
+                  },
+                  {
+                    "@type": "Reference",
+                    "name": "christmas",
+                    "comment": "Do I really like this child?",
+                    "ref": "Currency"
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

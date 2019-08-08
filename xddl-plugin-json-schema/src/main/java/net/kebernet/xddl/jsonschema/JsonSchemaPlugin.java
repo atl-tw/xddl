@@ -120,21 +120,7 @@ public class JsonSchemaPlugin implements Plugin {
   }
 
   private void visit(Context context, Structure s, Schema schema) {
-    Definition def = new Definition();
-    if (def.getRef() != null) {
-      throw context.stateException("Can't have a reference as a stop level definition", s);
-    }
-    def.setTitle(s.getName());
-    def.setDescription(s.getDescription());
-    def.setType("object");
-    s.getProperties()
-        .forEach(
-            p -> {
-              def.properties().put(p.getName(), this.visitBaseType(context, p));
-              if (Boolean.TRUE.equals(p.getRequired())) {
-                def.required().add(p.getName());
-              }
-            });
+    Definition def = doStructure(context, s);
     schema.definitions().put(s.getName(), def);
   }
 
@@ -152,10 +138,32 @@ public class JsonSchemaPlugin implements Plugin {
     if (p instanceof Type) {
       return doType(context, (Type) p);
     }
-    throw new IllegalArgumentException("Unknown base contains " + p.getName());
+    if (p instanceof Structure) {
+       return doStructure(context, (Structure) p);
+    }
+    throw new IllegalArgumentException("Unknown base type " + p.getName());
   }
 
-  private Definition doList(Context context, List list) {
+    private Definition doStructure(Context context, Structure s) {
+        Definition def = new Definition();
+        if (def.getRef() != null) {
+            throw context.stateException("Can't have a reference as a stop level definition", s);
+        }
+        def.setTitle(s.getName());
+        def.setDescription(s.getDescription());
+        def.setType("object");
+        s.getProperties()
+                .forEach(
+                        p -> {
+                            def.properties().put(p.getName(), this.visitBaseType(context, p));
+                            if (Boolean.TRUE.equals(p.getRequired())) {
+                                def.required().add(p.getName());
+                            }
+                        });
+        return def;
+    }
+
+    private Definition doList(Context context, List list) {
     Definition def = new Definition();
     def.setTitle(list.getName());
     def.setDescription(list.getDescription());
