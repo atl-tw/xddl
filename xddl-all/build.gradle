@@ -5,7 +5,7 @@ dependencies {
     api project(':xddl-plugin-markdown')
     api project(':xddl-plugin-json-schema')
     api project(':xddl-plugin-graphvis')
-    api project(':elasticsearch')
+    api project(':xddl-plugin-elasticsearch')
     api project(':xddl-plugin-java')
 }
 

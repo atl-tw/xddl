@@ -6,7 +6,7 @@ include 'xddl-all'
 include 'xddl-plugin-markdown'
 include 'xddl-plugin-json-schema'
 include 'xddl-plugin-graphvis'
-include 'elasticsearch'
+include 'xddl-plugin-elasticsearch'
 include 'xddl-plugin-java'
 //include 'gradle-plugin'
 
