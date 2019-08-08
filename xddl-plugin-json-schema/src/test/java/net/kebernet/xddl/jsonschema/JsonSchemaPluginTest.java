@@ -111,8 +111,9 @@ public class JsonSchemaPluginTest {
     JsonSchemaPlugin instance = new JsonSchemaPlugin();
     ObjectMapper mapper = new ObjectMapper();
     Specification spec =
-            mapper.readValue(
-                    JsonSchemaPlugin.class.getResourceAsStream("/nested-structure.json"), Specification.class);
+        mapper.readValue(
+            JsonSchemaPlugin.class.getResourceAsStream("/nested-structure.json"),
+            Specification.class);
     Context ctx = new Context(mapper, spec);
     Schema schema = instance.createSchema(ctx);
     mapper.writeValue(System.out, schema);
