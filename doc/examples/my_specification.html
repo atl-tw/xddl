@@ -1,0 +1,48 @@
+<html><head></head><body><h1>My Specification</h1>
+<p><em>Version: 1.0</em></p>
+<p>This is my specification, there are many like it but this one is mine.</p>
+<h2>Contents</h2>
+<ol>
+<li>Structures
+<ol>
+<li><a href="#Book">Book</a></li>
+</ol>
+</li>
+<li>Types
+<ol>
+<li><a href="#money">money</a></li>
+</ol>
+</li>
+</ol>
+<h2>Structures</h2>
+<p><a name="Book"></a></p>
+<h3>Book</h3>
+<p>A book for sale</p>
+<h4>Properties</h4>
+<ul>
+<li>title (STRING)</li>
+<li>authors (List of...)
+<ul>
+<li>null (STRING)</li>
+</ul>
+</li>
+<li>price (<a href="#money">money</a>)</li>
+<li>tax (<a href="#money">money</a>)</li>
+</ul>
+<h2>Types</h2>
+<p><a name="money"></a></p>
+<h4>money (BIG_DECIMAL)</h4>
+<ul>
+<li>This is a currency value of an accurate floating point value</li>
+<li>extensions
+<ul>
+<li>elasticsearch
+<ul>
+<li><code>type: &quot;scaled_float&quot;</code></li>
+<li><code>scaling_factor: &quot;100&quot;</code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</body></html>

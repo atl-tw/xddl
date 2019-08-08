@@ -1,0 +1,36 @@
+{
+  "definitions" : {
+    "Book" : {
+      "title" : "Book",
+      "description" : "A book for sale",
+      "type" : "object",
+      "properties" : {
+        "price" : {
+          "title" : "price",
+          "description" : "This is a currency value of an accurate floating point value",
+          "type" : "string",
+          "pattern" : "^-?\\d*(\\.\\d*)?$"
+        },
+        "tax" : {
+          "title" : "tax",
+          "description" : "This is a currency value of an accurate floating point value",
+          "type" : "string",
+          "pattern" : "^-?\\d*(\\.\\d*)?$"
+        },
+        "title" : {
+          "title" : "title",
+          "type" : "string"
+        },
+        "authors" : {
+          "title" : "authors",
+          "type" : "array",
+          "items" : {
+            "type" : "string"
+          }
+        }
+      }
+    }
+  },
+  "$schema" : "http://json-schema.org/draft-07/schema#",
+  "$ref" : "#/definitions/Book"
+}
