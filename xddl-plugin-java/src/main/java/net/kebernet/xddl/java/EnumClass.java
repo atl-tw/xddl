@@ -15,6 +15,7 @@
  */
 package net.kebernet.xddl.java;
 
+import static net.kebernet.xddl.java.StructureClass.escape;
 import static net.kebernet.xddl.model.Utils.ifNotNullOrEmpty;
 
 import com.google.common.base.CaseFormat;
@@ -57,18 +58,18 @@ public class EnumClass implements Writable {
             v -> {
               TypeSpec.Builder valueBuilder =
                   TypeSpec.anonymousClassBuilder(""); // TODO multivariant enums here.
-              ifNotNullOrEmpty(v.getDescription(), (s) -> valueBuilder.addJavadoc(s + "\n"));
+              ifNotNullOrEmpty(v.getDescription(), (s) -> valueBuilder.addJavadoc(escape(s)));
               ifNotNullOrEmpty(
-                  v.getComment(), (s) -> valueBuilder.addJavadoc("Comment: " + s + "\n"));
+                  v.getComment(), (s) -> valueBuilder.addJavadoc("Comment: "+ escape(s)));
 
               builder.addEnumConstant(v.getValue().asText(), valueBuilder.build());
             });
     if (base != null) {
-      ifNotNullOrEmpty(base.getDescription(), s -> builder.addJavadoc(s + "\n"));
-      ifNotNullOrEmpty(base.getComment(), s -> builder.addJavadoc("Comment: " + s + "\n"));
+      ifNotNullOrEmpty(base.getDescription(), s -> builder.addJavadoc(escape(s)));
+      ifNotNullOrEmpty(base.getComment(), s -> builder.addJavadoc("Comment: " + escape(s)));
     } else {
-      ifNotNullOrEmpty(resolved.getDescription(), s -> builder.addJavadoc(s + "\n"));
-      ifNotNullOrEmpty(resolved.getComment(), s -> builder.addJavadoc("Comment: " + s + "\n"));
+      ifNotNullOrEmpty(resolved.getDescription(), s -> builder.addJavadoc(escape(s)));
+      ifNotNullOrEmpty(resolved.getComment(), s -> builder.addJavadoc("Comment: " +escape(s)));
     }
     return builder;
   }

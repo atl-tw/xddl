@@ -38,9 +38,9 @@ public class SpecificationDiffTest {
     Set<SchemaElement> result = diff.diff();
     result.forEach(
         r -> {
-          System.out.println("Type mismatch:");
-          System.out.println("\texpected: " + diff.left(r.pathToDotNotation()));
-          System.out.println("\tactual: " + diff.right(r.pathToDotNotation()));
+          System.out.println("Mismatch");
+          System.out.println("\tl: " + diff.left(r.pathToDotNotation()));
+          System.out.println("\tr: " + diff.right(r.pathToDotNotation()));
         });
     assertThat(result).isNotEmpty();
     assertThat(result.iterator().next().pathToDotNotation()).isEqualTo("intProperty");

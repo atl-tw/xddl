@@ -34,6 +34,12 @@ xDDL is based on on couple of simple ideas:
   1. Provide a code execution path that is suitable for automated dependency generation.
   
      We want you to turn this format into DDLs for whatever format you need: JSON, ElasticSearch, SQL, etc.
+
+Getting Started
+---------------
+
+Please see the [Getting Started Guide](./doc/Getting_Started.md).
+
      
 Simple Example
 --------------
@@ -166,7 +172,6 @@ Distributions are available at [bintray](https://bintray.com/kebernet/maven/xddl
 version is the "xddl" distribution zip that contains an executable packaged with the plugins.
 
 
-
 Execution
 ---------
 
@@ -175,8 +180,9 @@ You can run ``xddl.bat generate`` or ``xddl generate`` depending on your OS.
 ```
 Usage: generate [options]
   Options:
-  * --format, -f
+ * --format, -f
       The output plugin to generate
+      Default: [markdown, json, elasticsearch]
     --help
       Show this help text
     --include-dir, -d
@@ -185,18 +191,14 @@ Usage: generate [options]
       The specification file.
   * --output-directory, -o
       The directory to output generated artifacts to.
+      Default: .
     --stacktrace
       Show the stacktrace of an error
       Default: false
 
+
 ```
 
-Format plugins available are:
-
- * json (JSON Schema)
- * graphvis (A ``dot`` file and a ``png`` file of your structure relationships)
- * markdown (An ``md`` file and an ``html`` file of your documentation)
- * elasticsearch (A ``mappings.json`` file with an elastic search index definition)
  
  
 

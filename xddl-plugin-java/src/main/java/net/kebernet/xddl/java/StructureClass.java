@@ -167,9 +167,13 @@ public class StructureClass implements Writable {
   private FieldSpec doType(Type type) {
     FieldSpec.Builder builder =
         FieldSpec.builder(Resolver.resolveType(ctx, type), type.getName(), Modifier.PRIVATE);
-    ifNotNullOrEmpty(type.getDescription(), s -> builder.addJavadoc(s + "\n"));
-    ifNotNullOrEmpty(type.getComment(), s -> builder.addJavadoc("Comment: " + s + "\n"));
+    ifNotNullOrEmpty(type.getDescription(), s -> builder.addJavadoc(escape(s) + "\n"));
+    ifNotNullOrEmpty(type.getComment(), s -> builder.addJavadoc("Comment: " + escape(s)));
     return builder.build();
+  }
+
+  static String escape(String value){
+      return neverNull(value).replaceAll("\\$", "$$") + "\n";
   }
 
   private FieldSpec doListType(List listType) {
@@ -186,8 +190,8 @@ public class StructureClass implements Writable {
                   ClassName.get(java.util.List.class),
                   ClassName.get(packageName, ((Reference) contains).getRef())),
               listType.getName());
-      ifNotNullOrEmpty(contains.getDescription(), s -> builder.addJavadoc(s + "\n"));
-      ifNotNullOrEmpty(contains.getComment(), s -> builder.addJavadoc("Comment: " + s + "\n"));
+      ifNotNullOrEmpty(contains.getDescription(), s -> builder.addJavadoc(escape(s)));
+      ifNotNullOrEmpty(contains.getComment(), s -> builder.addJavadoc("Comment: " + escape(s)));
       return builder.build();
     }
     if (contains instanceof Type) {
@@ -196,8 +200,8 @@ public class StructureClass implements Writable {
               ParameterizedTypeName.get(
                   ClassName.get(java.util.List.class), Resolver.resolveType(ctx, (Type) contains)),
               listType.getName());
-      ifNotNullOrEmpty(contains.getDescription(), s -> builder.addJavadoc(s + "\n"));
-      ifNotNullOrEmpty(contains.getComment(), s -> builder.addJavadoc("Comment: " + s + "\n"));
+      ifNotNullOrEmpty(contains.getDescription(), s -> builder.addJavadoc(escape(s)));
+      ifNotNullOrEmpty(contains.getComment(), s -> builder.addJavadoc("Comment: " + escape(s)));
       return builder.build();
     }
     if (contains instanceof Structure) {

@@ -43,7 +43,7 @@ if(project.hasProperty("kebernet_bintray")) {
         key = getProperty("kebernet_bintray_api")
         pkg {
             repo = 'maven'
-            name = 'net.kebernet.xddl'
+            name = 'xddl'
             publish = true
             licenses = ['Apache-2.0']
             publications = ['Plugin']
@@ -55,11 +55,9 @@ publishing {
     publications {
         Plugin(MavenPublication) {
             from components.java
-            artifact source: "${project.buildDir}/libs/${project.name}-${project.version}-javadoc.jar", extension: 'jar', classifier: 'javadoc'
-            artifact source: "${project.buildDir}/libs/${project.name}-${project.version}-sources.jar", extension: 'jar', classifier: 'sources'
             groupId "${project.group}.${project.name}"
-            artifactId "${project.group}.${project.name}.gradle.plugin"
-            version project.version
+            artifactId "${project.group}.xddl.gradle.plugin"
+            version rootProject.version
         }
     }
 }

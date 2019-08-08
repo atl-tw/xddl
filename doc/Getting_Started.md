@@ -45,6 +45,14 @@ The core of xDDL is the specification file. It looks something like this:
           "name": "title"
         },
         {
+          "@type": "List",
+          "name": "authors",
+          "contains": {
+            "@type": "Type",
+            "core": "STRING"
+          }
+        },
+        {
           "@type": "Reference",
           "ref": "money",
           "name": "price"
@@ -65,6 +73,7 @@ Here we have a definition for a Book specification. Lets work through it point b
 *  ``title`` is the title of the specification.
 *  ``version`` is the version of the spec.
 *  ``description`` is a Text/Markdown description of the specification.
+*  ``comment`` is a developer comment on the type.
 *  ``entryRef`` is a reference to a Structure name that is the stop level of the specification.
    This is optional for the spec, but required for some plugin generations 
    (like JSON-schema, or ElasticSearch)
@@ -121,4 +130,147 @@ Here we have a definition for a Book specification. Lets work through it point b
       decimal places. The particular list of values under any given node in the ``ext`` structure is defined by
       the plugin that handles it.
 * ``structures`` is an array of complex objects in your spec. 
-    
+    * They have an array of ``properties`` that can be of any ``@type`` value:
+        * ``Structure`` a nested structure.
+        * ``Reference`` a reference to a type or structure in the top level lists
+        * ``List`` a list of any type.
+        * ``Type`` another simple type.    
+        
+        
+Generating Artifacts
+--------------------
+        
+What can we do with our xDDL file now? We can generate new artifacts from it. When we run:
+
+```bash
+xddl generate -f markdown -f json -f elasticsearch -o . -i MySpecification.xddl.json 
+```
+
+We are saying "Generate artifacts for the markdown, json, and elasticsearch plugins from
+my specification file into the current directory. You can see the results in the
+[examples](./examples) folder.
+
+The Markdown plugin generated ``my_specification.md`` and ``my_specification.html`` with
+reference documentation:
+
+```markdown
+My Specification
+===========================================================
+_Version: 1.0_
+
+This is my specification, there are many like it but this one is mine.
+
+
+Contents
+--------
+
+1. Structures
+   1. [Book](#Book)
+1. Types
+   1. [money](#money)
+
+
+Structures
+----------
+
+<a name="Book"></a>
+### Book
+A book for sale
+```
+...and so on.
+
+The JSON plugin generated a JSON Schema document from out specification in ``schema.json``:
+
+```json
+{
+  "$schema" : "http://json-schema.org/draft-07/schema#",
+  "$ref" : "#/definitions/Book",
+  "definitions" : {
+    "Book" : {
+      "title" : "Book",
+      "description" : "A book for sale",
+      "type" : "object",
+      "properties" : {
+        "price" : {
+          "title" : "price",
+          "description" : "This is a currency value of an accurate floating point value",
+          "type" : "string",
+          "pattern" : "^-?\\d*(\\.\\d*)?$"
+        },
+```
+... and so on. Here you can see the BIG_DECIMAL money type was adapted to a "string" with
+a validation pattern. Plugins should provide a reasonable default output for each of the
+built in core types, but you can always override this behavior using the ``ext`` structures.
+
+For the Elasticsearch plugin, we got ``my_specification.mappings.json``:
+
+```json
+{
+  "mappings" : {
+    "_default_" : {
+      "dynamic" : "strict"
+    },
+    "my_specification-1.0" : {
+      "properties" : {
+        "title" : {
+          "type" : "keyword"
+        },
+        "authors" : {
+          "type" : "keyword"
+        },
+        "price" : {
+          "type" : "scaled_float",
+          "scaling_factor" : "100"
+        },
+        "tax" : {
+          "type" : "scaled_float",
+          "scaling_factor" : "100"
+        }
+      }
+    }
+  },
+  "settings" : { }
+}
+```
+
+Here you can see the mapping configuration for the ``price`` property was copied from the extension structure:
+```json
+{
+    "ext": {
+        "elasticsearch": {
+          "type": "scaled_float",
+          "scaling_factor": "100"
+        }
+      }
+}
+``` 
+
+What exactly you can put into the extensions structure for a plugin will vary by plugin.
+
+The core plugins are:
+ * ``markdown``: To generate ``.md`` and ``.html`` documentation.
+ * ``graphvis``: To generate ``.dot`` and ``.png`` graphs that show the relationships 
+    between your structure types.
+ * ``json``: To generate a JSON-Schema file.
+ * ``elasticsearch``: To generate an Elasticsearch Mappings structure for indexing your 
+   document structure.
+ * ``java``: To generate a set of Java classes suitable for mapping to your specification.
+ 
+Best Practices
+-------------- 
+ 
+Each of the plugins has different capabilities and limitations right now. However, there
+are some good rules of thumb to get you started:
+
+ * Lists of Lists (multidimensional arrays) can be problematic.
+ * Be careful of graph recursions, such as ``Person.children[List(Person)]``. For things
+   like ElasticSearch where the graph is unrolled completely, this will not work.
+ * Naming Referable types:
+    * Types should be in "lower_snake_case".
+    * Structures should be in "UpperCamelCase".
+ * Breaking up large schemas...
+   You can use the ``--include-dir, -d`` option on the command line to automatically include
+   ``*.xddl.json``. Any ``{ "@type": "Type"... }`` or ``{ "@type":"Structure"... }`` elements 
+   parsed will be automatically added to your main xDDL specification as it is parsed.
+``
+          
