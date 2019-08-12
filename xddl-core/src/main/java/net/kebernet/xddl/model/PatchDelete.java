@@ -13,22 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.kebernet.xddl.plugins;
+package net.kebernet.xddl.model;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import java.io.IOException;
-import net.kebernet.xddl.model.Specification;
-import net.kebernet.xddl.model.StructureTest;
-import org.junit.Test;
+public class PatchDelete extends BaseType<PatchDelete> {
 
-public class ContextTest {
-
-  @Test(expected = IllegalStateException.class)
-  public void testIllegalReference() throws IOException {
-    ObjectMapper mapper = new ObjectMapper();
-    Specification spec =
-        mapper.readValue(
-            StructureTest.class.getResourceAsStream("/illegal_ref.json"), Specification.class);
-    Context context = new Context(mapper, spec);
+  @Override
+  public PatchDelete merge(Reference reference) {
+    return this;
   }
 }

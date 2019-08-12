@@ -60,7 +60,7 @@ public class EnumClass implements Writable {
                   TypeSpec.anonymousClassBuilder(""); // TODO multivariant enums here.
               ifNotNullOrEmpty(v.getDescription(), (s) -> valueBuilder.addJavadoc(escape(s)));
               ifNotNullOrEmpty(
-                  v.getComment(), (s) -> valueBuilder.addJavadoc("Comment: "+ escape(s)));
+                  v.getComment(), (s) -> valueBuilder.addJavadoc("Comment: " + escape(s)));
 
               builder.addEnumConstant(v.getValue().asText(), valueBuilder.build());
             });
@@ -69,7 +69,7 @@ public class EnumClass implements Writable {
       ifNotNullOrEmpty(base.getComment(), s -> builder.addJavadoc("Comment: " + escape(s)));
     } else {
       ifNotNullOrEmpty(resolved.getDescription(), s -> builder.addJavadoc(escape(s)));
-      ifNotNullOrEmpty(resolved.getComment(), s -> builder.addJavadoc("Comment: " +escape(s)));
+      ifNotNullOrEmpty(resolved.getComment(), s -> builder.addJavadoc("Comment: " + escape(s)));
     }
     return builder;
   }

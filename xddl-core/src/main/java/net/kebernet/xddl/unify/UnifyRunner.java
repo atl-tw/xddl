@@ -13,22 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.kebernet.xddl.plugins;
+package net.kebernet.xddl.unify;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.File;
 import java.io.IOException;
+import lombok.Builder;
+import net.kebernet.xddl.Loader;
 import net.kebernet.xddl.model.Specification;
-import net.kebernet.xddl.model.StructureTest;
-import org.junit.Test;
 
-public class ContextTest {
+@Builder
+public class UnifyRunner {
 
-  @Test(expected = IllegalStateException.class)
-  public void testIllegalReference() throws IOException {
-    ObjectMapper mapper = new ObjectMapper();
-    Specification spec =
-        mapper.readValue(
-            StructureTest.class.getResourceAsStream("/illegal_ref.json"), Specification.class);
-    Context context = new Context(mapper, spec);
+  private UnifyCommand command;
+
+  public void run() throws IOException {
+    Specification base =
+        Loader.builder()
+            .main(command.getInputFile())
+            .includes(command.getIncludes())
+            .patches(command.getPatches())
+            .build()
+            .read();
+    Loader.mapper()
+        .writeValue(new File(command.getOutputDirectory(), command.getInputFile().getName()), base);
   }
 }

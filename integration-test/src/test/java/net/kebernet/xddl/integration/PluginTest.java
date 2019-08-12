@@ -23,6 +23,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Collections;
 import net.kebernet.xddl.Runner;
+import net.kebernet.xddl.generate.GenerateRunner;
 import org.junit.Test;
 
 public class PluginTest {
@@ -52,7 +53,7 @@ public class PluginTest {
 
   @Test
   public void jsonSchemaTestWithBuilder() throws IOException {
-    Runner.builder()
+    GenerateRunner.builder()
         .outputDirectory(new File("build/test/schema-test-2/"))
         .plugins(Collections.singletonList("json"))
         .specificationFile(new File("src/test/resources/int-range.json"))

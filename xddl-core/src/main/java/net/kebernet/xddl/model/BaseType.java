@@ -38,7 +38,8 @@ import lombok.experimental.SuperBuilder;
   @JsonSubTypes.Type(value = Reference.class, name = "Reference"),
   @JsonSubTypes.Type(value = Structure.class, name = "Structure"),
   @JsonSubTypes.Type(value = Type.class, name = "Type"),
-  @JsonSubTypes.Type(value = List.class, name = "List")
+  @JsonSubTypes.Type(value = List.class, name = "List"),
+  @JsonSubTypes.Type(value = PatchDelete.class, name = "PATCH_DELETE")
 })
 @JsonPropertyOrder({"name", "description", "required", "ext"})
 public abstract class BaseType<T extends BaseType> implements HasExtensions {

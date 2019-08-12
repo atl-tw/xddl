@@ -125,6 +125,16 @@ public class Context {
     return resolveReference(reference).filter(r -> r instanceof Structure).isPresent();
   }
 
+  public Optional<Structure> asStructure(BaseType type) {
+    if (type instanceof Structure) {
+      return Optional.of((Structure) type);
+    }
+    if (type instanceof Reference && pointsToStructure((Reference) type)) {
+      return resolveReference((Reference) type);
+    }
+    return Optional.empty();
+  }
+
   /**
    * Evaluates if a contains has a extension of a given name
    *

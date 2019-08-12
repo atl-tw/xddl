@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.kebernet.xddl;
+package net.kebernet.xddl.generate;
 
 import static com.google.common.truth.Truth.assertThat;
 
@@ -25,12 +25,12 @@ import java.util.stream.Collectors;
 import net.kebernet.xddl.model.BaseType;
 import org.junit.Test;
 
-public class RunnerTest {
+public class GenerateRunnerTest {
 
   @Test
   public void testIncludes() throws IOException {
-    Runner runner =
-        Runner.builder()
+    GenerateRunner runner =
+        GenerateRunner.builder()
             .includes(Collections.singletonList(new File("./src/test/resources/includes-pass")))
             .specificationFile(new File("./src/test/resources/empty.json"))
             .build();
@@ -50,8 +50,8 @@ public class RunnerTest {
 
   @Test(expected = RuntimeException.class)
   public void testIncludesFail() throws IOException {
-    Runner runner =
-        Runner.builder()
+    GenerateRunner runner =
+        GenerateRunner.builder()
             .includes(
                 Collections.singletonList(new File("./src/test/resources/includes-reference")))
             .specificationFile(new File("./src/test/resources/empty.json"))

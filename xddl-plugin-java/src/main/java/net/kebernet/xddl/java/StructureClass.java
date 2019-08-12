@@ -172,8 +172,8 @@ public class StructureClass implements Writable {
     return builder.build();
   }
 
-  static String escape(String value){
-      return neverNull(value).replaceAll("\\$", "$$") + "\n";
+  static String escape(String value) {
+    return neverNull(value).replaceAll("\\$", "$$") + "\n";
   }
 
   private FieldSpec doListType(List listType) {

@@ -1,0 +1,31 @@
+{
+  "structures": [
+    {
+      "@type": "Structure",
+      "name": "Parent",
+      "properties": [
+        {
+          "@type": "Type",
+          "core": "INTEGER",
+          "name": "property3"
+        },
+        {
+          "@type": "Structure",
+          "name": "child",
+          "properties": [
+            {
+              "@type": "Type",
+              "core": "INTEGER",
+              "name": "property4"
+            }
+          ]
+        },
+        {
+          "@type": "PATCH_DELETE",
+          "name": "property5"
+        }
+      ]
+    }
+
+  ]
+}

@@ -21,12 +21,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.File;
 import java.io.IOException;
 import java.util.Set;
+import net.kebernet.xddl.Loader;
 import net.kebernet.xddl.model.Specification;
 import org.junit.Test;
 
 public class SpecificationDiffTest {
 
-  private static final ObjectMapper mapper = new ObjectMapper();
+  private static final ObjectMapper mapper = Loader.mapper();
 
   @Test
   public void identities() throws IOException {
@@ -36,12 +37,6 @@ public class SpecificationDiffTest {
     Specification rightSpec = mapper.readValue(right, Specification.class);
     SpecificationDiff diff = new SpecificationDiff(mapper, leftSpec, rightSpec);
     Set<SchemaElement> result = diff.diff();
-    result.forEach(
-        r -> {
-          System.out.println("Mismatch");
-          System.out.println("\tl: " + diff.left(r.pathToDotNotation()));
-          System.out.println("\tr: " + diff.right(r.pathToDotNotation()));
-        });
     assertThat(result).isNotEmpty();
     assertThat(result.iterator().next().pathToDotNotation()).isEqualTo("intProperty");
   }
