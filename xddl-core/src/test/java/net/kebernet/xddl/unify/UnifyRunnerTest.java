@@ -38,16 +38,12 @@ public class UnifyRunnerTest {
         Collections.singletonList(new File("src/test/resources/simplePatchInclude")));
     command.setPatches(
         Collections.singletonList(new File("src/test/resources/simplePatchPatches")));
-    File output = new File("build/simplePatch");
-    output.mkdirs();
-    command.setOutputDirectory(output);
+    File output = new File("build/simplePatch/foo.json");
+    output.getParentFile().mkdirs();
+    command.setOutputFile(output);
     UnifyRunner.builder().command(command).build().run();
 
-    Specification patched =
-        Loader.builder()
-            .main(new File("build/simplePatch/add-properties.xddl.json"))
-            .build()
-            .read();
+    Specification patched = Loader.builder().main(output).build().read();
 
     assertThat(
             patched.structures().stream()

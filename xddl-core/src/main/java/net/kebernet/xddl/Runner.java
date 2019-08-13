@@ -67,6 +67,7 @@ public class Runner {
             return;
           }
           UnifyRunner.builder().command(unifyCommand).build().run();
+          break;
         default:
           throw new UnsupportedOperationException(
               "Unknown command " + jCommander.getParsedCommand());

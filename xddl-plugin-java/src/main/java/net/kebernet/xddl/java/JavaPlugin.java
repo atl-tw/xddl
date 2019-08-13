@@ -37,7 +37,7 @@ public class JavaPlugin implements Plugin {
             .map(t -> new EnumClass(context, t, t));
     Stream<StructureClass> structures =
         context.getSpecification().structures().stream()
-            .map(s -> new StructureClass(context, s, s.getName()));
+            .map(s -> new StructureClass(context, s, null));
 
     Stream<Writable> writables = Stream.concat(enums, structures);
     writables.forEach(

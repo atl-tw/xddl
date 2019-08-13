@@ -22,6 +22,7 @@ import net.kebernet.xddl.model.BaseType;
 import net.kebernet.xddl.model.PatchDelete;
 import net.kebernet.xddl.model.Specification;
 import net.kebernet.xddl.model.Structure;
+import net.kebernet.xddl.model.Type;
 import net.kebernet.xddl.plugins.Context;
 
 @Builder
@@ -56,7 +57,26 @@ public class Patcher {
               if (props.containsKey(p.getName())) {
                 BaseType orig = props.get(p.getName());
                 if (p instanceof PatchDelete) {
+                  if (orig == null) {
+                    throw ctx.stateException(
+                        "A PATCH_DELETE was found for "
+                            + p.getName()
+                            + " but it isn't a property in the original",
+                        original);
+                  }
                   original.getProperties().remove(orig);
+                } else if (orig instanceof net.kebernet.xddl.model.List
+                    && p instanceof net.kebernet.xddl.model.List) {
+                  net.kebernet.xddl.model.List o = (net.kebernet.xddl.model.List) orig;
+                  net.kebernet.xddl.model.List pl = (net.kebernet.xddl.model.List) p;
+                  if (o.getContains() instanceof Structure
+                      && pl.getContains() instanceof Structure) {
+                    merge(ctx, (Structure) o.getContains(), (Structure) pl.getContains());
+                  } else if (o.getContains() instanceof Type && pl.getContains() instanceof Type) {
+                    o.setContains(pl.getContains());
+                  } else {
+                    throw ctx.stateException("Unable to merge on list contains ", p);
+                  }
                 } else if (orig instanceof Structure && p instanceof Structure) {
                   merge(ctx, (Structure) orig, (Structure) p);
                 } else {

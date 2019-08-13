@@ -48,10 +48,11 @@ public class GenerateRunnerTest {
     assertThat(types).contains("int_type");
   }
 
-  @Test(expected = RuntimeException.class)
+  @Test(expected = IllegalStateException.class)
   public void testIncludesFail() throws IOException {
     GenerateRunner runner =
         GenerateRunner.builder()
+            .plugins(Collections.singletonList("foobar"))
             .includes(
                 Collections.singletonList(new File("./src/test/resources/includes-reference")))
             .specificationFile(new File("./src/test/resources/empty.json"))

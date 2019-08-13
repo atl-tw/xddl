@@ -50,8 +50,13 @@ public class Loader {
     return MAPPER;
   }
 
-  public Specification read() throws IOException {
-    Specification spec = MAPPER.readValue(main, Specification.class);
+  public Specification read() {
+    Specification spec = null;
+    try {
+      spec = MAPPER.readValue(main, Specification.class);
+    } catch (IOException e) {
+      throw new RuntimeException(main.getPath() + " " + e.getMessage(), e);
+    }
     scanDirectories("xddl", neverNull(this.includes), MAPPER, spec);
 
     if (!isNullOrEmpty(patches)) {
@@ -91,15 +96,10 @@ public class Loader {
         specification.structures().add((Structure) type);
       } else if (type instanceof Type) {
         specification.types().add((Type) type);
-      } else {
-        throw new RuntimeException(
-            xddl.getAbsolutePath()
-                + " contains an handle-able type "
-                + type.getClass().getCanonicalName());
       }
-
     } catch (IOException e) {
-      throw new RuntimeException(e.getMessage(), e);
+      throw new RuntimeException(
+          xddl.getAbsolutePath() + " contains an handle-able type " + xddl.getPath());
     }
   }
 }

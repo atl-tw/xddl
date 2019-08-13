@@ -39,10 +39,10 @@ public class UnifyCommand {
   private List<File> patches;
 
   @Parameter(
-      names = {"--output-directory", "-o"},
-      description = "The directory to output generated artifacts to.",
+      names = {"--output-file", "-o"},
+      description = "The file to output generated artifacts to.",
       required = true)
-  private File outputDirectory;
+  private File outputFile;
 
   @Parameter(names = "--help", description = "Show this help text", help = true)
   private boolean help = false;

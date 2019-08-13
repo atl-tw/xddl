@@ -15,7 +15,6 @@
  */
 package net.kebernet.xddl.unify;
 
-import java.io.File;
 import java.io.IOException;
 import lombok.Builder;
 import net.kebernet.xddl.Loader;
@@ -34,7 +33,6 @@ public class UnifyRunner {
             .patches(command.getPatches())
             .build()
             .read();
-    Loader.mapper()
-        .writeValue(new File(command.getOutputDirectory(), command.getInputFile().getName()), base);
+    Loader.mapper().writeValue(command.getOutputFile(), base);
   }
 }

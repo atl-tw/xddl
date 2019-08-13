@@ -30,6 +30,7 @@ import com.squareup.javapoet.TypeSpec;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashSet;
+import java.util.Optional;
 import javax.lang.model.element.Modifier;
 import net.kebernet.xddl.model.BaseType;
 import net.kebernet.xddl.model.List;
@@ -45,10 +46,11 @@ public class StructureClass implements Writable {
   private final String packageName;
   private final ClassName className;
 
-  public StructureClass(Context context, Structure structure, String name) {
+  public StructureClass(Context context, Structure structure, ClassName name) {
     this.ctx = context;
     this.packageName = resolvePackageName(context);
-    this.className = ClassName.get(packageName, structure.getName());
+    this.className =
+        Optional.ofNullable(name).orElse(ClassName.get(packageName, structure.getName()));
     this.typeBuilder = TypeSpec.classBuilder(className).addModifiers(Modifier.PUBLIC);
     ifNotNullOrEmpty(structure.getDescription(), d -> typeBuilder.addJavadoc(d));
 
@@ -61,7 +63,7 @@ public class StructureClass implements Writable {
   }
 
   public StructureClass(Context context, Structure structure) {
-    this(context, structure, structure.getName());
+    this(context, structure, null);
   }
 
   public TypeSpec.Builder builder() {
@@ -123,6 +125,15 @@ public class StructureClass implements Writable {
     if (resolvedType instanceof List) {
       List list = (List) resolvedType;
       return doListType(list);
+    }
+    if (resolvedType instanceof Structure) {
+      String typeName =
+          CaseFormat.LOWER_CAMEL.to(CaseFormat.UPPER_CAMEL, resolvedType.getName()) + "Type";
+      ClassName name = ClassName.get(packageName, className.simpleName(), typeName);
+      StructureClass struct = new StructureClass(ctx, (Structure) resolvedType, name);
+      TypeSpec type = struct.builder().addModifiers(Modifier.PUBLIC, Modifier.STATIC).build();
+      typeBuilder.addType(type);
+      return FieldSpec.builder(name, resolvedType.getName(), Modifier.PRIVATE).build();
     }
     throw ctx.stateException("Unsupported type ", baseType);
   }
@@ -207,16 +218,16 @@ public class StructureClass implements Writable {
     if (contains instanceof Structure) {
       String typeName =
           CaseFormat.LOWER_CAMEL.to(CaseFormat.UPPER_CAMEL, listType.getName()) + "Type";
-      StructureClass struct = new StructureClass(ctx, (Structure) contains, typeName);
+      ClassName nestedName =
+          ClassName.get(
+              this.className.packageName(),
+              typeName,
+              this.className.simpleNames().toArray(new String[0]));
+      StructureClass struct = new StructureClass(ctx, (Structure) contains, nestedName);
       TypeSpec type = struct.builder().addModifiers(Modifier.PUBLIC, Modifier.STATIC).build();
       typeBuilder.addType(type);
       return FieldSpec.builder(
-              ParameterizedTypeName.get(
-                  ClassName.get(java.util.List.class),
-                  ClassName.get(
-                      this.className.packageName(),
-                      typeName,
-                      this.className.simpleNames().toArray(new String[0]))),
+              ParameterizedTypeName.get(ClassName.get(java.util.List.class), nestedName),
               listType.getName(),
               Modifier.PRIVATE)
           .build();

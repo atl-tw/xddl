@@ -147,4 +147,34 @@ public class StructureClassTest {
         .isEqualTo("getEnumProperty");
     assertThat(descriptors.get("enumProperty").getReadMethod().getReturnType()).isEqualTo(enumType);
   }
+
+  @Test
+  public void structureNested() throws IOException, IntrospectionException, ClassNotFoundException {
+    ObjectMapper mapper = new ObjectMapper();
+    Specification spec =
+        mapper.readValue(
+            StructureClassTest.class.getResourceAsStream("/nestedStructure.json"),
+            Specification.class);
+    Context ctx = new Context(mapper, spec);
+    StructureClass parent = new StructureClass(ctx, spec.structures().get(0));
+    File output = new File("build/test-gen/nestedStructure");
+    output.mkdirs();
+    parent.write(output);
+    String packageName = Resolver.resolvePackageName(ctx);
+    ClassLoader loader = new Compiler(output).compile();
+
+    Class parentClass = loader.loadClass(packageName + ".Parent");
+    Class childClass = loader.loadClass(packageName + ".Parent$ChildOfTheCornType");
+
+    BeanInfo beanInfo = Introspector.getBeanInfo(parentClass);
+    Map<String, PropertyDescriptor> descriptors = new HashMap<>();
+    for (PropertyDescriptor pd : beanInfo.getPropertyDescriptors()) {
+      descriptors.put(pd.getName(), pd);
+    }
+
+    assertThat(descriptors.get("childOfTheCorn").getReadMethod().getName())
+        .isEqualTo("getChildOfTheCorn");
+    assertThat(descriptors.get("childOfTheCorn").getReadMethod().getReturnType())
+        .isEqualTo(childClass);
+  }
 }
