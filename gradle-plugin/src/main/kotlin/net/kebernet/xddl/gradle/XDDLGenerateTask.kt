@@ -15,21 +15,45 @@
  */
 package net.kebernet.xddl.gradle
 
+import net.kebernet.xddl.generate.GenerateRunner
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.InputFile
+import org.gradle.api.tasks.Optional
+import org.gradle.api.tasks.OutputDirectory
+import org.gradle.api.tasks.TaskAction
 import java.io.File
+import java.util.Collections
 
 open class XDDLGenerateTask : DefaultTask() {
 
+    @Optional
     @Input
-    lateinit var includeDirectories: List<File>
+    var includeDirectories: List<File> =
+            if (project.file("src/main/xddl/includes").exists())
+            Collections.singletonList(project.file("src/main/xddl/includes"))
+            else
+            Collections.emptyList()
 
-    @Input
-    lateinit var sourceFile: File
+    @InputFile
+    var sourceFile: File = project.file("src/main/xddl/Specification.xddl.json")
 
-    @Input
-    lateinit var outputDirectory: File
+    @Optional
+    @OutputDirectory
+    var outputDirectory: File = File(project.buildDir, "xddl")
 
     @Input
     lateinit var plugin: String
+
+    @TaskAction
+    fun apply() {
+        GenerateRunner
+                .builder()
+                .specificationFile(sourceFile)
+                .includes(includeDirectories)
+                .outputDirectory(outputDirectory)
+                .plugins(Collections.singletonList(plugin))
+                .build()
+                .run()
+    }
 }

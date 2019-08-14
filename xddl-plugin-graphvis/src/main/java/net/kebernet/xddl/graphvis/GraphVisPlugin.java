@@ -55,7 +55,11 @@ public class GraphVisPlugin implements Plugin {
                         .toLowerCase());
 
     File outputFile = new File(outputDirectory, filename + ".dot");
-
+    if (!outputDirectory.exists()) {
+      if (!outputDirectory.mkdirs()) {
+        throw new IOException("Unable to create " + outputDirectory.getAbsolutePath());
+      }
+    }
     try (PrintWriter pw = new PrintWriter(new FileWriter(outputFile, false))) {
       Specification spec = context.getSpecification();
       BaseType type = context.getReferences().get(spec.getEntryRef());

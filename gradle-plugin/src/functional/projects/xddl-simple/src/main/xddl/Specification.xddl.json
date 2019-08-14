@@ -1,0 +1,22 @@
+{
+  "entryRef": "Parent",
+  "structures": [
+    {
+      "@type": "Structure",
+      "name": "Parent",
+      "properties": [
+        {
+          "@type": "Structure",
+          "name": "childOfTheCorn",
+          "properties": [
+            {
+              "@type": "Type",
+              "core": "INTEGER",
+              "name": "intProperty"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

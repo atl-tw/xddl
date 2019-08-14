@@ -14,7 +14,7 @@ plugins {
 }
 
 group 'net.kebernet'
-version '0.0.19'
+version '0.0.20'
 
 if(project.hasProperty("kebernet_bintray")) {
     bintray {
@@ -61,6 +61,7 @@ subprojects {
         annotationProcessor 'org.projectlombok:lombok:1.18.8'
         testImplementation 'com.google.truth:truth:1.0'
         testImplementation 'junit:junit:4.12'
+        testImplementation 'org.mockito:mockito-core:2.28.2'
     }
 
     task sourceJar(type: Jar) {
@@ -119,6 +120,11 @@ subprojects {
     dependencyCheck {
         suppressionFile = rootProject.file("src/etc/suppression.xml")
         format = 'ALL'
+        analyzers {
+            retirejs {
+                enabled = false
+            }
+        }
     }
 
 

@@ -1,0 +1,14 @@
+{
+  "@type": "Structure",
+  "name": "HasList",
+  "properties": [
+    {
+      "@type": "List",
+      "name": "listOfStrings",
+      "contains": {
+        "@type":"Reference",
+        "ref": "string_type"
+      }
+    }
+  ]
+}

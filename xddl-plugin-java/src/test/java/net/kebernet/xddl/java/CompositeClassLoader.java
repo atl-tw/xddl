@@ -17,14 +17,13 @@ package net.kebernet.xddl.java;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 
 public class CompositeClassLoader extends ClassLoader {
 
-  private final List classLoaders = Collections.synchronizedList(new ArrayList());
+  private final List<ClassLoader> classLoaders = Collections.synchronizedList(new ArrayList<>());
 
-  public CompositeClassLoader(ClassLoader... loaders) {
+  CompositeClassLoader(ClassLoader... loaders) {
     add(Object.class.getClassLoader());
     add(getClass().getClassLoader());
     for (ClassLoader loader : loaders) {
@@ -33,30 +32,24 @@ public class CompositeClassLoader extends ClassLoader {
   }
 
   /**
-   * Add a loader to the n
+   * Add a loader to the composite
    *
-   * @param classLoader
+   * @param classLoader The nested classloader
    */
-  public void add(ClassLoader classLoader) {
+  private void add(ClassLoader classLoader) {
     if (classLoader != null) {
       classLoaders.add(0, classLoader);
     }
   }
 
   public Class loadClass(String name) throws ClassNotFoundException {
-    for (Iterator iterator = classLoaders.iterator(); iterator.hasNext(); ) {
-      ClassLoader classLoader = (ClassLoader) iterator.next();
+    for (ClassLoader classLoader : classLoaders) {
       try {
         return classLoader.loadClass(name);
       } catch (ClassNotFoundException notFound) {
-        // ok.. try another one
+        // noop
       }
     }
-    // One last try - the context class loader associated with the current thread. Often used in
-    // j2ee servers.
-    // Note: The contextClassLoader cannot be added to the classLoaders list up front as the thread
-    // that constructs
-    // XStream is potentially different to thread that uses it.
     ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
     if (contextClassLoader != null) {
       return contextClassLoader.loadClass(name);

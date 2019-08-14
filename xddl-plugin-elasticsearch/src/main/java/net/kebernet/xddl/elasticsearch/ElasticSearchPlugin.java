@@ -111,6 +111,12 @@ public class ElasticSearchPlugin implements Plugin {
                         .replaceAll(" ", "_")
                         .toLowerCase());
 
+    if (!outputDirectory.exists()) {
+      if (!outputDirectory.mkdirs()) {
+        throw new IOException(
+            "xddl-plugin-elasticsearch failed to create " + outputDirectory.getAbsolutePath());
+      }
+    }
     File outputFile = new File(outputDirectory, filename + ".mappings.json");
 
     try (PrintWriter pw = new PrintWriter(new FileWriter(outputFile, false))) {

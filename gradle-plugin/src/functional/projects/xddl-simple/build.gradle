@@ -1,0 +1,49 @@
+plugins {
+    id 'net.kebernet.xddl'
+}
+
+apply plugin: 'java'
+
+task xddlJava(type: XDDLGenerate){
+    plugin = "java"
+    outputDirectory = file(project.buildDir.getAbsolutePath()+ "/xddl-java")
+}
+
+sourceSets {
+    xddl {
+        java.srcDir file(project.buildDir.getAbsolutePath()+ "/xddl-java")
+    }
+
+    main {
+        runtimeClasspath += xddl.output
+    }
+    test {
+        runtimeClasspath += xddl.output
+    }
+}
+
+task xddlGraphvis(type: XDDLGenerate){
+    plugin = "graphvis"
+    outputDirectory = file(project.buildDir.getAbsolutePath()+ "/reports/xddl")
+}
+
+task xddlMarkdown(type: XDDLGenerate){
+    plugin = "markdown"
+    outputDirectory = file(project.buildDir.getAbsolutePath()+ "/reports/xddl")
+}
+
+task xddlElasticSearch(type: XDDLGenerate){
+    plugin = "elasticsearch"
+    outputDirectory = project.buildDir
+}
+
+task xddlJson(type: XDDLGenerate){
+    plugin = "json"
+    outputDirectory = project.buildDir
+}
+
+compileJava.dependsOn xddlJava
+build.dependsOn xddlGraphvis
+build.dependsOn xddlMarkdown
+build.dependsOn xddlElasticSearch
+build.dependsOn xddlJson
