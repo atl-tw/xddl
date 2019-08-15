@@ -6,7 +6,12 @@ plugins {
 }
 
 dependencies {
-    api project(":xddl-all")
+    api project(':xddl-core')
+    api project(':xddl-plugin-markdown')
+    api project(':xddl-plugin-json-schema')
+    api project(':xddl-plugin-graphvis')
+    api project(':xddl-plugin-elasticsearch')
+    api project(':xddl-plugin-java')
     api 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
     testImplementation('org.spockframework:spock-core:1.1-groovy-2.4') {
         exclude group: 'org.codehaus.groovy'
@@ -62,7 +67,7 @@ publishing {
     publications {
         xddl(MavenPublication) {
             from components.java
-            groupId "${project.group}.${project.name}"
+            groupId "${project.group}"
             artifactId "${project.group}.gradle.plugin"
             version rootProject.version
         }

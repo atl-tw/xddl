@@ -8,6 +8,11 @@
     {
       "@type": "Structure",
       "name": "Parent",
+      "ext": {
+        "java": {
+          "implements": ["net.kebernet.xddl.java.HasIntProperty"]
+        }
+      },
       "properties": [
         {
           "@type": "Type",

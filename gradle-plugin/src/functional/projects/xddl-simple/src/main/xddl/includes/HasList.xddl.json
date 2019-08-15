@@ -1,6 +1,11 @@
 {
   "@type": "Structure",
   "name": "HasList",
+  "ext": {
+    "java": {
+      "implements": "whatever.HasList"
+    }
+  },
   "properties": [
     {
       "@type": "List",

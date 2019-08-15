@@ -160,4 +160,18 @@ public class JsonSchemaPluginTest {
     assertThat("42z").doesNotMatch(PATTERN_BIG_INTEGER);
     assertThat("42z").doesNotMatch(PATTERN_BIG_DECIMAL);
   }
+
+  @Test
+  public void testEnums() throws IOException {
+    JsonSchemaPlugin instance = new JsonSchemaPlugin();
+    ObjectMapper mapper = new ObjectMapper();
+    Specification spec =
+        mapper.readValue(
+            JsonSchemaPlugin.class.getResourceAsStream("/enum-value.json"), Specification.class);
+    Context ctx = new Context(mapper, spec);
+    Schema schema = instance.createSchema(ctx);
+    mapper.writeValue(new File("build/test/basic/enum.json"), schema);
+    Definition def = schema.getDefinitions().get("HasEnumValue");
+    assertThat(def.getProperties().get("enumValue").getEnums()).isNotEmpty();
+  }
 }

@@ -17,6 +17,7 @@ package net.kebernet.xddl.jsonschema.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.JsonNode;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -32,6 +33,10 @@ public class Definition {
   private String description;
   private String format;
   private String type;
+
+  @JsonProperty("enum")
+  private List<JsonNode> enums;
+
   private Map<String, Definition> properties;
   private List<String> required;
   private Boolean additionalProperties;

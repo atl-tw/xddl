@@ -23,6 +23,7 @@ import java.util.Collections;
 import java.util.stream.Collectors;
 import net.kebernet.xddl.Loader;
 import net.kebernet.xddl.model.BaseType;
+import net.kebernet.xddl.model.PatchDelete;
 import net.kebernet.xddl.model.Specification;
 import net.kebernet.xddl.model.Structure;
 import org.junit.Test;
@@ -51,14 +52,20 @@ public class UnifyRunnerTest {
                 .map(Structure::getProperties)
                 .map(
                     l -> {
-                      return l.stream().map(BaseType::getName).collect(Collectors.toSet());
+                      return l.stream()
+                          .filter(t -> !(t instanceof PatchDelete))
+                          .map(BaseType::getName)
+                          .collect(Collectors.toSet());
                     })
                 .get())
         .containsExactly("property1", "property3", "child");
     assertThat(
             patched.structures().get(0).getProperties().stream()
                 .filter(p -> "child".equals(p.getName()))
-                .flatMap(p -> ((Structure) p).getProperties().stream())
+                .flatMap(
+                    p ->
+                        ((Structure) p)
+                            .getProperties().stream().filter(t -> !(t instanceof PatchDelete)))
                 .map(BaseType::getName)
                 .collect(Collectors.toSet()))
         .containsExactly("property2", "property4");

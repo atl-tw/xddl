@@ -15,9 +15,11 @@
  */
 package net.kebernet.xddl.java;
 
+import static net.kebernet.xddl.java.Resolver.parse;
 import static net.kebernet.xddl.java.Resolver.resolvePackageName;
 import static net.kebernet.xddl.model.Utils.*;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.base.CaseFormat;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.FieldSpec;
@@ -34,6 +36,7 @@ import java.util.Optional;
 import javax.lang.model.element.Modifier;
 import net.kebernet.xddl.model.BaseType;
 import net.kebernet.xddl.model.List;
+import net.kebernet.xddl.model.PatchDelete;
 import net.kebernet.xddl.model.Reference;
 import net.kebernet.xddl.model.Structure;
 import net.kebernet.xddl.model.Type;
@@ -54,12 +57,25 @@ public class StructureClass implements Writable {
     this.typeBuilder = TypeSpec.classBuilder(className).addModifiers(Modifier.PUBLIC);
     ifNotNullOrEmpty(structure.getDescription(), d -> typeBuilder.addJavadoc(d));
 
+    context.hasPlugin("java", structure, this::doExtension, (node) -> {});
+
     neverNull(structure.getProperties()).stream()
+        .filter(t -> !(t instanceof PatchDelete))
         .map(this::doPropertyType)
         .peek(fieldSpec -> typeBuilder.addMethod(createGetter(fieldSpec)))
         .peek(fieldSpec -> typeBuilder.addMethod(createSetter(fieldSpec)))
         .peek(fieldSpec -> typeBuilder.addMethod(createBuilder(fieldSpec)))
         .forEach(typeBuilder::addField);
+  }
+
+  private void doExtension(JsonNode jsonNode) {
+    if (jsonNode.has("implements")) {
+      JsonNode impl = jsonNode.get("implements");
+      for (JsonNode iface : impl) {
+        ClassName name = parse(iface.asText(), packageName);
+        typeBuilder.addSuperinterface(name);
+      }
+    }
   }
 
   public StructureClass(Context context, Structure structure) {

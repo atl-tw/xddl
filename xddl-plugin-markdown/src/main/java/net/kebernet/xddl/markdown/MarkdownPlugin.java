@@ -31,6 +31,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.Reader;
 import net.kebernet.xddl.model.List;
+import net.kebernet.xddl.model.PatchDelete;
 import net.kebernet.xddl.model.Reference;
 import net.kebernet.xddl.model.Specification;
 import net.kebernet.xddl.model.Structure;
@@ -160,7 +161,8 @@ public class MarkdownPlugin implements Plugin {
               ifNotNullOrEmpty(s.getComment(), c -> pw.println("\n```" + c + "```"));
               pw.println("#### Properties");
               pw.println();
-              s.getProperties()
+              s.getProperties().stream()
+                  .filter(t -> !(t instanceof PatchDelete))
                   .forEach(
                       p -> {
                         isaType(p, (t) -> generateType(pw, 0, t, false));
@@ -209,8 +211,8 @@ public class MarkdownPlugin implements Plugin {
         struct.getDescription(), s -> pw.println(bullet(subindent) + replaceLineBreaks(s)));
     ifNotNullOrEmpty(struct.getComment(), s -> pw.println(bullet(subindent) + "``\n" + s + "``"));
     pw.println(bullet(subindent) + " properties");
-    struct
-        .getProperties()
+    struct.getProperties().stream()
+        .filter(t -> !(t instanceof PatchDelete))
         .forEach(
             p -> {
               isaType(p, (t) -> generateType(pw, subindent + 1, t, false));

@@ -64,8 +64,12 @@ public class Patcher {
                             + " but it isn't a property in the original",
                         original);
                   }
+                }
+                if (orig instanceof PatchDelete) {
+                  // Remove patch deletes from original.
                   original.getProperties().remove(orig);
-                } else if (orig instanceof net.kebernet.xddl.model.List
+                }
+                if (orig instanceof net.kebernet.xddl.model.List
                     && p instanceof net.kebernet.xddl.model.List) {
                   net.kebernet.xddl.model.List o = (net.kebernet.xddl.model.List) orig;
                   net.kebernet.xddl.model.List pl = (net.kebernet.xddl.model.List) p;

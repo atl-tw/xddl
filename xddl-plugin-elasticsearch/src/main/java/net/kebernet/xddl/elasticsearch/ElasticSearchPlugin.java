@@ -30,6 +30,7 @@ import java.util.Map;
 import net.kebernet.xddl.model.BaseType;
 import net.kebernet.xddl.model.CoreType;
 import net.kebernet.xddl.model.List;
+import net.kebernet.xddl.model.PatchDelete;
 import net.kebernet.xddl.model.Reference;
 import net.kebernet.xddl.model.Specification;
 import net.kebernet.xddl.model.Structure;
@@ -152,7 +153,8 @@ public class ElasticSearchPlugin implements Plugin {
     ObjectNode properties = context.getMapper().createObjectNode();
     indexNode.set("properties", properties);
     tree.add(type);
-    type.getProperties()
+    type.getProperties().stream()
+        .filter(t -> !(t instanceof PatchDelete))
         .forEach(
             p -> {
               if (p instanceof Reference) {

@@ -23,10 +23,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.File;
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 import net.kebernet.xddl.jsonschema.model.Definition;
 import net.kebernet.xddl.jsonschema.model.Schema;
 import net.kebernet.xddl.model.BaseType;
@@ -35,6 +37,7 @@ import net.kebernet.xddl.model.List;
 import net.kebernet.xddl.model.Reference;
 import net.kebernet.xddl.model.Structure;
 import net.kebernet.xddl.model.Type;
+import net.kebernet.xddl.model.Value;
 import net.kebernet.xddl.plugins.Context;
 import net.kebernet.xddl.plugins.Plugin;
 
@@ -232,6 +235,9 @@ public class JsonSchemaPlugin implements Plugin {
     if (definition.getPattern() == null && NUMBER_PATTERNS.containsKey(type.getCore())) {
       definition.setPattern(NUMBER_PATTERNS.get(type.getCore()));
     }
+    ofNullable(type.getAllowable())
+        .map(Collection::stream)
+        .ifPresent(s -> definition.setEnums(s.map(Value::getValue).collect(Collectors.toList())));
   }
 
   private void doBaseTypeExtensions(Context context, BaseType type, Definition definition) {

@@ -1,0 +1,19 @@
+{
+  "structures": [
+    {
+      "@type": "Structure",
+      "name": "HasEnumValue",
+      "properties": [
+        {
+          "@type": "Type",
+          "core": "STRING",
+          "name": "enumValue",
+          "allowable": [
+            {"value": "A"},
+            {"value": "B"}
+          ]
+        }
+      ]
+    }
+  ]
+}

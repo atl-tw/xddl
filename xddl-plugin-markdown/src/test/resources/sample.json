@@ -41,6 +41,10 @@
       "comment": "This is my comment.",
       "properties": [
         {
+          "@type": "PATCH_DELETE",
+          "name": "deeeeeeleeeeted"
+        },
+        {
           "@type": "Type",
           "name": "value",
           "description": "The value in American decimal notation",
