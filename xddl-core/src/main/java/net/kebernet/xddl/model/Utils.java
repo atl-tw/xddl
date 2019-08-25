@@ -17,6 +17,7 @@ package net.kebernet.xddl.model;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.base.Strings;
+import java.io.File;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
@@ -25,6 +26,14 @@ import java.util.function.Consumer;
 
 public abstract class Utils {
   private Utils() {}
+
+  public static Integer neverNull(Integer i) {
+    return i == null ? 0 : i;
+  }
+
+  public static File[] neverNull(File[] files) {
+    return files == null ? new File[0] : files;
+  }
 
   public static String neverNull(String value) {
     return value == null ? "" : value;

@@ -34,6 +34,7 @@ import net.kebernet.xddl.jsonschema.model.Schema;
 import net.kebernet.xddl.model.BaseType;
 import net.kebernet.xddl.model.CoreType;
 import net.kebernet.xddl.model.List;
+import net.kebernet.xddl.model.PatchDelete;
 import net.kebernet.xddl.model.Reference;
 import net.kebernet.xddl.model.Structure;
 import net.kebernet.xddl.model.Type;
@@ -155,7 +156,8 @@ public class JsonSchemaPlugin implements Plugin {
     def.setTitle(s.getName());
     def.setDescription(s.getDescription());
     def.setType("object");
-    s.getProperties()
+    s.getProperties().stream()
+        .filter(p -> !(p instanceof PatchDelete))
         .forEach(
             p -> {
               def.properties().put(p.getName(), this.visitBaseType(context, p));

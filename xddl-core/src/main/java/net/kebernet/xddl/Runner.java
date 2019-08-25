@@ -21,6 +21,8 @@ import net.kebernet.xddl.diff.DiffCommand;
 import net.kebernet.xddl.diff.DiffRunner;
 import net.kebernet.xddl.generate.GenerateCommand;
 import net.kebernet.xddl.generate.GenerateRunner;
+import net.kebernet.xddl.glide.GlideCommand;
+import net.kebernet.xddl.glide.GlideRunner;
 import net.kebernet.xddl.unify.UnifyCommand;
 import net.kebernet.xddl.unify.UnifyRunner;
 
@@ -30,7 +32,8 @@ public class Runner {
   public static void main(String... args) {
     GenerateCommand command = new GenerateCommand();
     DiffCommand diffCommand = new DiffCommand();
-    UnifyCommand unifyCommand = new UnifyCommand();
+    UnifyCommand unifyCommand = UnifyCommand.builder().build();
+    GlideCommand glideCommand = GlideCommand.builder().build();
     JCommander jCommander;
     try {
       jCommander =
@@ -38,6 +41,7 @@ public class Runner {
               .addCommand("generate", command)
               .addCommand("diff", diffCommand)
               .addCommand("unify", unifyCommand)
+              .addCommand("glide", glideCommand)
               .args(args)
               .build();
       switch (jCommander.getParsedCommand()) {
@@ -67,6 +71,13 @@ public class Runner {
             return;
           }
           UnifyRunner.builder().command(unifyCommand).build().run();
+          break;
+        case "glide":
+          if (glideCommand.isHelp()) {
+            jCommander.usage("glide");
+            return;
+          }
+          GlideRunner.builder().command(glideCommand).build().run();
           break;
         default:
           throw new UnsupportedOperationException(

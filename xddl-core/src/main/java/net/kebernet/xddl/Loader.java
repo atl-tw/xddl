@@ -23,11 +23,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import lombok.Builder;
 import net.kebernet.xddl.model.BaseType;
+import net.kebernet.xddl.model.PatchDelete;
 import net.kebernet.xddl.model.Specification;
 import net.kebernet.xddl.model.Structure;
 import net.kebernet.xddl.model.Type;
@@ -39,6 +41,7 @@ public class Loader {
   private File main;
   private List<File> includes;
   private List<File> patches;
+  private boolean scrubPatchesFromBaseline;
 
   static {
     MAPPER = new ObjectMapper();
@@ -58,6 +61,9 @@ public class Loader {
       throw new RuntimeException(main.getPath() + " " + e.getMessage(), e);
     }
     scanDirectories("xddl", neverNull(this.includes), MAPPER, spec);
+    if (scrubPatchesFromBaseline) {
+      spec.getStructures().forEach(this::visitStructure);
+    }
 
     if (!isNullOrEmpty(patches)) {
       Specification patch = new Specification();
@@ -101,5 +107,22 @@ public class Loader {
       throw new RuntimeException(
           xddl.getAbsolutePath() + " contains an handle-able type " + xddl.getPath());
     }
+  }
+
+  private void visitStructure(Structure structure) {
+    new ArrayList<>(neverNull(structure.getProperties()))
+        .forEach(
+            p -> {
+              if (p instanceof PatchDelete) {
+                structure.getProperties().remove(p);
+              } else if (p instanceof net.kebernet.xddl.model.List) {
+                net.kebernet.xddl.model.List list = (net.kebernet.xddl.model.List) p;
+                if (list.getContains() instanceof Structure) {
+                  visitStructure((Structure) list.getContains());
+                }
+              } else if (p instanceof Structure) {
+                visitStructure((Structure) p);
+              }
+            });
   }
 }

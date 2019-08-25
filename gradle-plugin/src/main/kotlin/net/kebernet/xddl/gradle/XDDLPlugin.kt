@@ -22,6 +22,7 @@ open class XDDLPlugin : Plugin<Project> {
     override fun apply(project: Project) {
         with(project) {
             project.extensions.extraProperties.set("XDDLGenerate", XDDLGenerateTask::class.java)
+            project.extensions.extraProperties.set("XDDLGlide", XDDLGlideTask::class.java)
         }
     }
 }

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.kebernet.xddl.unify;
+package net.kebernet.xddl.glide;
 
 import com.beust.jcommander.Parameter;
 import java.io.File;
@@ -23,7 +23,8 @@ import lombok.Data;
 
 @Data
 @Builder
-public class UnifyCommand {
+public class GlideCommand {
+
   @Parameter(
       names = {"--input-file", "-i"},
       description = "The specification file.",
@@ -36,25 +37,16 @@ public class UnifyCommand {
   private List<File> includes;
 
   @Parameter(
-      names = {"--patches-dir", "-p"},
-      description = "Directory(ies) to scan for *.patch.json files to include.")
-  private List<File> patches;
+      names = {"--glide-patches", "-g"},
+      description =
+          "Directory(ies) to scan for 'vXXXX' directories containing *.patch.json files to include.")
+  private File patches;
 
   @Parameter(
-      names = {"--output-file", "-o"},
+      names = {"--output-directory", "-o"},
       description = "The file to output generated artifacts to.",
       required = true)
-  private File outputFile;
-
-  @Parameter(
-      names = {"--scrub-patch", "-s"},
-      description = "scrubs patch-delete operations from the original")
-  private boolean scrubPatch;
-
-  @Parameter(
-      names = {"--new-version", "-nb"},
-      description = "The version string of the unified file")
-  private String newVersion;
+  private File outputDirectory;
 
   @Parameter(names = "--help", description = "Show this help text", help = true)
   private boolean help;

@@ -33,7 +33,7 @@ public class UnifyRunnerTest {
   @SuppressWarnings("ResultOfMethodCallIgnored")
   @Test
   public void unifyTest() throws IOException {
-    UnifyCommand command = new UnifyCommand();
+    UnifyCommand command = UnifyCommand.builder().build();
     command.setInputFile(new File("src/test/resources/simplePatch/add-properties.xddl.json"));
     command.setIncludes(
         Collections.singletonList(new File("src/test/resources/simplePatchInclude")));

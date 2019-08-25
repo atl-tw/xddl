@@ -46,4 +46,17 @@ class PluginTest extends Specification {
         then:
         result.task(":build").outcome == SUCCESS
     }
+
+    def "do glide generation "() {
+        when:
+        def result = GradleRunner.create()
+                .withProjectDir(new File("build/functional/projects/xddl-glide"))
+                .withArguments('clean', 'build', "--stacktrace")
+                .withPluginClasspath()
+                .withDebug(true)
+                .forwardStdOutput(new OutputStreamWriter(System.out))
+                .build()
+        then:
+        result.task(":build").outcome == SUCCESS
+    }
 }

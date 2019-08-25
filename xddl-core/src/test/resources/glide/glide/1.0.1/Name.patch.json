@@ -1,0 +1,20 @@
+{
+  "@type": "Structure",
+  "name": "Name",
+  "properties": [
+    {
+      "@type": "PATCH_DELETE",
+      "name": "value"
+    },
+    {
+      "@type": "Type",
+      "core": "STRING",
+      "name": "firstName"
+    },
+    {
+      "@type": "Type",
+      "core": "STRING",
+      "name": "lastName"
+    }
+  ]
+}

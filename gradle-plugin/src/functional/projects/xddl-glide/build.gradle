@@ -1,0 +1,11 @@
+plugins {
+    id 'net.kebernet.xddl'
+}
+
+apply plugin: 'java'
+
+task glide(type: XDDLGlide){
+
+}
+
+build.dependsOn glide

@@ -31,8 +31,12 @@ public class UnifyRunner {
             .main(command.getInputFile())
             .includes(command.getIncludes())
             .patches(command.getPatches())
+            .scrubPatchesFromBaseline(command.isScrubPatch())
             .build()
             .read();
+    if (command.getNewVersion() != null) {
+      base.setVersion(command.getNewVersion());
+    }
     Loader.mapper().writeValue(command.getOutputFile(), base);
   }
 }
