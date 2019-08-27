@@ -20,10 +20,11 @@ import java.io.File;
 import java.util.List;
 import lombok.Builder;
 import lombok.Data;
+import net.kebernet.xddl.HasStacktrace;
 
 @Data
 @Builder
-public class UnifyCommand {
+public class UnifyCommand implements HasStacktrace {
   @Parameter(
       names = {"--input-file", "-i"},
       description = "The specification file.",

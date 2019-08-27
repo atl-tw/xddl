@@ -20,10 +20,11 @@ import java.io.File;
 import java.util.List;
 import lombok.Builder;
 import lombok.Data;
+import net.kebernet.xddl.HasStacktrace;
 
 @Data
 @Builder
-public class GlideCommand {
+public class GlideCommand implements HasStacktrace {
 
   @Parameter(
       names = {"--input-file", "-i"},

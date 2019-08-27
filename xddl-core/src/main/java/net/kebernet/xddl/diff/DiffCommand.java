@@ -19,9 +19,10 @@ import com.beust.jcommander.Parameter;
 import java.io.File;
 import java.util.List;
 import lombok.Getter;
+import net.kebernet.xddl.HasStacktrace;
 
 @Getter
-public class DiffCommand {
+public class DiffCommand implements HasStacktrace {
 
   @Parameter(
       names = {"--left-file", "-l"},

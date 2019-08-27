@@ -105,7 +105,7 @@ public class Loader {
       }
     } catch (IOException e) {
       throw new RuntimeException(
-          xddl.getAbsolutePath() + " contains an handle-able type " + xddl.getPath());
+          "Unable to parse " + xddl.getAbsolutePath() + "  " + e.getMessage(), e);
     }
   }
 

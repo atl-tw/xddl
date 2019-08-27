@@ -19,9 +19,10 @@ import com.beust.jcommander.Parameter;
 import java.io.File;
 import java.util.List;
 import lombok.Data;
+import net.kebernet.xddl.HasStacktrace;
 
 @Data
-public class GenerateCommand {
+public class GenerateCommand implements HasStacktrace {
 
   @Parameter(
       names = {"--input-file", "-i"},

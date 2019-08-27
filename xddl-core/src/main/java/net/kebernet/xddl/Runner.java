@@ -16,6 +16,7 @@
 package net.kebernet.xddl;
 
 import com.beust.jcommander.JCommander;
+import java.util.stream.Stream;
 import lombok.Getter;
 import net.kebernet.xddl.diff.DiffCommand;
 import net.kebernet.xddl.diff.DiffRunner;
@@ -34,16 +35,16 @@ public class Runner {
     DiffCommand diffCommand = new DiffCommand();
     UnifyCommand unifyCommand = UnifyCommand.builder().build();
     GlideCommand glideCommand = GlideCommand.builder().build();
-    JCommander jCommander;
+    JCommander jCommander =
+        JCommander.newBuilder()
+            .addCommand("generate", command)
+            .addCommand("diff", diffCommand)
+            .addCommand("unify", unifyCommand)
+            .addCommand("glide", glideCommand)
+            .args(args)
+            .build();
     try {
-      jCommander =
-          JCommander.newBuilder()
-              .addCommand("generate", command)
-              .addCommand("diff", diffCommand)
-              .addCommand("unify", unifyCommand)
-              .addCommand("glide", glideCommand)
-              .args(args)
-              .build();
+
       switch (jCommander.getParsedCommand()) {
         case "generate":
           if (command.isHelp()) {
@@ -85,12 +86,15 @@ public class Runner {
       }
 
     } catch (Exception e) {
-      JCommander.newBuilder().addObject(command).build().usage();
+      jCommander.usage(jCommander.getParsedCommand());
       System.err.print("Error:");
-      if (command.isStacktrace()) {
+      boolean isStackTrace =
+          Stream.of(command, diffCommand, glideCommand, unifyCommand)
+              .anyMatch(HasStacktrace::isStacktrace);
+      if (isStackTrace) {
         e.printStackTrace();
       } else {
-        System.err.println(e.getMessage());
+        System.err.println(e.toString());
       }
       System.exit(-1);
     }
