@@ -15,7 +15,11 @@
  */
 package net.kebernet.xddl;
 
+import static net.kebernet.xddl.model.Utils.neverNull;
+
+import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import lombok.Builder;
 import net.kebernet.xddl.model.BaseType;
@@ -37,19 +41,29 @@ public class Patcher {
         specification.structures().stream().collect(Collectors.toMap(Structure::getName, s -> s));
     Map<String, Structure> patch =
         patches.structures().stream().collect(Collectors.toMap(Structure::getName, s -> s));
-    patch
-        .entrySet()
-        .forEach(
-            e -> {
-              Structure original = spec.get(e.getKey());
-              merge(ctx, original, e.getValue());
-            });
+    patch.forEach(
+        (key, value) -> {
+          Structure original = spec.get(key);
+          if (original == null && value != null)
+            throw ctx.stateException("Attempt to patch a Structure not found in original", value);
+          merge(ctx, original, value);
+        });
     return specification;
   }
 
   private void merge(Context ctx, Structure original, Structure patch) {
+    if (neverNull(original.getProperties()).isEmpty())
+      throw ctx.stateException("Structure has no properties", original);
+    List<BaseType> missingNames =
+        original.getProperties().stream()
+            .filter(p -> p.getName() == null)
+            .collect(Collectors.toList());
+    if (!missingNames.isEmpty())
+      throw ctx.stateException("Missing 'name' properties", missingNames);
     Map<String, BaseType> props =
-        original.getProperties().stream().collect(Collectors.toMap(BaseType::getName, b -> b));
+        neverNull(original.getProperties()).stream()
+            .filter(Objects::nonNull)
+            .collect(Collectors.toMap(BaseType::getName, b -> b));
     patch
         .getProperties()
         .forEach(
