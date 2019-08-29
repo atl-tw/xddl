@@ -15,73 +15,55 @@
  */
 package net.kebernet.xddl.gradle
 
-import net.kebernet.xddl.Loader
-import net.kebernet.xddl.SemanticVersion
-import net.kebernet.xddl.glide.GlideCommand
-import net.kebernet.xddl.glide.GlideRunner
-import net.kebernet.xddl.model.Specification
-import net.kebernet.xddl.model.Utils.neverNull
+import net.kebernet.xddl.unify.UnifyCommand
+import net.kebernet.xddl.unify.UnifyRunner
 import org.gradle.api.DefaultTask
+import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFile
-import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.OutputDirectory
-import org.gradle.api.tasks.OutputFiles
+import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
 import java.io.File
 import java.util.Collections
 
-open class XDDLGlideTask : DefaultTask() {
-
+open class XDDLUnifyTask : DefaultTask() {
     @Optional
-    @InputFiles
+    @Input
     var includeDirectories: List<File> =
             if (project.file("src/main/xddl/includes").exists())
                 Collections.singletonList(project.file("src/main/xddl/includes"))
             else
                 Collections.emptyList()
-
     @Optional
-    @InputFiles
-    var patchesDirectory: File = project.file("src/main/xddl/patches")
+    @Input
+    lateinit var patchDirectory: File
 
     @InputFile
     var sourceFile: File = project.file("src/main/xddl/Specification.xddl.json")
 
     @Optional
-    @OutputDirectory
-    var outputDirectory: File = File(project.buildDir, "glide")
+    @OutputFile
+    var outputFile: File = File(project.buildDir, "xddl/Unified.xddl.json")
 
-    @OutputFiles
-    var outputFiles: ArrayList<File> = ArrayList()
+    @Optional
+    @Input
+    lateinit var newVersion: String
 
     @TaskAction
     fun apply() {
-        outputDirectory.mkdirs()
-        GlideRunner.builder()
+        outputFile.parentFile.mkdirs()
+        UnifyRunner.builder()
                 .command(
-                        GlideCommand.builder()
+                        UnifyCommand.builder()
                                 .inputFile(sourceFile)
                                 .includes(includeDirectories)
-                                .patches(patchesDirectory)
-                                .outputDirectory(outputDirectory)
+                                .patches(listOf(patchDirectory))
+                                .outputFile(outputFile)
+                                .newVersion(newVersion)
                                 .build()
                 )
                 .build()
                 .run()
-        @Suppress("ReplaceJavaStaticMethodWithKotlinAnalog")
-        val fileArray = neverNull(outputDirectory.listFiles { f ->
-            f.name.endsWith(".xddl.json")
-        })
-        val sorted = fileArray.sortedBy { f ->
-            if (f.name.startsWith("baseline")) SemanticVersion("0")
-            else SemanticVersion(f.name.substring(0, f.name.indexOf('.'))
-                    .replace('_', '.'))
-        }
-        outputFiles.addAll(sorted)
-
-        project.version = Loader.mapper()
-                .readValue(outputFiles.last(), Specification::class.java)
-                .version
     }
 }
