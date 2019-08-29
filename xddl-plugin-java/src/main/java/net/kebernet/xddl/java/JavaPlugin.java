@@ -34,7 +34,7 @@ public class JavaPlugin implements Plugin {
     Stream<EnumClass> enums =
         context.getSpecification().types().stream()
             .filter(t -> !isNullOrEmpty(t.getAllowable()))
-            .map(t -> new EnumClass(context, t, t));
+            .map(t -> new EnumClass(context, t, t, null));
     Stream<StructureClass> structures =
         context.getSpecification().structures().stream()
             .map(s -> new StructureClass(context, s, null));

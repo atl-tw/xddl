@@ -24,6 +24,7 @@ import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
 import net.kebernet.xddl.model.Specification;
@@ -34,7 +35,8 @@ public class EnumClassTest {
 
   @Test
   public void enumReferenceGeneration()
-      throws IOException, ClassNotFoundException, IntrospectionException {
+      throws IOException, ClassNotFoundException, IntrospectionException, NoSuchMethodException,
+          InvocationTargetException, IllegalAccessException {
     ObjectMapper mapper = new ObjectMapper();
     Specification spec =
         mapper.readValue(
@@ -45,7 +47,7 @@ public class EnumClassTest {
     File output = new File("build/test-gen/enumReference");
     struct.write(output);
 
-    EnumClass enumC = new EnumClass(ctx, spec.types().get(0), spec.types().get(0));
+    EnumClass enumC = new EnumClass(ctx, spec.types().get(0), spec.types().get(0), null);
     enumC.write(output);
 
     ClassLoader loader = new Compiler(output).compile();
@@ -56,6 +58,9 @@ public class EnumClassTest {
     for (PropertyDescriptor pd : beanInfo.getPropertyDescriptors()) {
       descriptors.put(pd.getName(), pd);
     }
+
+    Object o = enumType.getMethod("forValue", String.class).invoke(null, "1st-value");
+    assertThat(o.toString()).isEqualTo("1st-value");
 
     assertThat(descriptors.get("enumProperty").getReadMethod().getName())
         .isEqualTo("getEnumProperty");

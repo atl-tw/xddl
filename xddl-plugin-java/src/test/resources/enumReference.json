@@ -12,7 +12,7 @@
       "description": "A referenced enum property value",
       "allowable": [
         {
-          "value": "FIRST",
+          "value": "1st-value",
           "description": "The 1st value"
         },
         {

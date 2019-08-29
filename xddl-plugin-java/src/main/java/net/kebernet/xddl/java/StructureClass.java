@@ -183,7 +183,7 @@ public class StructureClass implements Writable {
     // the type is a reference, but the allowable list is local, so we need to generate it
     // OR the type is 100% local. Either way, we need to generate a local type for it.
 
-    EnumClass enumClass = new EnumClass(ctx, ref, type);
+    EnumClass enumClass = new EnumClass(ctx, ref, type, className.simpleName());
     TypeSpec nested = enumClass.builder().addModifiers(Modifier.PUBLIC).build();
     typeBuilder.addType(nested);
     return FieldSpec.builder(
