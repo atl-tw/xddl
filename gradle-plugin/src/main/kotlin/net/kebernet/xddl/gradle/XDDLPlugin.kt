@@ -23,6 +23,7 @@ open class XDDLPlugin : Plugin<Project> {
         with(project) {
             project.extensions.extraProperties.set("XDDLGenerate", XDDLGenerateTask::class.java)
             project.extensions.extraProperties.set("XDDLGlide", XDDLGlideTask::class.java)
+            project.extensions.extraProperties.set("XDDLGlideGenerate", XDDLGlideGenerateTask::class.java)
             project.extensions.extraProperties.set("XDDLUnify", XDDLUnifyTask::class.java)
         }
     }

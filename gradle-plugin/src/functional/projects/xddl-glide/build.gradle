@@ -4,8 +4,24 @@ plugins {
 
 apply plugin: 'java'
 
+sourceSets {
+    main {
+        java.srcDirs([
+                file("${project.buildDir}/xddl-java"),
+                file("src/main/java")
+        ])
+    }
+}
+
+
 task glide(type: XDDLGlide){
 
 }
 
-build.dependsOn glide
+task glideGenerate(type: XDDLGlideGenerate){
+    plugin "java"
+    outputDirectory file("${project.buildDir}/xddl-java")
+}
+
+glideGenerate.dependsOn glide
+compileJava.dependsOn glideGenerate
