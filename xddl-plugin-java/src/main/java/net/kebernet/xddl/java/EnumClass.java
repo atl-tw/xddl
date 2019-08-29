@@ -82,9 +82,11 @@ public class EnumClass implements Writable {
                 MethodSpec.methodBuilder("forValue")
                     .addAnnotation(JsonCreator.class)
                     .addModifiers(Modifier.STATIC)
+                    .addJavadoc("@returns enum value")
                     .addModifiers(Modifier.PUBLIC)
                     .addParameter(String.class, "value")
-                    .beginControlFlow("for ($T check : values())", ref)
+                      .addJavadoc("@param value string value")
+                      .beginControlFlow("for ($T check : values())", ref)
                     .beginControlFlow("if(check.value.equals(value))")
                     .addStatement("return check")
                     .endControlFlow()
@@ -122,10 +124,10 @@ public class EnumClass implements Writable {
   }
 
   private static String makeJavaNameFriendly(String value) {
-    value = value.replaceAll("[-\\+]", "_");
+    value = value.replaceAll("[-\\+ ]", "_");
     char c = value.charAt(0);
     if (Character.isAlphabetic(c) || c == '_') {
-      return value;
+      return value.toUpperCase();
     }
     return "VAL_" + value.toUpperCase();
   }
