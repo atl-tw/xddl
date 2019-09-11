@@ -92,7 +92,7 @@ public class StructureClass implements Writable {
     return MethodSpec.methodBuilder(prefix + name)
         .addModifiers(Modifier.PUBLIC)
         .addJavadoc(fieldSpec.javadoc)
-        .addJavadoc("@return the value\n")
+        .addJavadoc("\n@return the value\n")
         .returns(fieldSpec.type)
         .addCode("return this." + fieldSpec.name + ";\n")
         .build();
@@ -104,7 +104,7 @@ public class StructureClass implements Writable {
     return MethodSpec.methodBuilder(prefix + name)
         .addModifiers(Modifier.PUBLIC)
         .addJavadoc(fieldSpec.javadoc)
-        .addJavadoc("@param value the value\n")
+        .addJavadoc("\n@param value the value\n")
         .returns(TypeName.VOID)
         .addParameter(ParameterSpec.builder(fieldSpec.type, "value", Modifier.FINAL).build())
         .addCode("this." + fieldSpec.name + " = value;\n")

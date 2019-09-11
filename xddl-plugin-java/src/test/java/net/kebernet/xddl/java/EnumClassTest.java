@@ -59,6 +59,7 @@ public class EnumClassTest {
       descriptors.put(pd.getName(), pd);
     }
 
+    @SuppressWarnings("unchecked")
     Object o = enumType.getMethod("forValue", String.class).invoke(null, "1st-value");
     assertThat(o.toString()).isEqualTo("1st-value");
 
