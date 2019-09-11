@@ -40,6 +40,11 @@ Getting Started
 
 Please see the [Getting Started Guide](./doc/Getting_Started.md).
 
+Gradle
+------
+
+Please see the [Gradle Plugin](./gradle-plugin)
+
      
 Simple Example
 --------------
