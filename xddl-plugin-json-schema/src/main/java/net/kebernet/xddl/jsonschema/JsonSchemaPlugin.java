@@ -102,7 +102,7 @@ public class JsonSchemaPlugin implements Plugin {
 
   @Override
   public String generateArtifacts(Context context, File outputDirectory) throws IOException {
-    File file = new File(outputDirectory, "schema.json");
+    File file = new File(outputDirectory, context.createBaseFilename() + ".schema.json");
     //noinspection ResultOfMethodCallIgnored
     file.getParentFile().mkdirs();
 

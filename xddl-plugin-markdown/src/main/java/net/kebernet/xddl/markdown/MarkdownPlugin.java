@@ -54,13 +54,7 @@ public class MarkdownPlugin implements Plugin {
   public String generateArtifacts(Context context, File outputDirectory) throws IOException {
     this.context = context;
     String filename =
-        ofNullable(System.getProperty("markdown.filename"))
-            .orElseGet(
-                () ->
-                    ofNullable(context.getSpecification().getTitle())
-                        .orElse("schema")
-                        .replaceAll(" ", "_")
-                        .toLowerCase());
+        ofNullable(System.getProperty("markdown.filename")).orElseGet(context::createBaseFilename);
 
     File outputFile = new File(outputDirectory, filename + ".md");
     try (PrintWriter pw = new PrintWriter(new FileWriter(outputFile, false))) {

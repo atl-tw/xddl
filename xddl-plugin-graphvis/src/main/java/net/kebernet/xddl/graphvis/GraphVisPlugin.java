@@ -46,15 +46,9 @@ public class GraphVisPlugin implements Plugin {
   @Override
   public String generateArtifacts(Context context, File outputDirectory) throws IOException {
     String filename =
-        ofNullable(System.getProperty("graphvis.filename"))
-            .orElseGet(
-                () ->
-                    ofNullable(context.getSpecification().getTitle())
-                        .orElse("schema")
-                        .replaceAll(" ", "_")
-                        .toLowerCase());
-
-    File outputFile = new File(outputDirectory, filename + ".dot");
+        ofNullable(System.getProperty("graphvis.filename")).orElseGet(context::createBaseFilename);
+    filename = filename.replaceAll("\\.", "_");
+    File outputFile = new File(outputDirectory, context.createBaseFilename() + ".dot");
     if (!outputDirectory.exists()) {
       if (!outputDirectory.mkdirs()) {
         throw new IOException("Unable to create " + outputDirectory.getAbsolutePath());

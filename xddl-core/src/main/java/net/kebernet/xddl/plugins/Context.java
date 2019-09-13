@@ -75,6 +75,13 @@ public class Context {
     references.put(type.getName(), type);
   }
 
+  public String createBaseFilename() {
+    return (ofNullable(specification.getTitle()).orElse("xddl")
+            + "_"
+            + ofNullable(specification.getVersion()).orElse("v1"))
+        .replaceAll(" ", "_");
+  }
+
   /**
    * Constructs a new illegal state exception with a mes
    *
@@ -164,5 +171,18 @@ public class Context {
           .orElseThrow(() -> this.stateException("Could not resolve reference", type));
     }
     return type;
+  }
+
+  public Structure entryRefStructure() {
+    Reference reference = new Reference();
+    reference.setRef(specification.getEntryRef());
+    return resolveReference(reference)
+        .filter(r -> r instanceof Structure)
+        .map(r -> (Structure) r)
+        .orElseThrow(
+            () ->
+                stateException(
+                    "Could not resolve a structure from entryRef " + specification.getEntryRef(),
+                    null));
   }
 }

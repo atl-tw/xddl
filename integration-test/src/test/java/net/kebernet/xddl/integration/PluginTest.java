@@ -38,7 +38,7 @@ public class PluginTest {
         "build/test/schema-test/",
         "--format",
         "json");
-    File file = new File("build/test/schema-test/schema.json");
+    File file = new File("build/test/schema-test/xddl_v1.schema.json");
     ObjectMapper mapper = new ObjectMapper();
     JsonNode node = mapper.readValue(file, JsonNode.class);
     assertThat(
@@ -60,7 +60,7 @@ public class PluginTest {
         .build()
         .run();
 
-    File file = new File("build/test/schema-test-2/schema.json");
+    File file = new File("build/test/schema-test-2/xddl_v1.schema.json");
     ObjectMapper mapper = new ObjectMapper();
     JsonNode node = mapper.readValue(file, JsonNode.class);
     assertThat(

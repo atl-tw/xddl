@@ -1,0 +1,4 @@
+dependencies {
+    api project(":xddl-core")
+    api 'com.github.spullara.mustache.java:compiler:0.9.6'
+}

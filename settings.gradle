@@ -9,4 +9,5 @@ include 'xddl-plugin-graphvis'
 include 'xddl-plugin-elasticsearch'
 include 'xddl-plugin-java'
 include 'gradle-plugin'
+include 'xddl-plugin-hive'
 
