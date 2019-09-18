@@ -12,6 +12,7 @@ dependencies {
     api project(':xddl-plugin-graphvis')
     api project(':xddl-plugin-elasticsearch')
     api project(':xddl-plugin-java')
+    api project(':xddl-plugin-hive')
     api 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
     testImplementation('org.spockframework:spock-core:1.1-groovy-2.4') {
         exclude group: 'org.codehaus.groovy'
@@ -70,6 +71,22 @@ publishing {
             groupId "${project.group}"
             artifactId "${project.group}.gradle.plugin"
             version rootProject.version
+        }
+    }
+}
+
+
+pluginBundle {
+    website = "https://github.com/atl-tw/xddl"
+    vcsUrl = "https://github.com/atl-tw/xddl.git"
+    description = "Multi-environment DDLs"
+    tags = ['json', 'java', 'hive', 'markdown', "elasticsearch"]
+
+    plugins {
+        xddl {
+            id = 'net.kebernet.xddl'
+            displayName = "xDDL"
+            description = "Extensible Data Definition Language"
         }
     }
 }

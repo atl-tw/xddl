@@ -7,6 +7,7 @@ dependencies {
     api project(':xddl-plugin-graphvis')
     api project(':xddl-plugin-elasticsearch')
     api project(':xddl-plugin-java')
+    api project(':xddl-plugin-hive')
 }
 
 application {
