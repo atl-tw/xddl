@@ -11,10 +11,11 @@ plugins {
     id 'com.github.hierynomus.license' version "0.15.0"
     id 'com.diffplug.gradle.spotless' version '3.23.1'
     id 'com.jfrog.bintray' version "1.8.4"
+    id 'org.jetbrains.dokka' version '0.9.17'
 }
 
 group 'net.kebernet'
-version '0.0.51'
+version '0.1.1'
 
 if(project.hasProperty("kebernet_bintray")) {
     bintray {
@@ -39,6 +40,8 @@ subprojects {
     apply plugin: 'com.github.hierynomus.license'
     apply plugin: 'com.diffplug.gradle.spotless'
     apply plugin: 'maven-publish'
+    apply plugin: 'org.jetbrains.dokka'
+
     if(project.name != "integration-test" ) {
         apply plugin: 'com.jfrog.bintray'
     }
@@ -65,10 +68,12 @@ subprojects {
     }
 
     task sourceJar(type: Jar) {
-        from sourceSets.main.allJava
+        from sourceSets.main.allSource
     }
-    task packageJavadoc(type: Jar, dependsOn: 'javadoc') {
+
+    task packageJavadoc(type: Jar, dependsOn: ['javadoc', 'dokka']  ) {
         from javadoc.destinationDir
+        from file("${project.buildDir.absolutePath}/dokka")
         classifier = 'javadoc'
     }
 

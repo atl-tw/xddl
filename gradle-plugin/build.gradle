@@ -31,6 +31,10 @@ sourceSets {
     }
 }
 
+dokka {
+    outputFormat = 'html'
+}
+
 task functionalTest(type: Test) {
     description = 'Runs the functional tests.'
     group = 'verification'
@@ -71,6 +75,10 @@ publishing {
             groupId "${project.group}"
             artifactId "${project.group}.gradle.plugin"
             version rootProject.version
+            artifact sourceJar {
+                classifier "sources"
+            }
+            artifact packageJavadoc
         }
     }
 }
@@ -99,3 +107,5 @@ gradlePlugin {
         }
     }
 }
+
+
