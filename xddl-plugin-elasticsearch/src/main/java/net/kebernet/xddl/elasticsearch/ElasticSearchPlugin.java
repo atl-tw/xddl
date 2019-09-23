@@ -105,12 +105,7 @@ public class ElasticSearchPlugin implements Plugin {
   public String generateArtifacts(Context context, File outputDirectory) throws IOException {
     String filename =
         ofNullable(System.getProperty("elasticsearch.filename"))
-            .orElseGet(
-                () ->
-                    ofNullable(context.getSpecification().getTitle())
-                        .orElse("schema")
-                        .replaceAll(" ", "_")
-                        .toLowerCase());
+            .orElseGet(context::createBaseFilename);
 
     if (!outputDirectory.exists()) {
       if (!outputDirectory.mkdirs()) {
@@ -131,8 +126,7 @@ public class ElasticSearchPlugin implements Plugin {
       ObjectNode defaultNode = context.getMapper().createObjectNode();
       ObjectNode mappingsNode = context.getMapper().createObjectNode();
       String indexName =
-          ofNullable(System.getProperty("elasticsearch.indexname")).orElse(filename)
-              + ofNullable(spec.getVersion()).map(s -> "-" + s).orElse("");
+          ofNullable(System.getProperty("elasticsearch.indexname")).orElse(filename);
       defaultNode.set("dynamic", context.getMapper().valueToTree("strict"));
       mappingsNode.set("_default_", defaultNode);
       rootNode.set("mappings", mappingsNode);

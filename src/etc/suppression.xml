@@ -89,6 +89,23 @@
     </suppress>
     <suppress>
         <notes><![CDATA[
+   file name: gradle-api-5.3.jar/META-INF/maven/org.apache.commons/commons-compress/pom.xml
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org.apache.commons/commons-compress@.*$</packageUrl>
+        <vulnerabilityName>CVE-2019-12402</vulnerabilityName>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: gradle-api-5.3.jar/META-INF/maven/com.fasterxml.jackson.core/jackson-databind/pom.xml
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/com.fasterxml.jackson.core/jackson-databind@.*$</packageUrl>
+        <vulnerabilityName>CVE-2019-14379</vulnerabilityName>
+        <vulnerabilityName>CVE-2019-14439</vulnerabilityName>
+        <vulnerabilityName>CVE-2019-14540</vulnerabilityName>
+        <vulnerabilityName>CVE-2019-16335</vulnerabilityName>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
    file name: gradle-api-5.3.jar (shaded: org.apache.maven:maven-artifact:3.0.4)
    ]]></notes>
         <packageUrl regex="true">^pkg:maven/org\.apache\.maven/maven-artifact@.*$</packageUrl>
