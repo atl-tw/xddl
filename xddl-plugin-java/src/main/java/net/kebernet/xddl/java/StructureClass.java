@@ -17,6 +17,7 @@ package net.kebernet.xddl.java;
 
 import static net.kebernet.xddl.java.Resolver.parse;
 import static net.kebernet.xddl.java.Resolver.resolvePackageName;
+import static net.kebernet.xddl.model.ModelUtil.firstOf;
 import static net.kebernet.xddl.model.Utils.*;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -55,6 +56,7 @@ public class StructureClass implements Writable {
     this.className =
         Optional.ofNullable(name).orElse(ClassName.get(packageName, structure.getName()));
     this.typeBuilder = TypeSpec.classBuilder(className).addModifiers(Modifier.PUBLIC);
+
     ifNotNullOrEmpty(structure.getDescription(), d -> typeBuilder.addJavadoc(d));
 
     context.hasPlugin("java", structure, this::doExtension, (node) -> {});
@@ -128,6 +130,7 @@ public class StructureClass implements Writable {
   }
 
   private FieldSpec doPropertyType(BaseType baseType) {
+    FieldSpec result = null;
     BaseType resolvedType = baseType;
     if (baseType instanceof Reference) {
       resolvedType =
@@ -135,26 +138,38 @@ public class StructureClass implements Writable {
               .orElseThrow(() -> ctx.stateException("Unable to resolve reference", baseType));
     }
     if (resolvedType instanceof Structure & baseType instanceof Reference) {
-      return doReferenceTo(resolvedType, ((Reference) baseType).getRef());
-    }
-    if (resolvedType instanceof Type) {
+      result = doReferenceTo(resolvedType, ((Reference) baseType).getRef());
+    } else if (resolvedType instanceof Type) {
       Type type = (Type) resolvedType;
-      return isNullOrEmpty(type.getAllowable()) ? doType(type) : doEnum(baseType, type);
-    }
-    if (resolvedType instanceof List) {
+      result = isNullOrEmpty(type.getAllowable()) ? doType(type) : doEnum(baseType, type);
+    } else if (resolvedType instanceof List) {
       List list = (List) resolvedType;
-      return doListType(list);
-    }
-    if (resolvedType instanceof Structure) {
+      result = doListType(list);
+    } else if (resolvedType instanceof Structure) {
       String typeName =
           CaseFormat.LOWER_CAMEL.to(CaseFormat.UPPER_CAMEL, resolvedType.getName()) + "Type";
       ClassName name = ClassName.get(packageName, className.simpleName(), typeName);
       StructureClass struct = new StructureClass(ctx, (Structure) resolvedType, name);
       TypeSpec type = struct.builder().addModifiers(Modifier.PUBLIC, Modifier.STATIC).build();
       typeBuilder.addType(type);
-      return FieldSpec.builder(name, resolvedType.getName(), Modifier.PRIVATE).build();
+      result = FieldSpec.builder(name, resolvedType.getName(), Modifier.PRIVATE).build();
     }
-    throw ctx.stateException("Unsupported type ", baseType);
+    if (result == null) {
+      throw ctx.stateException("Unsupported type ", baseType);
+    }
+
+    Optional<String> defaultValue =
+        firstOf(readInitializer(baseType), readInitializer(resolvedType));
+    if (defaultValue.isPresent()) {
+      result = result.toBuilder().initializer(defaultValue.get()).build();
+    }
+    return result;
+  }
+
+  private Optional<String> readInitializer(BaseType type) {
+    return Optional.ofNullable((JsonNode) type.ext().get("java"))
+        .filter(n -> n.has("initializer"))
+        .map(n -> n.get("initializer").asText());
   }
 
   private FieldSpec doReferenceTo(BaseType resolvedType, String referenceName) {

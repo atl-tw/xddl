@@ -125,8 +125,7 @@ public class ElasticSearchPlugin implements Plugin {
       ObjectNode rootNode = context.getMapper().createObjectNode();
       ObjectNode defaultNode = context.getMapper().createObjectNode();
       ObjectNode mappingsNode = context.getMapper().createObjectNode();
-      String indexName =
-          ofNullable(System.getProperty("elasticsearch.indexname")).orElse(filename);
+      String indexName = ofNullable(System.getProperty("elasticsearch.indexname")).orElse(filename);
       defaultNode.set("dynamic", context.getMapper().valueToTree("strict"));
       mappingsNode.set("_default_", defaultNode);
       rootNode.set("mappings", mappingsNode);

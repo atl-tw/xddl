@@ -50,7 +50,6 @@ public abstract class ModelUtil {
     }
   }
 
-  @SuppressWarnings("unchecked")
   public static <T extends BaseType> T merge(T newValue, T originalValue, Reference reference) {
     maybeSet(newValue::setName, reference.getName(), originalValue.getName());
     maybeSet(newValue::setDescription, reference.getDescription(), originalValue.getDescription());
@@ -92,5 +91,16 @@ public abstract class ModelUtil {
         .map(n -> n.get(key))
         .filter(JsonNode::isTextual)
         .map(JsonNode::asText);
+  }
+
+  @SuppressWarnings("unchecked")
+  @SafeVarargs
+  public static <T> Optional<T> firstOf(Optional<? extends T>... possibles) {
+    for (Optional<? extends T> check : possibles) {
+      if (check.isPresent()) {
+        return (Optional<T>) check;
+      }
+    }
+    return Optional.empty();
   }
 }

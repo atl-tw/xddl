@@ -15,6 +15,11 @@
           "contains": {
             "@type": "Type",
             "core": "STRING"
+          },
+          "ext": {
+            "java": {
+              "initializer": "new java.util.ArrayList<>()"
+            }
           }
         }
       ]
