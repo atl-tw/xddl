@@ -3,6 +3,8 @@ xDDL
 
 (Extensible Data Definition Language)
 
+[![Build Status](https://travis-ci.org/atl-tw/xddl.svg?branch=master)](https://travis-ci.org/atl-tw/xddl)
+
 Purpose
 -------
 
