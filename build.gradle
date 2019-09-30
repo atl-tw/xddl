@@ -8,6 +8,7 @@ buildscript {
     }
 }
 plugins {
+    id 'com.gradle.build-scan' version '2.1'
     id 'com.github.hierynomus.license' version "0.15.0"
     id 'com.diffplug.gradle.spotless' version '3.23.1'
     id 'com.jfrog.bintray' version "1.8.4"
@@ -16,6 +17,11 @@ plugins {
 
 group 'net.kebernet'
 version '0.1.4'
+
+buildScan {
+    termsOfServiceUrl = 'https://gradle.com/terms-of-service'
+    termsOfServiceAgree = 'yes'
+}
 
 if(project.hasProperty("kebernet_bintray")) {
     bintray {
@@ -44,6 +50,11 @@ subprojects {
 
     if(project.name != "integration-test" ) {
         apply plugin: 'com.jfrog.bintray'
+    }
+
+    buildScan {
+        termsOfServiceUrl = 'https://gradle.com/terms-of-service'
+        termsOfServiceAgree = 'yes'
     }
 
 

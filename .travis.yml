@@ -6,7 +6,7 @@ dist: trusty
 jdk: oraclejdk8
 
 script:
-  - ./gradlew build
+  - ./gradlew build --scan -s
 
 
 before_cache:
