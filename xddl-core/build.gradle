@@ -2,6 +2,7 @@ apply plugin: 'application'
 
 dependencies {
     implementation 'com.beust:jcommander:1.72'
+    implementation 'ognl:ognl:3.0.4'
 }
 
 application {
