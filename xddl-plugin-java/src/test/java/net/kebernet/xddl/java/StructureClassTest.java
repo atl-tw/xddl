@@ -27,6 +27,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.time.OffsetTime;
@@ -176,5 +177,33 @@ public class StructureClassTest {
         .isEqualTo("getChildOfTheCorn");
     assertThat(descriptors.get("childOfTheCorn").getReadMethod().getReturnType())
         .isEqualTo(childClass);
+  }
+
+  @Test
+  public void testOGNLVersion()
+      throws IOException, IntrospectionException, ClassNotFoundException, IllegalAccessException,
+          InstantiationException, InvocationTargetException {
+    ObjectMapper mapper = new ObjectMapper();
+    Specification spec =
+        mapper.readValue(
+            StructureClassTest.class.getResourceAsStream("/ognl.json"), Specification.class);
+    Context ctx = new Context(mapper, spec);
+    StructureClass parent = new StructureClass(ctx, spec.structures().get(0));
+    File output = new File("build/test-gen/ognl");
+    output.mkdirs();
+    parent.write(output);
+    String packageName = Resolver.resolvePackageName(ctx);
+    ClassLoader loader = new Compiler(output).compile();
+
+    Class parentClass = loader.loadClass(packageName + ".Parent");
+    BeanInfo beanInfo = Introspector.getBeanInfo(parentClass);
+    Map<String, PropertyDescriptor> descriptors = new HashMap<>();
+    for (PropertyDescriptor pd : beanInfo.getPropertyDescriptors()) {
+      descriptors.put(pd.getName(), pd);
+    }
+
+    String version =
+        (String) descriptors.get("version").getReadMethod().invoke(parentClass.newInstance());
+    assertThat(version).isEqualTo("0.333.0");
   }
 }

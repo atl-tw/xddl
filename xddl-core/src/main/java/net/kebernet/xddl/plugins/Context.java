@@ -16,6 +16,8 @@
 package net.kebernet.xddl.plugins;
 
 import static java.util.Optional.ofNullable;
+import static net.kebernet.xddl.model.ModelUtil.neverNegative;
+import static net.kebernet.xddl.model.Utils.neverNull;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -190,6 +192,10 @@ public class Context {
                     null));
   }
 
+  public String fillTemplate(String template) {
+    return this.fillTemplate(template, null);
+  }
+
   /**
    * This method fills a template containing OGNL expressions wrapped inside ${} blocks. The root
    * context of the OGNL evaluation will contain "specification" with the current specification
@@ -200,6 +206,7 @@ public class Context {
    * @return
    */
   public String fillTemplate(String template, Map<String, Object> context) {
+    template = neverNull(template);
     Map<String, Object> runtimeContext = new HashMap<>();
     runtimeContext.put("specification", this.specification);
     if (context != null) {
@@ -209,14 +216,12 @@ public class Context {
 
     Matcher matcher = PATTERN.matcher(template);
     int nextText = 0;
-    while (matcher.find()) {
+    while (!template.isEmpty() && matcher.find()) {
       int start = matcher.start();
-      if (template.charAt(start) != '$') {
-        result.append(template, start - 1, start + 1);
+      char startChar = template.charAt(start);
+      if (startChar != '$') {
+        result.append(template, neverNegative(start - 1), start + 1);
         start++;
-      }
-      if (start > 0 && start >= template.length()) {
-        result.append(template, nextText, matcher.start() - 1);
       }
       String expression = template.substring(start, matcher.end() - 1).replaceFirst("\\$\\{", "");
       System.out.println(expression);
@@ -228,10 +233,10 @@ public class Context {
         e.printStackTrace();
         throw stateException("OGNL Failed [" + expression + "]", template);
       }
-      nextText = matcher.end() + 1;
+      nextText = matcher.end();
     }
     if (nextText < template.length()) {
-      result.append(template.substring(nextText + 1));
+      result.append(template.substring(neverNegative(nextText)));
     }
     return result.toString();
   }

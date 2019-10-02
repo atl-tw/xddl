@@ -159,17 +159,18 @@ public class StructureClass implements Writable {
     }
 
     Optional<String> defaultValue =
-        firstOf(readInitializer(baseType), readInitializer(resolvedType));
+        firstOf(readInitializer(ctx, baseType), readInitializer(ctx, resolvedType));
     if (defaultValue.isPresent()) {
       result = result.toBuilder().initializer(defaultValue.get()).build();
     }
     return result;
   }
 
-  private Optional<String> readInitializer(BaseType type) {
+  private Optional<String> readInitializer(Context context, BaseType type) {
     return Optional.ofNullable((JsonNode) type.ext().get("java"))
         .filter(n -> n.has("initializer"))
-        .map(n -> n.get("initializer").asText());
+        .map(n -> n.get("initializer").asText())
+        .map(s -> context.fillTemplate(s));
   }
 
   private FieldSpec doReferenceTo(BaseType resolvedType, String referenceName) {
@@ -205,15 +206,17 @@ public class StructureClass implements Writable {
             ClassName.get(packageName, className.simpleName(), nested.name),
             type.getName(),
             Modifier.PRIVATE)
-        .addJavadoc(neverNull(type.getDescription()))
+        .addJavadoc(ctx.fillTemplate(neverNull(type.getDescription())))
         .build();
   }
 
   private FieldSpec doType(Type type) {
     FieldSpec.Builder builder =
         FieldSpec.builder(Resolver.resolveType(ctx, type), type.getName(), Modifier.PRIVATE);
-    ifNotNullOrEmpty(type.getDescription(), s -> builder.addJavadoc(escape(s) + "\n"));
-    ifNotNullOrEmpty(type.getComment(), s -> builder.addJavadoc("Comment: " + escape(s)));
+    ifNotNullOrEmpty(
+        type.getDescription(), s -> builder.addJavadoc(ctx.fillTemplate(escape(s)) + "\n"));
+    ifNotNullOrEmpty(
+        type.getComment(), s -> builder.addJavadoc("Comment: " + ctx.fillTemplate(escape(s))));
     return builder.build();
   }
 
@@ -235,8 +238,11 @@ public class StructureClass implements Writable {
                   ClassName.get(java.util.List.class),
                   ClassName.get(packageName, ((Reference) contains).getRef())),
               listType.getName());
-      ifNotNullOrEmpty(contains.getDescription(), s -> builder.addJavadoc(escape(s)));
-      ifNotNullOrEmpty(contains.getComment(), s -> builder.addJavadoc("Comment: " + escape(s)));
+      ifNotNullOrEmpty(
+          contains.getDescription(), s -> builder.addJavadoc(ctx.fillTemplate(escape(s))));
+      ifNotNullOrEmpty(
+          contains.getComment(),
+          s -> builder.addJavadoc("Comment: " + ctx.fillTemplate(escape(s))));
       return builder.build();
     }
     if (contains instanceof Type) {

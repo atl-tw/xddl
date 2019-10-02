@@ -103,4 +103,11 @@ public abstract class ModelUtil {
     }
     return Optional.empty();
   }
+
+  public static int neverNegative(int value) {
+    if (value < 0) {
+      return 0;
+    }
+    return value;
+  }
 }

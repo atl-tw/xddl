@@ -55,7 +55,18 @@ public class ContextTest {
             StructureTest.class.getResourceAsStream("/template.json"), Specification.class);
     Context context = new Context(mapper, spec);
 
-    assertThat(context.fillTemplate("${specification.title} v${specification.version}", null))
-        .isEqualTo("Foo v1.0");
+    assertThat(context.fillTemplate("${specification.title} v${specification.version}xxx", null))
+        .isEqualTo("Foo v1.0xxx");
+  }
+
+  @Test
+  public void testNoOp() throws IOException {
+    ObjectMapper mapper = new ObjectMapper();
+    Specification spec =
+        mapper.readValue(
+            StructureTest.class.getResourceAsStream("/template.json"), Specification.class);
+    Context context = new Context(mapper, spec);
+
+    assertThat(context.fillTemplate("xxx", null)).isEqualTo("xxx");
   }
 }
