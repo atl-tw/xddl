@@ -19,6 +19,7 @@ nbactions.xml
 build
 target
 gen
+out
 
 /unit_test/com/gaggle/test/DirectoryTestRunner.java
 /bin
