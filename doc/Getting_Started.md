@@ -255,6 +255,7 @@ The core plugins are:
  * ``elasticsearch``: To generate an Elasticsearch Mappings structure for indexing your 
    document structure.
  * ``java``: To generate a set of Java classes suitable for mapping to your specification.
+ * ``hive``: Generates table specs for Apache Hive/Amazon Athena
  
 Best Practices
 -------------- 

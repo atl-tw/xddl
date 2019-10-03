@@ -22,6 +22,8 @@ Supported Extensions
     * ``implements``: Array of fully qualified interface names that will be 
     applied to the generated class.
  * Property:
+    * ``type``: A fully qualified Java type for the property. eg, use ``java.util.Date`` for 
+      the DATETIME. 
     * ``initializer``: A string containing a Java snippet to initialize
     a default value. For example: ``"initializer": "new java.util.ArrayList<>()"`` to initialize 
     an empty list
