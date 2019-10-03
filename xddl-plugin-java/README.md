@@ -23,5 +23,5 @@ Supported Extensions
     applied to the generated class.
  * Property:
     * ``initializer``: A string containing a Java snippet to initialize
-    a default value. For example: "new java.util.ArrayList<>()" to initialize 
+    a default value. For example: ``"initializer": "new java.util.ArrayList<>()"`` to initialize 
     an empty list

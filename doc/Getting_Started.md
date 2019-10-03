@@ -307,4 +307,6 @@ This will ensure that when you create a new Java bean generated from your schema
 the "version" attribute will have the version from your xDDL specification.
 
 In most places you can also provide a set of ``vals`` that can be injected during
-generation. These would be referencable using ``${vals.something.theOtherThing}``
+generation. These would be referencable using ``${vals.something.theOtherThing}``.
+Using the command line you can provide a JSON file that can contain these values. 
+When using the gradle plugin, you can provide a ``Map``, a file, or both.
