@@ -18,6 +18,7 @@ package net.kebernet.xddl.model;
 import static java.util.Optional.ofNullable;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Consumer;
@@ -109,5 +110,12 @@ public abstract class ModelUtil {
       return 0;
     }
     return value;
+  }
+
+  public static <T> void forEach(Iterator<T> iterator, Consumer<T> consumer) {
+    while (iterator.hasNext()) {
+      T value = iterator.next();
+      consumer.accept(value);
+    }
   }
 }

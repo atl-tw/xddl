@@ -31,6 +31,8 @@ public class UnifyRunner {
             .main(command.getInputFile())
             .includes(command.getIncludes())
             .patches(command.getPatches())
+            .vals(command.getVals())
+            .valsFile(command.getValsFile())
             .scrubPatchesFromBaseline(command.isScrubPatch())
             .build()
             .read();

@@ -274,3 +274,37 @@ are some good rules of thumb to get you started:
    parsed will be automatically added to your main xDDL specification as it is parsed.
 ``
           
+          
+Templating
+----------
+
+Any "Stringish" value that isn't a property name can be "templated" using
+[OGNL](http://commons.apache.org/proper/commons-ognl/language-guide.html) syntax
+enclosed in a ```${}``` block. If you need to include ``${`` as string, you can escape it
+with ``\${``.
+
+A common example is a ``version`` property. The specification has a version, and 
+you might want to use this within your specification as a constant.
+
+For example:
+
+```json
+{
+  "@type": "Type",
+  "core": "STRING",
+  "name": "version",
+  "description": "The version",
+  "required": true,
+  "ext": {
+    "java": {
+      "initializer": "\"${specification.version}\""
+    }
+  }
+}
+```
+
+This will ensure that when you create a new Java bean generated from your schema,
+the "version" attribute will have the version from your xDDL specification.
+
+In most places you can also provide a set of ``vals`` that can be injected during
+generation. These would be referencable using ``${vals.something.theOtherThing}``

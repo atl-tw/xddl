@@ -33,6 +33,7 @@ import java.time.OffsetDateTime;
 import java.time.OffsetTime;
 import java.util.HashMap;
 import java.util.Map;
+import net.kebernet.xddl.Loader;
 import net.kebernet.xddl.model.Specification;
 import net.kebernet.xddl.plugins.Context;
 import org.joor.Reflect;
@@ -183,11 +184,9 @@ public class StructureClassTest {
   public void testOGNLVersion()
       throws IOException, IntrospectionException, ClassNotFoundException, IllegalAccessException,
           InstantiationException, InvocationTargetException {
-    ObjectMapper mapper = new ObjectMapper();
     Specification spec =
-        mapper.readValue(
-            StructureClassTest.class.getResourceAsStream("/ognl.json"), Specification.class);
-    Context ctx = new Context(mapper, spec);
+        Loader.builder().main(new File("src/test/resources/ognl.json")).build().read();
+    Context ctx = new Context(Loader.mapper(), spec);
     StructureClass parent = new StructureClass(ctx, spec.structures().get(0));
     File output = new File("build/test-gen/ognl");
     output.mkdirs();

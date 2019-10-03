@@ -16,8 +16,6 @@
 package net.kebernet.xddl.plugins;
 
 import static java.util.Optional.ofNullable;
-import static net.kebernet.xddl.model.ModelUtil.neverNegative;
-import static net.kebernet.xddl.model.Utils.neverNull;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -26,8 +24,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Consumer;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import lombok.Getter;
 import lombok.Setter;
 import net.kebernet.xddl.model.BaseType;
@@ -35,12 +31,10 @@ import net.kebernet.xddl.model.Reference;
 import net.kebernet.xddl.model.Specification;
 import net.kebernet.xddl.model.Structure;
 import net.kebernet.xddl.model.Type;
-import ognl.Ognl;
 
 @Getter
 @Setter
 public class Context {
-  private static final Pattern PATTERN = Pattern.compile("[^\\\\]?(\\$\\{(\\\\}|[^}])*})");
   private final ObjectMapper mapper;
   private final Specification specification;
   private Map<String, BaseType> references = new HashMap<>();
@@ -138,6 +132,7 @@ public class Context {
     return resolveReference(reference).filter(r -> r instanceof Structure).isPresent();
   }
 
+  @SuppressWarnings("unused")
   public Optional<Structure> asStructure(BaseType type) {
     if (type instanceof Structure) {
       return Optional.of((Structure) type);
@@ -190,54 +185,5 @@ public class Context {
                 stateException(
                     "Could not resolve a structure from entryRef " + specification.getEntryRef(),
                     null));
-  }
-
-  public String fillTemplate(String template) {
-    return this.fillTemplate(template, null);
-  }
-
-  /**
-   * This method fills a template containing OGNL expressions wrapped inside ${} blocks. The root
-   * context of the OGNL evaluation will contain "specification" with the current specification
-   * object fully populated, and you can pass additional objects in the map
-   *
-   * @param template The template to read from.
-   * @param context Map of context values for OGNL
-   * @return
-   */
-  public String fillTemplate(String template, Map<String, Object> context) {
-    template = neverNull(template);
-    Map<String, Object> runtimeContext = new HashMap<>();
-    runtimeContext.put("specification", this.specification);
-    if (context != null) {
-      runtimeContext.putAll(context);
-    }
-    StringBuilder result = new StringBuilder();
-
-    Matcher matcher = PATTERN.matcher(template);
-    int nextText = 0;
-    while (!template.isEmpty() && matcher.find()) {
-      int start = matcher.start();
-      char startChar = template.charAt(start);
-      if (startChar != '$') {
-        result.append(template, neverNegative(start - 1), start + 1);
-        start++;
-      }
-      String expression = template.substring(start, matcher.end() - 1).replaceFirst("\\$\\{", "");
-      System.out.println(expression);
-      try {
-        Object exp = Ognl.parseExpression(expression);
-        Object evaluated = Ognl.getValue(exp, runtimeContext);
-        result.append(evaluated);
-      } catch (Exception e) {
-        e.printStackTrace();
-        throw stateException("OGNL Failed [" + expression + "]", template);
-      }
-      nextText = matcher.end();
-    }
-    if (nextText < template.length()) {
-      result.append(template.substring(neverNegative(nextText)));
-    }
-    return result.toString();
   }
 }

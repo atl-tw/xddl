@@ -18,6 +18,7 @@ package net.kebernet.xddl.unify;
 import com.beust.jcommander.Parameter;
 import java.io.File;
 import java.util.List;
+import java.util.Map;
 import lombok.Builder;
 import lombok.Data;
 import net.kebernet.xddl.HasStacktrace;
@@ -62,4 +63,11 @@ public class UnifyCommand implements HasStacktrace {
 
   @Parameter(names = "--stacktrace", description = "Show the stacktrace of an error")
   private boolean stacktrace;
+
+  private Map<String, Object> vals;
+
+  @Parameter(
+      names = {"--vals-file", "-v"},
+      description = "JSON file of values")
+  private File valsFile;
 }

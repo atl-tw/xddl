@@ -26,13 +26,16 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import lombok.Builder;
 import net.kebernet.xddl.model.BaseType;
 import net.kebernet.xddl.model.PatchDelete;
 import net.kebernet.xddl.model.Specification;
 import net.kebernet.xddl.model.Structure;
 import net.kebernet.xddl.model.Type;
+import net.kebernet.xddl.ognl.OgnlTemplater;
 
 @Builder
 public class Loader {
@@ -41,6 +44,8 @@ public class Loader {
   private File main;
   private List<File> includes;
   private List<File> patches;
+  private File valsFile;
+  private Map<String, Object> vals;
   private boolean scrubPatchesFromBaseline;
 
   static {
@@ -57,20 +62,34 @@ public class Loader {
     Specification spec = null;
     try {
       spec = MAPPER.readValue(main, Specification.class);
+
+      scanDirectories("xddl", neverNull(this.includes), MAPPER, spec);
+      if (scrubPatchesFromBaseline) {
+        spec.getStructures().forEach(this::visitStructure);
+      }
+
+      if (!isNullOrEmpty(patches)) {
+        Specification patch = new Specification();
+        scanDirectories("patch", patches, MAPPER, patch);
+        spec = Patcher.builder().specification(spec).patches(patch).build().apply();
+      }
+      if (vals == null) {
+        vals = new HashMap<>();
+      }
+      if (valsFile != null && valsFile.exists()) {
+        if (valsFile.isDirectory()) {
+          throw new IllegalStateException(
+              "valsFile " + valsFile.getAbsolutePath() + " cannot be a directory");
+        }
+        Map fromFile = mapper().readValue(valsFile, Map.class);
+        //noinspection unchecked
+        vals.putAll(fromFile);
+      }
+      new OgnlTemplater(spec, vals).run();
+
     } catch (IOException e) {
       throw new RuntimeException(main.getPath() + " " + e.getMessage(), e);
     }
-    scanDirectories("xddl", neverNull(this.includes), MAPPER, spec);
-    if (scrubPatchesFromBaseline) {
-      spec.getStructures().forEach(this::visitStructure);
-    }
-
-    if (!isNullOrEmpty(patches)) {
-      Specification patch = new Specification();
-      scanDirectories("patch", patches, MAPPER, patch);
-      spec = Patcher.builder().specification(spec).patches(patch).build().apply();
-    }
-
     return spec;
   }
 

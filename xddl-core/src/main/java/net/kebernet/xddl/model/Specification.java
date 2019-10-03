@@ -32,6 +32,7 @@ public class Specification implements HasExtensions {
   private List<Type> types;
   private List<Structure> structures;
   private Map<String, JsonNode> ext;
+  private Map<String, Object> constants;
 
   /**
    * Returns the ext map, creating it if it is null

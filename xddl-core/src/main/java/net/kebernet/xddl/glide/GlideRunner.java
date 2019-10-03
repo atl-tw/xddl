@@ -43,6 +43,8 @@ public class GlideRunner {
                 .inputFile(command.getInputFile())
                 .includes(command.getIncludes())
                 .outputFile(baseline)
+                .vals(command.getVals())
+                .valsFile(command.getValsFile())
                 .build())
         .build()
         .run();

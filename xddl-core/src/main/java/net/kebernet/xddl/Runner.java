@@ -56,6 +56,8 @@ public class Runner {
               .plugins(command.getFormats())
               .specificationFile(command.getInputFile())
               .includes(command.getIncludes())
+              .vals(command.getVals())
+              .valsFile(command.getValsFile())
               .build()
               .run();
           break;

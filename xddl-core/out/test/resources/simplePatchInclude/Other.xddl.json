@@ -1,0 +1,11 @@
+{
+  "@type": "Structure",
+  "name": "Other",
+  "properties": [
+    {
+      "@type": "Type",
+      "core": "DOUBLE",
+      "name": "property6"
+    }
+  ]
+}

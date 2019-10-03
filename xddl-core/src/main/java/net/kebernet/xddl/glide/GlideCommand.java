@@ -18,6 +18,7 @@ package net.kebernet.xddl.glide;
 import com.beust.jcommander.Parameter;
 import java.io.File;
 import java.util.List;
+import java.util.Map;
 import lombok.Builder;
 import lombok.Data;
 import net.kebernet.xddl.HasStacktrace;
@@ -48,6 +49,13 @@ public class GlideCommand implements HasStacktrace {
       description = "The file to output generated artifacts to.",
       required = true)
   private File outputDirectory;
+
+  @Parameter(
+      names = {"--vals-file", "-v"},
+      description = "JSON file of values")
+  private File valsFile;
+
+  private Map<String, Object> vals;
 
   @Parameter(names = "--help", description = "Show this help text", help = true)
   private boolean help;

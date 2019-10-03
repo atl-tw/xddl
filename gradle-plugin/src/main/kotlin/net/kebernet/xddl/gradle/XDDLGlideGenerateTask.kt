@@ -18,6 +18,7 @@ package net.kebernet.xddl.gradle
 import net.kebernet.xddl.generate.GenerateRunner
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.TaskAction
@@ -32,6 +33,14 @@ open class XDDLGlideGenerateTask : DefaultTask() {
     @Input
     lateinit var plugin: String
 
+    @Input
+    @Optional
+    var vals: Map<String, Any> = HashMap()
+
+    @InputFile
+    @Optional
+    var valsFile: File? = if (project.file("src/main/xddl/vals.json").exists()) project.file("src/main/xddl/vals.json") else null
+
     @Optional
     @OutputDirectory
     var glideDirectory: File = File(project.buildDir, "glide")
@@ -45,6 +54,8 @@ open class XDDLGlideGenerateTask : DefaultTask() {
             f ->
             GenerateRunner
                     .builder()
+                    .vals(vals)
+                    .valsFile(valsFile)
                     .specificationFile(f)
                     .outputDirectory(outputDirectory)
                     .plugins(listOf(plugin))

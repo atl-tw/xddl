@@ -1,0 +1,47 @@
+{
+  "title": "Sample Specification",
+  "entryRef": "Parent",
+  "version": "0.1.0",
+  "description": "This is my sample specification.\n\nThere are many like it but this one is mine.",
+  "comment": "Some comment with < and > and stuff.",
+  "types": [
+    {
+      "@type": "Type",
+      "core": "STRING",
+      "name": "ordinal_enum",
+      "description": "A referenced enum property value",
+      "allowable": [
+        {
+          "value": "FIRST",
+          "description": "The 1st value"
+        },
+        {
+          "value": "SECOND",
+          "description": "THe 2nd value"
+        },
+        {
+          "value": "THIRD",
+          "comment": "Maybe add a 3rd value?"
+        }
+      ]
+    }
+  ],
+  "structures": [
+    {
+      "@type": "Structure",
+      "name": "Parent",
+      "properties": [
+        {
+          "@type": "Reference",
+          "ref": "ordinal_enum",
+          "name": "enumProperty"
+        }
+      ]
+    }
+  ],
+  "ext": {
+    "java": {
+      "package": "n.k.basetypes"
+    }
+  }
+}

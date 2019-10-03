@@ -21,6 +21,7 @@ import com.google.common.collect.Streams;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 import java.util.ServiceLoader;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -41,11 +42,19 @@ public class GenerateRunner {
   private List<String> plugins;
   private List<File> includes;
   private Context context;
+  private Map<String, Object> vals;
+  private File valsFile;
 
   public void run() throws IOException {
 
     Specification specification =
-        Loader.builder().main(specificationFile).includes(this.includes).build().read();
+        Loader.builder()
+            .main(specificationFile)
+            .includes(this.includes)
+            .valsFile(valsFile)
+            .vals(vals)
+            .build()
+            .read();
     this.context = new Context(Loader.mapper(), specification);
     Iterable<Plugin> implementations = neverNull(ServiceLoader.load(Plugin.class));
     Set<String> known =

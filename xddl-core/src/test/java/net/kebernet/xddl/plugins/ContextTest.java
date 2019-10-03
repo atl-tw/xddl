@@ -15,8 +15,6 @@
  */
 package net.kebernet.xddl.plugins;
 
-import static com.google.common.truth.Truth.assertThat;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.util.regex.Matcher;
@@ -45,28 +43,5 @@ public class ContextTest {
     while (matcher.find()) {
       System.out.println(val.substring(matcher.start(), matcher.end()).replaceAll("\\\\}", "}"));
     }
-  }
-
-  @Test
-  public void testTemplate() throws IOException {
-    ObjectMapper mapper = new ObjectMapper();
-    Specification spec =
-        mapper.readValue(
-            StructureTest.class.getResourceAsStream("/template.json"), Specification.class);
-    Context context = new Context(mapper, spec);
-
-    assertThat(context.fillTemplate("${specification.title} v${specification.version}xxx", null))
-        .isEqualTo("Foo v1.0xxx");
-  }
-
-  @Test
-  public void testNoOp() throws IOException {
-    ObjectMapper mapper = new ObjectMapper();
-    Specification spec =
-        mapper.readValue(
-            StructureTest.class.getResourceAsStream("/template.json"), Specification.class);
-    Context context = new Context(mapper, spec);
-
-    assertThat(context.fillTemplate("xxx", null)).isEqualTo("xxx");
   }
 }

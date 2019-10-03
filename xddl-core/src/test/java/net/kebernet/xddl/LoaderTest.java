@@ -17,13 +17,17 @@ package net.kebernet.xddl;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import com.google.common.io.CharStreams;
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.Collections;
 import java.util.stream.Collectors;
 import net.kebernet.xddl.model.BaseType;
 import net.kebernet.xddl.model.PatchDelete;
 import net.kebernet.xddl.model.Specification;
 import net.kebernet.xddl.model.Structure;
+import net.kebernet.xddl.ognl.OgnlTemplaterTest;
 import org.junit.Test;
 
 public class LoaderTest {
@@ -60,5 +64,20 @@ public class LoaderTest {
                 .map(BaseType::getName)
                 .collect(Collectors.toSet()))
         .containsExactly("property2", "property4");
+  }
+
+  @Test
+  public void testTemplates() throws IOException {
+    Specification spec =
+        Loader.builder()
+            .main(new File("src/test/resources/prefix.json"))
+            .valsFile(new File("src/test/resources/prefixVals.json"))
+            .build()
+            .read();
+    String value =
+        CharStreams.toString(
+            new InputStreamReader(
+                OgnlTemplaterTest.class.getResourceAsStream("/prefixExpected.json")));
+    assertThat(Loader.mapper().writeValueAsString(spec)).isEqualTo(value);
   }
 }

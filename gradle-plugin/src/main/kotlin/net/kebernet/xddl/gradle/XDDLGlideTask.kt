@@ -22,6 +22,7 @@ import net.kebernet.xddl.glide.GlideRunner
 import net.kebernet.xddl.model.Specification
 import net.kebernet.xddl.model.Utils.neverNull
 import org.gradle.api.DefaultTask
+import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.Optional
@@ -40,6 +41,14 @@ open class XDDLGlideTask : DefaultTask() {
                 Collections.singletonList(project.file("src/main/xddl/includes"))
             else
                 Collections.emptyList()
+
+    @Input
+    @Optional
+    var vals: Map<String, Any> = HashMap()
+
+    @InputFile
+    @Optional
+    var valsFile: File? = if (project.file("src/main/xddl/vals.json").exists()) project.file("src/main/xddl/vals.json") else null
 
     @Optional
     @InputFiles
@@ -63,6 +72,8 @@ open class XDDLGlideTask : DefaultTask() {
                         GlideCommand.builder()
                                 .inputFile(sourceFile)
                                 .includes(includeDirectories)
+                                .vals(vals)
+                                .valsFile(valsFile)
                                 .patches(patchesDirectory)
                                 .outputDirectory(outputDirectory)
                                 .build()
