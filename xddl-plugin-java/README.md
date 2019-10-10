@@ -21,6 +21,12 @@ Supported Extensions
  * Structure:
     * ``implements``: Array of fully qualified interface names that will be 
     applied to the generated class.
+    * ``compareToIncludeProperties``: IF implements includes ``java.lang.Comparable<SomeType>`` then a
+      ``compareTo()`` method will be generated. This field includes an order of precedence list of property
+      names that will determine the result of the comparison. They should all be primitive types or Comparables.
+      You can invert the order of any given property by placing a ``!`` character at the beginning of the name. For
+      example: ``"compareToIncludeProperties":["familyName", "surname", "!dateOfBirth"]`` will give your the YOUNGEST
+      people with matching names first. All properties will for comparison will be accessed via getters.
  * Property:
     * ``type``: A fully qualified Java type for the property. eg, use ``java.util.Date`` for 
       the ``DATETIME``. For List types, they should be a non-parameterized collection name.

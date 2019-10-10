@@ -22,6 +22,7 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Splitter;
 import com.squareup.javapoet.ArrayTypeName;
 import com.squareup.javapoet.ClassName;
+import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeName;
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -35,6 +36,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import net.kebernet.xddl.model.BaseType;
 import net.kebernet.xddl.model.CoreType;
 import net.kebernet.xddl.model.Type;
@@ -43,6 +45,7 @@ import net.kebernet.xddl.plugins.Context;
 public abstract class Resolver {
 
   private static final Pattern packagePattern = Pattern.compile("([^A-Z]*)\\..*");
+  private static final Pattern parameterPattern = Pattern.compile(".*(<(.*)>).*");
 
   private static final Map<CoreType, TypeName> BASIC_TYPES =
       new HashMap<CoreType, TypeName>() {
@@ -98,7 +101,7 @@ public abstract class Resolver {
         "Cant do " + type.getClass().getCanonicalName() + " yet");
   }
 
-  static ClassName resolveListType(Context context, net.kebernet.xddl.model.List list) {
+  static TypeName resolveListType(Context context, net.kebernet.xddl.model.List list) {
     return extensionValueAsString(list, "java", "type")
         .map(s -> parse(s, resolvePackageName(context)))
         .orElse(ClassName.get(java.util.List.class));
@@ -106,7 +109,7 @@ public abstract class Resolver {
 
   @VisibleForTesting
   static TypeName resolveType(Context context, Type type) {
-    Optional<ClassName> extension =
+    Optional<TypeName> extension =
         extensionValueAsString(type, "java", "type")
             .map(s -> parse(s, resolvePackageName(context)));
     if (extension.isPresent()) {
@@ -124,7 +127,17 @@ public abstract class Resolver {
   }
 
   @VisibleForTesting
-  static ClassName parse(String name, String defaultPackage) {
+  static TypeName parse(String name, String defaultPackage) {
+    List<TypeName> parameterNames = null;
+    Matcher paramMatcher = parameterPattern.matcher(name);
+    if (paramMatcher.matches()) {
+      parameterNames =
+          Splitter.on(',').trimResults().splitToList(paramMatcher.group(2)).stream()
+              .map(p -> parse(p, defaultPackage))
+              .collect(Collectors.toList());
+      name = name.replaceAll(paramMatcher.group(1), "").trim();
+    }
+
     String classNames = name;
     String packageName = defaultPackage;
     Matcher matcher = packagePattern.matcher(name);
@@ -136,6 +149,11 @@ public abstract class Resolver {
         new ArrayList<>(Splitter.on(".").omitEmptyStrings().trimResults().splitToList(classNames));
     String first = simpleNames.remove(0);
     String[] rest = simpleNames.toArray(new String[0]);
-    return ClassName.get(packageName, first, rest);
+    if (parameterNames != null) {
+      return ParameterizedTypeName.get(
+          ClassName.get(packageName, first, rest), parameterNames.toArray(new TypeName[0]));
+    } else {
+      return ClassName.get(packageName, first, rest);
+    }
   }
 }

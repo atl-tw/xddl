@@ -15,6 +15,7 @@
  */
 package net.kebernet.xddl.java;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Optional.ofNullable;
 import static net.kebernet.xddl.java.Resolver.parse;
 import static net.kebernet.xddl.java.Resolver.resolvePackageName;
@@ -35,6 +36,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import javax.lang.model.element.Modifier;
@@ -49,12 +51,18 @@ import net.kebernet.xddl.plugins.Context;
 public class StructureClass implements Writable {
 
   private static final String INITIALIZER = "initializer";
-  public static final String EQUALS_HASHCODE_WRAPPER = "equalsHashCodeWrapper";
-  public static final String NONE = "none";
+  private static final String EQUALS_HASHCODE_WRAPPER = "equalsHashCodeWrapper";
+  private static final String NONE = "none";
+  private static final String COMPARE_TO_INCLUDE_PROPERTIES = "compareToIncludeProperties";
+  private static final String IMPLEMENTS = "implements";
+  private static final String[] THIS_THAT = new String[] {"this", "that"};
+  private static final String[] THAT_THIS = new String[] {"that", "this"};
   private final Context ctx;
   private final TypeSpec.Builder typeBuilder;
   private final String packageName;
   private final ClassName className;
+  private TypeName comparableParameter;
+  private LinkedHashSet<String> comparableProperties;
 
   @SuppressWarnings("WeakerAccess")
   public StructureClass(Context context, Structure structure, ClassName name) {
@@ -79,6 +87,55 @@ public class StructureClass implements Writable {
 
     generateEquals(allProperties);
     generateHashCode(allProperties);
+    if (comparableParameter != null) {
+      generateCompareTo(allProperties);
+    }
+  }
+
+  @SuppressWarnings("ConstantConditions")
+  private void generateCompareTo(java.util.List<Pair<BaseType, FieldSpec>> allProperties) {
+    LinkedHashSet<String> includeProperties =
+        ofNullable(this.comparableProperties)
+            .orElseGet(
+                () ->
+                    allProperties.stream()
+                        .map(p -> p.left.getName())
+                        .collect(Collectors.toCollection(LinkedHashSet::new)));
+    ArrayList<String> comparison = new ArrayList<>();
+    comparison.add("int result = 0;");
+    for (Pair<BaseType, FieldSpec> p : allProperties) {
+      String[] order = null;
+      if (includeProperties.contains(p.left.getName())) {
+        order = THIS_THAT;
+      } else if (includeProperties.contains("!" + p.left.getName())) {
+        order = THAT_THIS;
+      } else {
+        continue;
+      }
+      String getter = createGetterName(p.right) + "()";
+      comparison.add(
+          "result = ((Comparable) "
+              + order[0]
+              + "."
+              + getter
+              + ").compareTo("
+              + order[1]
+              + "."
+              + getter
+              + ")");
+    }
+    comparison.add("if(result != 0) return result");
+    MethodSpec.Builder methodBuilder =
+        MethodSpec.methodBuilder("compareTo")
+            .returns(TypeName.INT)
+            .addAnnotation(Override.class)
+            .addModifiers(Modifier.PUBLIC)
+            .addParameter(ParameterSpec.builder(comparableParameter, "that").build());
+    for (String statement : comparison) {
+      methodBuilder = methodBuilder.addStatement(statement);
+    }
+    methodBuilder = methodBuilder.addStatement("return 0");
+    typeBuilder.addMethod(methodBuilder.build());
   }
 
   private void generateEquals(java.util.List<Pair<BaseType, FieldSpec>> allProperties) {
@@ -144,12 +201,27 @@ public class StructureClass implements Writable {
   }
 
   private void doExtension(JsonNode jsonNode) {
-    if (jsonNode.has("implements")) {
-      JsonNode impl = jsonNode.get("implements");
+    if (jsonNode.has(IMPLEMENTS)) {
+      JsonNode impl = jsonNode.get(IMPLEMENTS);
       for (JsonNode iface : impl) {
-        ClassName name = parse(iface.asText(), packageName);
+        String text = iface.asText();
+        TypeName name = parse(text, packageName);
+        if (name instanceof ParameterizedTypeName) {
+          ParameterizedTypeName parameterizedTypeName = (ParameterizedTypeName) name;
+          if (parameterizedTypeName.rawType.equals(ClassName.get(Comparable.class))) {
+            this.comparableParameter = parameterizedTypeName.typeArguments.get(0);
+          }
+        }
         typeBuilder.addSuperinterface(name);
       }
+    }
+    if (jsonNode.has(COMPARE_TO_INCLUDE_PROPERTIES)) {
+      JsonNode compareTo = jsonNode.get(COMPARE_TO_INCLUDE_PROPERTIES);
+      LinkedHashSet<String> include = new LinkedHashSet<>();
+      for (JsonNode propName : compareTo) {
+        include.add(propName.asText());
+      }
+      this.comparableProperties = include;
     }
   }
 
@@ -161,10 +233,15 @@ public class StructureClass implements Writable {
     return typeBuilder;
   }
 
-  private MethodSpec createGetter(FieldSpec fieldSpec) {
+  private String createGetterName(FieldSpec fieldSpec) {
     String prefix = fieldSpec.type == TypeName.BOOLEAN ? "is" : "get";
     String name = CaseFormat.LOWER_CAMEL.to(CaseFormat.UPPER_CAMEL, fieldSpec.name);
-    return MethodSpec.methodBuilder(prefix + name)
+    return prefix + name;
+  }
+
+  private MethodSpec createGetter(FieldSpec fieldSpec) {
+
+    return MethodSpec.methodBuilder(createGetterName(fieldSpec))
         .addModifiers(Modifier.PUBLIC)
         .addJavadoc(fieldSpec.javadoc)
         .addJavadoc("\n@return the value\n")
@@ -236,7 +313,7 @@ public class StructureClass implements Writable {
     if (defaultValue.isPresent()) {
       result = result.toBuilder().initializer(defaultValue.get()).build();
     }
-    return new Pair(resolvedType, result);
+    return new Pair<>(resolvedType, result);
   }
 
   private Optional<String> readInitializer(BaseType type) {
@@ -295,7 +372,11 @@ public class StructureClass implements Writable {
   }
 
   private FieldSpec doListType(List listType) {
-    ClassName collectionType = Resolver.resolveListType(this.ctx, listType);
+    TypeName check = Resolver.resolveListType(this.ctx, listType);
+    checkArgument(
+        check instanceof ClassName,
+        "The type parameter on List properties should not contain a parameter.");
+    ClassName collectionType = (ClassName) check;
     BaseType contains = listType.getContains();
     if (contains instanceof List) {
       throw ctx.stateException("Lists of Lists not supported", listType);

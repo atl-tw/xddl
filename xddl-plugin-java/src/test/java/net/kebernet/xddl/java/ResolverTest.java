@@ -31,14 +31,14 @@ public class ResolverTest {
 
   @Test
   public void parseSimpleTypeName() {
-    ClassName name = Resolver.parse("com.foo.Bar", "java.lang");
+    ClassName name = (ClassName) Resolver.parse("com.foo.Bar", "java.lang");
     assertEquals("com.foo", name.packageName());
     assertEquals("Bar", name.simpleName());
   }
 
   @Test
   public void parseNestedTypeNames() {
-    ClassName name = Resolver.parse("com.foo.Bar.Baz", "java.lang");
+    ClassName name = (ClassName) Resolver.parse("com.foo.Bar.Baz", "java.lang");
     assertEquals("com.foo", name.packageName());
     assertEquals("Baz", name.simpleName());
     assertThat(name.simpleNames()).containsExactly("Bar", "Baz");
