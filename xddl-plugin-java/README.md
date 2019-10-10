@@ -37,8 +37,9 @@ Supported Extensions
         copy all list types into an array list to ensure deep equals works irrespective of the j.u.List
         implementation on the class. This can also be ``none`` to disable this entirely and attempt to
         use the ``equals`` method on the collection directly.
-    * ``"initializer": "new java.util.ArrayList<>()"`` to initialize a default value. For example
-        an empty list
+    * ``initializer``:  Contains a Java statement that will be the initializer for the field
+        (ex ``"intitializer": "new java.util.ArrayList<>()"`` for an empty list or ``"intitializer": "\"foo\"""``
+        to initialize a default String value to ``foo``.
         
 Complex List Example
 --------------------
