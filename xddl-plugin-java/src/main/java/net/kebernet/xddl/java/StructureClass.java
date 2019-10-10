@@ -102,7 +102,7 @@ public class StructureClass implements Writable {
                         .map(p -> p.left.getName())
                         .collect(Collectors.toCollection(LinkedHashSet::new)));
     ArrayList<String> comparison = new ArrayList<>();
-    comparison.add("int result = 0;");
+    comparison.add("int result = 0");
     for (Pair<BaseType, FieldSpec> p : allProperties) {
       String[] order = null;
       if (includeProperties.contains(p.left.getName())) {
