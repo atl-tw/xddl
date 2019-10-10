@@ -31,7 +31,6 @@ Supported Extensions
  * Property:
     * ``type``: A fully qualified Java type for the property. eg, use ``java.util.Date`` for 
       the ``DATETIME``. For List types, they should be a non-parameterized collection name.
-    * ``initializer``: A string containing a Java snippet to initialize.
     * ``equalsHashCodeWrapper``: (List properties only) fully qualified class name for a Collection
         type to wrap lists in for doing equality. This will default to ArrayList -- that is, it will
         copy all list types into an array list to ensure deep equals works irrespective of the j.u.List
