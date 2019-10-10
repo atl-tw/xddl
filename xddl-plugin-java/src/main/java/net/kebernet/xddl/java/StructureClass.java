@@ -15,6 +15,7 @@
  */
 package net.kebernet.xddl.java;
 
+import static java.util.Optional.ofNullable;
 import static net.kebernet.xddl.java.Resolver.parse;
 import static net.kebernet.xddl.java.Resolver.resolvePackageName;
 import static net.kebernet.xddl.model.ModelUtil.firstOf;
@@ -32,8 +33,10 @@ import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import javax.lang.model.element.Modifier;
 import net.kebernet.xddl.model.BaseType;
 import net.kebernet.xddl.model.List;
@@ -46,6 +49,7 @@ import net.kebernet.xddl.plugins.Context;
 public class StructureClass implements Writable {
 
   private static final String INITIALIZER = "initializer";
+  public static final String EQUALS_HASHCODE_WRAPPER = "equalsHashcodeWrapper";
   private final Context ctx;
   private final TypeSpec.Builder typeBuilder;
   private final String packageName;
@@ -55,21 +59,87 @@ public class StructureClass implements Writable {
   public StructureClass(Context context, Structure structure, ClassName name) {
     this.ctx = context;
     this.packageName = resolvePackageName(context);
-    this.className =
-        Optional.ofNullable(name).orElse(ClassName.get(packageName, structure.getName()));
+    this.className = ofNullable(name).orElse(ClassName.get(packageName, structure.getName()));
     this.typeBuilder = TypeSpec.classBuilder(className).addModifiers(Modifier.PUBLIC);
 
     ifNotNullOrEmpty(structure.getDescription(), d -> typeBuilder.addJavadoc(d));
 
     context.hasPlugin("java", structure, this::doExtension, (node) -> {});
 
-    neverNull(structure.getProperties()).stream()
-        .filter(t -> !(t instanceof PatchDelete))
-        .map(this::doPropertyType)
-        .peek(fieldSpec -> typeBuilder.addMethod(createGetter(fieldSpec)))
-        .peek(fieldSpec -> typeBuilder.addMethod(createSetter(fieldSpec)))
-        .peek(fieldSpec -> typeBuilder.addMethod(createBuilder(fieldSpec)))
-        .forEach(typeBuilder::addField);
+    java.util.List<Pair<BaseType, FieldSpec>> allProperties =
+        neverNull(structure.getProperties()).stream()
+            .filter(t -> !(t instanceof PatchDelete))
+            .map(this::doPropertyType)
+            .peek(pair -> typeBuilder.addMethod(createGetter(pair.right)))
+            .peek(pair -> typeBuilder.addMethod(createSetter(pair.right)))
+            .peek(pair -> typeBuilder.addMethod(createBuilder(pair.right)))
+            .peek(pair -> typeBuilder.addField(pair.right))
+            .collect(Collectors.toList());
+
+    generateEquals(allProperties);
+    generateHashCode(allProperties);
+  }
+
+  private void generateEquals(java.util.List<Pair<BaseType, FieldSpec>> allProperties) {
+    StringBuilder codeBlock = new StringBuilder("return \n");
+    for (Pair<BaseType, FieldSpec> p : allProperties) {
+      codeBlock = codeBlock.append("   java.util.Objects.equals(");
+      codeBlock = wrapReference(codeBlock, p, "this");
+      codeBlock = codeBlock.append(",");
+      codeBlock = wrapReference(codeBlock, p, "that");
+      codeBlock = codeBlock.append(") && \n   ");
+    }
+    codeBlock.append("   true");
+
+    typeBuilder.addMethod(
+        MethodSpec.methodBuilder("equals")
+            .returns(TypeName.BOOLEAN)
+            .addAnnotation(Override.class)
+            .addModifiers(Modifier.PUBLIC)
+            .addParameter(ParameterSpec.builder(TypeName.OBJECT, "o").build())
+            .addStatement("if(!(o instanceof " + this.className.simpleName() + ")) return false")
+            .addStatement(
+                this.className.simpleName() + " that = (" + this.className.simpleName() + ") o")
+            .addStatement(codeBlock.toString())
+            .build());
+  }
+
+  private void generateHashCode(java.util.List<Pair<BaseType, FieldSpec>> allProperties) {
+    StringBuilder codeBlock = new StringBuilder("return   java.util.Objects.hash(\n   ");
+    for (Pair<BaseType, FieldSpec> p : allProperties) {
+      codeBlock = wrapReference(codeBlock, p, "this");
+      codeBlock = codeBlock.append(",\n   ");
+    }
+    codeBlock.append(" 0)");
+
+    typeBuilder.addMethod(
+        MethodSpec.methodBuilder("hashCode")
+            .returns(TypeName.INT)
+            .addAnnotation(Override.class)
+            .addModifiers(Modifier.PUBLIC)
+            .addStatement(codeBlock.toString())
+            .build());
+  }
+
+  private StringBuilder wrapReference(
+      StringBuilder codeBlock, Pair<BaseType, FieldSpec> p, String reference) {
+    if (p.left instanceof List) {
+      String wrapper = resolveListEqualityType((List) p.left);
+      codeBlock = codeBlock.append(" new ").append(wrapper).append("<>(");
+    }
+    codeBlock = codeBlock.append(reference).append(".");
+    codeBlock = codeBlock.append(p.right.name);
+    if (p.left instanceof List) {
+      codeBlock = codeBlock.append(")");
+    }
+    return codeBlock;
+  }
+
+  private String resolveListEqualityType(List left) {
+    return ofNullable(left.ext().get("java"))
+        .filter(node -> node.has(EQUALS_HASHCODE_WRAPPER))
+        .map(node -> node.get(EQUALS_HASHCODE_WRAPPER).asText())
+        .orElse(ArrayList.class.getCanonicalName());
   }
 
   private void doExtension(JsonNode jsonNode) {
@@ -131,7 +201,7 @@ public class StructureClass implements Writable {
     file.writeTo(directory);
   }
 
-  private FieldSpec doPropertyType(BaseType baseType) {
+  private Pair<BaseType, FieldSpec> doPropertyType(BaseType baseType) {
     FieldSpec result = null;
     BaseType resolvedType = baseType;
     if (baseType instanceof Reference) {
@@ -165,11 +235,11 @@ public class StructureClass implements Writable {
     if (defaultValue.isPresent()) {
       result = result.toBuilder().initializer(defaultValue.get()).build();
     }
-    return result;
+    return new Pair(resolvedType, result);
   }
 
   private Optional<String> readInitializer(BaseType type) {
-    return Optional.ofNullable((JsonNode) type.ext().get("java"))
+    return ofNullable((JsonNode) type.ext().get("java"))
         .filter(n -> n.has(INITIALIZER))
         .map(n -> n.get(INITIALIZER).asText());
   }
@@ -269,5 +339,15 @@ public class StructureClass implements Writable {
           .build();
     }
     throw ctx.stateException("Unsupported list, ", listType);
+  }
+
+  static class Pair<L, R> {
+    final L left;
+    final R right;
+
+    Pair(L left, R right) {
+      this.left = left;
+      this.right = right;
+    }
   }
 }

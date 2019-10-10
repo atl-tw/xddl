@@ -24,6 +24,8 @@ Supported Extensions
  * Property:
     * ``type``: A fully qualified Java type for the property. eg, use ``java.util.Date`` for 
       the DATETIME. 
-    * ``initializer``: A string containing a Java snippet to initialize
-    a default value. For example: ``"initializer": "new java.util.ArrayList<>()"`` to initialize 
-    an empty list
+    * ``initializer``: A string containing a Java snippet to initialize.
+    * ``equalsHashcodeWrapper``: (List properties only) fully qualified class name for a Collection
+        type to wrap lists in for doing equality.
+    * ``"initializer": "new java.util.ArrayList<>()"`` to initialize a default value. For example
+        an empty list
