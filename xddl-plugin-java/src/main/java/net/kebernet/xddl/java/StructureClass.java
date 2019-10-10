@@ -49,7 +49,8 @@ import net.kebernet.xddl.plugins.Context;
 public class StructureClass implements Writable {
 
   private static final String INITIALIZER = "initializer";
-  public static final String EQUALS_HASHCODE_WRAPPER = "equalsHashcodeWrapper";
+  public static final String EQUALS_HASHCODE_WRAPPER = "equalsHashCodeWrapper";
+  public static final String NONE = "none";
   private final Context ctx;
   private final TypeSpec.Builder typeBuilder;
   private final String packageName;
@@ -123,13 +124,13 @@ public class StructureClass implements Writable {
 
   private StringBuilder wrapReference(
       StringBuilder codeBlock, Pair<BaseType, FieldSpec> p, String reference) {
-    if (p.left instanceof List) {
-      String wrapper = resolveListEqualityType((List) p.left);
+    String wrapper = null;
+    if (p.left instanceof List && !NONE.equals(wrapper = resolveListEqualityType((List) p.left))) {
       codeBlock = codeBlock.append(" new ").append(wrapper).append("<>(");
     }
     codeBlock = codeBlock.append(reference).append(".");
     codeBlock = codeBlock.append(p.right.name);
-    if (p.left instanceof List) {
+    if (p.left instanceof List && !NONE.equals(wrapper)) {
       codeBlock = codeBlock.append(")");
     }
     return codeBlock;
@@ -294,6 +295,7 @@ public class StructureClass implements Writable {
   }
 
   private FieldSpec doListType(List listType) {
+    ClassName collectionType = Resolver.resolveListType(this.ctx, listType);
     BaseType contains = listType.getContains();
     if (contains instanceof List) {
       throw ctx.stateException("Lists of Lists not supported", listType);
@@ -301,11 +303,11 @@ public class StructureClass implements Writable {
     if (contains instanceof Reference && ctx.pointsToType((Reference) contains)) {
       contains = ctx.resolveReference((Reference) contains).get();
     } else if (contains instanceof Reference && ctx.pointsToStructure((Reference) contains)) {
+
       FieldSpec.Builder builder =
           FieldSpec.builder(
               ParameterizedTypeName.get(
-                  ClassName.get(java.util.List.class),
-                  ClassName.get(packageName, ((Reference) contains).getRef())),
+                  collectionType, ClassName.get(packageName, ((Reference) contains).getRef())),
               listType.getName());
       ifNotNullOrEmpty(contains.getDescription(), s -> builder.addJavadoc(escape(s)));
       ifNotNullOrEmpty(contains.getComment(), s -> builder.addJavadoc("Comment: " + escape(s)));
@@ -314,8 +316,7 @@ public class StructureClass implements Writable {
     if (contains instanceof Type) {
       FieldSpec.Builder builder =
           FieldSpec.builder(
-              ParameterizedTypeName.get(
-                  ClassName.get(java.util.List.class), Resolver.resolveType(ctx, (Type) contains)),
+              ParameterizedTypeName.get(collectionType, Resolver.resolveType(ctx, (Type) contains)),
               listType.getName());
       ifNotNullOrEmpty(contains.getDescription(), s -> builder.addJavadoc(escape(s)));
       ifNotNullOrEmpty(contains.getComment(), s -> builder.addJavadoc("Comment: " + escape(s)));

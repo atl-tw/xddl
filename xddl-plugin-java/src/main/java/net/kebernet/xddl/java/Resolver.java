@@ -98,6 +98,12 @@ public abstract class Resolver {
         "Cant do " + type.getClass().getCanonicalName() + " yet");
   }
 
+  static ClassName resolveListType(Context context, net.kebernet.xddl.model.List list) {
+    return extensionValueAsString(list, "java", "type")
+        .map(s -> parse(s, resolvePackageName(context)))
+        .orElse(ClassName.get(java.util.List.class));
+  }
+
   @VisibleForTesting
   static TypeName resolveType(Context context, Type type) {
     Optional<ClassName> extension =

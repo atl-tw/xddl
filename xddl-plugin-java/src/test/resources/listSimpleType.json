@@ -18,7 +18,9 @@
           },
           "ext": {
             "java": {
-              "initializer": "new java.util.ArrayList<>()"
+              "type": "java.util.Set",
+              "initializer": "new java.util.LinkedHashSet<>()",
+              "equalsHashCodeWrapper": "java.util.HashSet"
             }
           }
         }

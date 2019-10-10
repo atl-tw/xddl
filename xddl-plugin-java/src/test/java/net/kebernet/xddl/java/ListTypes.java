@@ -29,6 +29,7 @@ import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import net.kebernet.xddl.model.Specification;
 import net.kebernet.xddl.plugins.Context;
 import org.junit.Test;
@@ -59,7 +60,7 @@ public class ListTypes {
       descriptors.put(pd.getName(), pd);
     }
 
-    Type token = new TypeToken<List<String>>() {}.getType();
+    Type token = new TypeToken<Set<String>>() {}.getType();
 
     assertThat(descriptors.get("listOfStrings").getReadMethod().getName())
         .isEqualTo("getListOfStrings");
