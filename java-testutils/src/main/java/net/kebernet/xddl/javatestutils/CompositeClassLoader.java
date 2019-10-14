@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.kebernet.xddl.java;
+package net.kebernet.xddl.javatestutils;
 
 import java.util.ArrayList;
 import java.util.Collections;

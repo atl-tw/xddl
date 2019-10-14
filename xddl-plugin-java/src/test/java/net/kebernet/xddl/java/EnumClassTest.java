@@ -27,6 +27,7 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
+import net.kebernet.xddl.javatestutils.JavaTestCompiler;
 import net.kebernet.xddl.model.Specification;
 import net.kebernet.xddl.plugins.Context;
 import org.junit.Test;
@@ -50,7 +51,7 @@ public class EnumClassTest {
     EnumClass enumC = new EnumClass(ctx, spec.types().get(0), spec.types().get(0), null);
     enumC.write(output);
 
-    ClassLoader loader = new Compiler(output).compile();
+    ClassLoader loader = new JavaTestCompiler(output).compile();
     Class generated = loader.loadClass(Resolver.resolvePackageName(ctx) + ".Parent");
     Class enumType = loader.loadClass(Resolver.resolvePackageName(ctx) + ".OrdinalEnum");
     BeanInfo beanInfo = Introspector.getBeanInfo(generated);

@@ -30,6 +30,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import net.kebernet.xddl.javatestutils.JavaTestCompiler;
 import net.kebernet.xddl.model.Specification;
 import net.kebernet.xddl.plugins.Context;
 import org.junit.Test;
@@ -52,7 +53,7 @@ public class ListTypes {
     output.mkdirs();
     parent.write(output);
 
-    ClassLoader loader = new Compiler(output).compile();
+    ClassLoader loader = new JavaTestCompiler(output).compile();
     Class generated = loader.loadClass(Resolver.resolvePackageName(ctx) + ".Parent");
     BeanInfo beanInfo = Introspector.getBeanInfo(generated);
     Map<String, PropertyDescriptor> descriptors = new HashMap<>();
@@ -83,7 +84,7 @@ public class ListTypes {
     output.mkdirs();
     parent.write(output);
 
-    ClassLoader loader = new Compiler(output).compile();
+    ClassLoader loader = new JavaTestCompiler(output).compile();
     Class generated = loader.loadClass(Resolver.resolvePackageName(ctx) + ".Parent");
     BeanInfo beanInfo = Introspector.getBeanInfo(generated);
     Map<String, PropertyDescriptor> descriptors = new HashMap<>();
@@ -116,7 +117,7 @@ public class ListTypes {
     parent.write(output);
     child.write(output);
 
-    ClassLoader loader = new Compiler(output).compile();
+    ClassLoader loader = new JavaTestCompiler(output).compile();
     Class generated = loader.loadClass(Resolver.resolvePackageName(ctx) + ".Parent");
     BeanInfo beanInfo = Introspector.getBeanInfo(generated);
     Map<String, PropertyDescriptor> descriptors = new HashMap<>();

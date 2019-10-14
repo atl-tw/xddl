@@ -84,7 +84,7 @@ public abstract class Resolver {
     }
   }
 
-  static String resolvePackageName(Context context) {
+  public static String resolvePackageName(Context context) {
     Optional<String> optional =
         extensionValueAsString(context.getSpecification(), "java", "package");
     return optional.orElse("xddl")

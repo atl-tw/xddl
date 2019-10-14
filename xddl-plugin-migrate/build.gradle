@@ -1,6 +1,7 @@
 dependencies {
     api project(":xddl-core")
+    api project(":xddl-plugin-migrate-lib")
+    implementation project(":xddl-plugin-java")
     implementation 'com.squareup:javapoet:1.11.1'
-    testImplementation 'org.jooq:joor-java-8:0.9.12'
     testCompile project(":java-testutils")
 }

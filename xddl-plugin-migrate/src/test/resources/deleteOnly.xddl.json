@@ -1,0 +1,19 @@
+{
+  "version": "0.2",
+  "structures": [
+    {
+      "@type": "Structure",
+      "name": "Foo",
+      "properties": [
+        {
+          "@type": "PATCH_DELETE",
+          "name": "foo"
+        },
+        {
+          "@type": "PATCH_DELETE",
+          "name": "bar"
+        }
+      ]
+    }
+  ]
+}

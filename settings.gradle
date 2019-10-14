@@ -10,4 +10,7 @@ include 'xddl-plugin-elasticsearch'
 include 'xddl-plugin-java'
 include 'gradle-plugin'
 include 'xddl-plugin-hive'
+include 'xddl-plugin-migrate'
+include 'xddl-plugin-migrate-lib'
+include 'java-testutils'
 

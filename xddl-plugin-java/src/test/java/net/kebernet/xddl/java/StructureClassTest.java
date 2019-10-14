@@ -34,6 +34,7 @@ import java.time.OffsetTime;
 import java.util.HashMap;
 import java.util.Map;
 import net.kebernet.xddl.Loader;
+import net.kebernet.xddl.javatestutils.JavaTestCompiler;
 import net.kebernet.xddl.model.Specification;
 import net.kebernet.xddl.plugins.Context;
 import org.joor.Reflect;
@@ -107,7 +108,7 @@ public class StructureClassTest {
     parent.write(output);
     child.write(output);
     String packageName = Resolver.resolvePackageName(ctx);
-    ClassLoader loader = new Compiler(output).compile();
+    ClassLoader loader = new JavaTestCompiler(output).compile();
 
     Class parentClass = loader.loadClass(packageName + ".Parent");
     Class childClass = loader.loadClass(packageName + ".Child");
@@ -135,7 +136,7 @@ public class StructureClassTest {
     StructureClass struct = new StructureClass(ctx, spec.structures().get(0));
     File output = new File("build/test-gen/nestedEnum");
     struct.write(output);
-    ClassLoader loader = new Compiler(output).compile();
+    ClassLoader loader = new JavaTestCompiler(output).compile();
     Class generated = loader.loadClass(Resolver.resolvePackageName(ctx) + ".Parent");
     Class enumType =
         loader.loadClass(Resolver.resolvePackageName(ctx) + ".Parent$EnumPropertyType");
@@ -163,7 +164,7 @@ public class StructureClassTest {
     output.mkdirs();
     parent.write(output);
     String packageName = Resolver.resolvePackageName(ctx);
-    ClassLoader loader = new Compiler(output).compile();
+    ClassLoader loader = new JavaTestCompiler(output).compile();
 
     Class parentClass = loader.loadClass(packageName + ".Parent");
     Class childClass = loader.loadClass(packageName + ".Parent$ChildOfTheCornType");
@@ -192,7 +193,7 @@ public class StructureClassTest {
     output.mkdirs();
     parent.write(output);
     String packageName = Resolver.resolvePackageName(ctx);
-    ClassLoader loader = new Compiler(output).compile();
+    ClassLoader loader = new JavaTestCompiler(output).compile();
 
     Class parentClass = loader.loadClass(packageName + ".Parent");
     BeanInfo beanInfo = Introspector.getBeanInfo(parentClass);

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.kebernet.xddl.java;
+package net.kebernet.xddl.javatestutils;
 
 import java.io.File;
 import java.net.MalformedURLException;
@@ -27,11 +27,11 @@ import javax.tools.JavaFileObject;
 import javax.tools.StandardJavaFileManager;
 import javax.tools.ToolProvider;
 
-public class Compiler {
+public class JavaTestCompiler {
 
   private final File directory;
 
-  public Compiler(File directory) {
+  public JavaTestCompiler(File directory) {
     this.directory = directory;
   }
 
