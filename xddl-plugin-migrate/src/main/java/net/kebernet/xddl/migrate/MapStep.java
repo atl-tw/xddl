@@ -15,21 +15,16 @@
  */
 package net.kebernet.xddl.migrate;
 
-import com.fasterxml.jackson.annotation.JsonSubTypes;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import java.util.Map;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
-@SuppressWarnings("WeakerAccess")
 @Data
+@EqualsAndHashCode(callSuper = true)
 @SuperBuilder
 @NoArgsConstructor
-@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "@type")
-@JsonSubTypes({
-  @JsonSubTypes.Type(value = JsonPathStep.class, name = "jsonp"),
-  @JsonSubTypes.Type(value = MapStep.class, name = "map")
-})
-public class Step {
-  private String expr;
+public class MapStep extends Step {
+  private Map<Object, Object> toFrom;
 }

@@ -27,6 +27,7 @@ import lombok.experimental.SuperBuilder;
 public class JsonPathStep extends Step {
   private Context context;
 
+  @SuppressWarnings("unused")
   public enum Context {
     /** Indicates that this step should be evaluated from the document root. */
     ROOT,
