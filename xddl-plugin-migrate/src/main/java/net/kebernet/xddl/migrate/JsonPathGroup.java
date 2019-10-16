@@ -15,8 +15,12 @@
  */
 package net.kebernet.xddl.migrate;
 
+import java.util.List;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
-@SuppressWarnings("WeakerAccess")
 @Data
-public class Step {}
+@EqualsAndHashCode(callSuper = true)
+public class JsonPathGroup extends StepGroup {
+  List<String> steps;
+}

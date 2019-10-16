@@ -15,23 +15,13 @@
  */
 package net.kebernet.xddl.migrate;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import java.util.Map;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
-import lombok.experimental.SuperBuilder;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
-@SuperBuilder
-@NoArgsConstructor
-public class JsonPathStep extends Step {
-  private Context context;
-
-  @SuppressWarnings("unused")
-  public enum Context {
-    /** Indicates that this step should be evaluated from the document root. */
-    ROOT,
-    /** Indicates that this step should be evaluated from the local context. */
-    LOCAL
-  }
+public class MapGroup extends StepGroup {
+  private Map<JsonNode, JsonNode> toFrom;
 }

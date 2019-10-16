@@ -156,9 +156,9 @@ public class Context {
       String extType, T type, Consumer<JsonNode> ifTrue, Consumer<T> ifFalse) {
     Optional<JsonNode> value = ofNullable((JsonNode) type.ext().get(extType));
     if (value.isPresent()) {
-      ifTrue.accept(value.get());
+      if (ifTrue != null) ifTrue.accept(value.get());
     } else {
-      ifFalse.accept(type);
+      if (ifFalse != null) ifFalse.accept(type);
     }
   }
 

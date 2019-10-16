@@ -1,0 +1,59 @@
+{
+  "version": "0.2",
+  "structures": [
+    {
+      "@type": "Structure",
+      "name": "Foo",
+      "properties": [
+        {
+          "@type": "Structure",
+          "name": "foo",
+          "properties": [
+            {
+              "@type": "Type",
+              "core": "STRING",
+              "name": "baz"
+            },
+            {
+              "@type": "Type",
+              "core": "STRING",
+              "name": "local",
+              "ext": {
+                "migration": {
+                  "groups": [
+                    {
+                      "@type": "jsonp",
+                      "start": "LOCAL",
+                      "steps": [
+                        "$.baz"
+                      ]
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        },
+        {
+          "@type": "Type",
+          "core": "STRING",
+          "name": "bar",
+          "ext": {
+            "migration": {
+              "groups": [
+                {
+                  "@type": "jsonp",
+                  "start": "ROOT",
+                  "steps": [
+                    "$.foo",
+                    "$.baz"
+                  ]
+                }
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

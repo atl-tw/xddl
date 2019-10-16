@@ -15,16 +15,24 @@
  */
 package net.kebernet.xddl.migrate;
 
-import java.util.Map;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
-import lombok.experimental.SuperBuilder;
 
 @Data
-@EqualsAndHashCode(callSuper = true)
-@SuperBuilder
-@NoArgsConstructor
-public class MapStep extends Step {
-  private Map<Object, Object> toFrom;
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "@type")
+@JsonSubTypes({
+  @JsonSubTypes.Type(value = JsonPathGroup.class, name = "jsonp"),
+  @JsonSubTypes.Type(value = MapGroup.class, name = "map")
+})
+public class StepGroup {
+  private Context start;
+
+  @SuppressWarnings("unused")
+  public enum Context {
+    /** Indicates that this step should be evaluated from the document root. */
+    ROOT,
+    /** Indicates that this step should be evaluated from the local context. */
+    LOCAL
+  }
 }

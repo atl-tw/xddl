@@ -16,11 +16,15 @@
 package net.kebernet.xddl.migrate;
 
 import static com.google.common.truth.Truth.assertThat;
+import static java.util.Optional.ofNullable;
+import static net.kebernet.xddl.migrate.MigrationVisitor.evaluateJsonPath;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.io.File;
 import java.io.IOException;
+import java.util.Optional;
 import net.kebernet.xddl.Loader;
 import net.kebernet.xddl.java.Resolver;
 import net.kebernet.xddl.javatestutils.JavaTestCompiler;
@@ -60,5 +64,48 @@ public class StructureMigrationTest {
     assertThat(node.has("foo")).isFalse();
     assertThat(node.has("bar")).isFalse();
     assertThat(node.get("baz").asText()).isEqualTo("BAZ!");
+  }
+
+  @Test
+  public void jsonPathTest() throws IOException {
+
+    JsonNode node = Loader.mapper().readTree("{\"foo\":\"bar\", \"baz\":{ \"quux\":\"whatever\"}}");
+
+    Optional<JsonNode> read =
+        ofNullable(node)
+            .map(n -> evaluateJsonPath(n, "$.baz"))
+            .map(n -> evaluateJsonPath(n, "$.quux"));
+
+    System.out.println(read);
+  }
+
+  @Test
+  public void testSimpleCopy() throws Exception {
+    File output = new File("build/test-gen/simpleCopy");
+    output.mkdirs();
+    Specification spec =
+        Loader.builder()
+            .main(new File("src/test/resources/simpleCopy.xddl.json"))
+            .scrubPatchesFromBaseline(false)
+            .build()
+            .read();
+    Context ctx = new Context(Loader.mapper(), spec);
+    StructureMigration writer = new StructureMigration(ctx, spec.structures().get(0), null);
+    writer.write(output);
+
+    String packageName = Resolver.resolvePackageName(ctx);
+    ;
+    ClassLoader loader = new JavaTestCompiler(output).compile();
+    MigrationVisitor visitor =
+        (MigrationVisitor) loader.loadClass(packageName + ".migration.Foo").newInstance();
+    ObjectNode node =
+        (ObjectNode)
+            Loader.mapper()
+                .readTree(
+                    StructureMigrationTest.class.getResourceAsStream("/simpleCopy.sample.json"));
+    visitor.apply(node, node);
+    System.out.println(Loader.mapper().writeValueAsString(node));
+    assertThat(node.get("bar").asText()).isEqualTo("quux");
+    assertThat(node.get("foo").get("local").asText()).isEqualTo("quux");
   }
 }

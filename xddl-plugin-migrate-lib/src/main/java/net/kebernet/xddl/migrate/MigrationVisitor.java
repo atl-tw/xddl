@@ -15,8 +15,30 @@
  */
 package net.kebernet.xddl.migrate;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.jayway.jsonpath.Configuration;
+import com.jayway.jsonpath.JsonPath;
+import com.jayway.jsonpath.spi.json.JacksonJsonNodeJsonProvider;
+import com.jayway.jsonpath.spi.mapper.JacksonMappingProvider;
 
+/**
+ * This is a visitor interface that is called to handle a migration from one type to another.
+ */
 public interface MigrationVisitor {
-  void apply(ObjectNode document, ObjectNode local);
+
+  Configuration JACKSON_JSON_NODE_CONFIGURATION =
+      Configuration.builder()
+          .mappingProvider(new JacksonMappingProvider())
+          .jsonProvider(new JacksonJsonNodeJsonProvider())
+          .build();
+
+  static JsonNode evaluateJsonPath(JsonNode node, String expression) {
+    return (JsonNode)
+        JsonPath.using(JACKSON_JSON_NODE_CONFIGURATION)
+            .parse(node)
+            .read(JsonPath.compile(expression));
+  }
+
+  void apply(ObjectNode root, ObjectNode local);
 }
