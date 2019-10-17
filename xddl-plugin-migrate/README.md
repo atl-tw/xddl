@@ -60,7 +60,7 @@ fields for your "2.0" spec. Lets look at an example:
                                       //    you can also start from ROOT, at the top of the document, or
                                       //    omit to star from the current property value.
                   "steps": [
-                    "$.value"         //<-- we select the value peer property
+                    "$.value"         //<-- we select the value peer property using a Json-Path expression
                   ]
                 },
                 { "@type": "regex",   //<-- The next state is a regular expression
