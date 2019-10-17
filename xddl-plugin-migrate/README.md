@@ -114,3 +114,12 @@ with the document...
   "firstName" : "Robert"
 }
 ```
+
+Hopefully it is obvious why the order of operations is important:
+
+1. If you are referencing values from the previous specification in your "migration stages" and they
+   are at your peer level or above, they should be in-tact, and in the original state when you read
+   them.
+2. Migrations down-tree are executed before value migrations at the top level.
+3. Deletes, from leaf nodes in are executed.
+
