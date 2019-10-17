@@ -60,11 +60,11 @@ fields for your "2.0" spec. Lets look at an example:
                                       //    you can also start from ROOT, at the top of the document, or
                                       //    omit to star from the current property value.
                   "steps": [
-                    "$.value"         //<-- we select the "value" peer property
+                    "$.value"         //<-- we select the value peer property
                   ]
                 },
                 { "@type": "regex",   //<-- The next state is a regular expression
-                  "search": "^(.*), .*$","replace": "$1" } //<-- where we select the last name to group 1
+                  "search": "^(.*), .*$","replace": "$1" } //<-- where we select the last name to group1
                                                            //    and do a replacement
               ]
             }
