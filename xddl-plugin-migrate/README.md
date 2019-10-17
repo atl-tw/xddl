@@ -175,3 +175,14 @@ Hopefully it is obvious why the order of operations is important:
 2. Migrations down-tree are executed before value migrations at the top level.
 3. Deletes, from leaf nodes in are executed.
 
+
+FAQ
+---
+
+Q: Why does the ``jsonp`` stage have multiple steps?
+A: Because if you do limited selection from an array, you always get an array. Mostly this
+   gives you the ability to punch out of it. You can select 
+    ``$.something.other.array[(foo =="bar")]``,
+    ``$[0]``
+   to get the first thing in an array where the foo property equals "bar" WITHOUT ending up 
+   with a single element array, since the array is defreferenced in the second step.
