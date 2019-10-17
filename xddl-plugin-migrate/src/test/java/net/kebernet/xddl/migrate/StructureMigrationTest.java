@@ -108,4 +108,32 @@ public class StructureMigrationTest {
     assertThat(node.get("bar").asText()).isEqualTo("quux");
     assertThat(node.get("foo").get("local").asText()).isEqualTo("q-x");
   }
+
+  @Test
+  public void testNameExample() throws Exception {
+    File output = new File("build/test-gen/nameExample");
+    output.mkdirs();
+    Specification spec =
+        Loader.builder()
+            .main(new File("src/test/resources/nameExample.xddl.json"))
+            .scrubPatchesFromBaseline(false)
+            .build()
+            .read();
+    Context ctx = new Context(Loader.mapper(), spec);
+    StructureMigration writer = new StructureMigration(ctx, spec.structures().get(0), null);
+    writer.write(output);
+
+    String packageName = Resolver.resolvePackageName(ctx);
+    ;
+    ClassLoader loader = new JavaTestCompiler(output).compile();
+    MigrationVisitor visitor =
+        (MigrationVisitor) loader.loadClass(packageName + ".migration.Name").newInstance();
+    ObjectNode node =
+        (ObjectNode)
+            Loader.mapper()
+                .readTree(
+                    StructureMigrationTest.class.getResourceAsStream("/nameExample.sample.json"));
+    visitor.apply(node, node);
+    System.out.println(Loader.mapper().writeValueAsString(node));
+  }
 }

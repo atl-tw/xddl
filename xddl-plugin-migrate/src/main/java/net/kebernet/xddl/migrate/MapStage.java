@@ -15,9 +15,8 @@
  */
 package net.kebernet.xddl.migrate;
 
-import java.util.List;
-
 import com.fasterxml.jackson.databind.JsonNode;
+import java.util.List;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 

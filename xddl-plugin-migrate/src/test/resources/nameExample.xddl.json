@@ -1,0 +1,62 @@
+{
+  "version": "2.0",
+  "entryRef": "Name",
+  "structures": [
+    {
+      "@type": "Structure",
+      "name": "Name",
+      "properties": [
+        {
+          "@type": "PATCH_DELETE",
+          "name": "value"
+        },
+        {
+          "@type": "Type",
+          "core": "STRING",
+          "name": "lastName",
+          "ext": {
+            "migration": {
+              "stages": [
+                {
+                  "@type": "jsonp",
+                  "start": "LOCAL",
+                  "steps": [
+                    "$.value"
+                  ]
+                },
+                {
+                  "@type": "regex",
+                  "search": "^(.*), .*$",
+                  "replace": "$1"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "@type": "Type",
+          "core": "STRING",
+          "name": "firstName",
+          "ext": {
+            "migration": {
+              "stages": [
+                {
+                  "@type": "jsonp",
+                  "start": "LOCAL",
+                  "steps": [
+                    "$.value"
+                  ]
+                },
+                {
+                  "@type": "regex",
+                  "search": "^.*, (.*)$",
+                  "replace": "$1"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -190,24 +190,25 @@ public class StructureMigration {
   private void writeCodeBlock(BaseType type, Stage stage, MethodSpec.Builder groupsBuilder) {
     if (stage instanceof JsonPathStage) {
       writeJsonPathSteps(type, (JsonPathStage) stage, groupsBuilder);
-    } else if (stage instanceof RegexStage){
+    } else if (stage instanceof RegexStage) {
       writeRegExStage(type, (RegexStage) stage, groupsBuilder);
     }
   }
 
   private void writeRegExStage(BaseType type, RegexStage stage, MethodSpec.Builder groupsBuilder) {
     groupsBuilder.beginControlFlow("if(current != null)");
-    groupsBuilder.addStatement("current = $T.evaluateRegexReplace(current, $S, $S)",
-            MigrationVisitor.class,
-            escapeSlashes(stage.getSearch()),
-            stage.getReplace());
+    groupsBuilder.addStatement(
+        "current = $T.evaluateRegexReplace(current, $S, $S)",
+        MigrationVisitor.class,
+        escapeSlashes(stage.getSearch()),
+        stage.getReplace());
     groupsBuilder.endControlFlow();
   }
 
   private String escapeSlashes(String search) {
     StringBuilder sb = new StringBuilder();
-    for(char c : search.toCharArray()){
-      if(c == '\\') {
+    for (char c : search.toCharArray()) {
+      if (c == '\\') {
         sb.append('\\');
       }
       sb.append(c);
