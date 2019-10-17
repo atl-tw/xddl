@@ -17,8 +17,6 @@ to express what you need to migrate a document/object from one version of the sp
 to the next. A patch file is simply another xDDL document that includes directives that 
 guide this process.
 
-Here is a 
-
 Migration operates on Jackson JsonNode objects, and performs steps in a particular order
 that is important to understand:
 
@@ -114,6 +112,60 @@ with the document...
   "firstName" : "Robert"
 }
 ```
+
+And you end up with a class file that looks (roughly like):
+
+```java
+package xddl.v2_0.migration;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import java.lang.Override;
+import java.util.Optional;
+import net.kebernet.xddl.migrate.MigrationVisitor;
+
+public class Name implements MigrationVisitor {
+  public JsonNode migrate_lastName_0(ObjectNode root, ObjectNode local, JsonNode current) {
+    Optional<JsonNode> result = Optional.ofNullable(local);
+    result = result.map(n-> MigrationVisitor.evaluateJsonPath(n, "$.value"));
+    return result.orElse(null);
+  }
+
+  public void migrate_lastName(ObjectNode root, ObjectNode local) {
+    JsonNode current = local.has("lastName") ? local.get("lastName") : null;
+    current = migrate_lastName_0(root, local, current);
+    if(current != null) {
+      current = MigrationVisitor.evaluateRegexReplace(current, "^(.*), .*$", "$1");
+    }
+    local.set("lastName", current);
+  }
+
+  public JsonNode migrate_firstName_0(ObjectNode root, ObjectNode local, JsonNode current) {
+    Optional<JsonNode> result = Optional.ofNullable(local);
+    result = result.map(n-> MigrationVisitor.evaluateJsonPath(n, "$.value"));
+    return result.orElse(null);
+  }
+
+  public void migrate_firstName(ObjectNode root, ObjectNode local) {
+    JsonNode current = local.has("firstName") ? local.get("firstName") : null;
+    current = migrate_firstName_0(root, local, current);
+    if(current != null) {
+      current = MigrationVisitor.evaluateRegexReplace(current, "^.*, (.*)$", "$1");
+    }
+    local.set("firstName", current);
+  }
+
+  @Override
+  public void apply(ObjectNode root, ObjectNode local) {
+    migrate_lastName(root, local);
+    migrate_firstName(root, local);
+    if(local.has("value")) local.remove("value");
+  }
+}
+```
+
+Notice that we ``import net.kebernet.xddl.migrate.MigrationVisitor`` this means your resultant
+xDDL project need to have dependency on ``net.kebernet.xddl:xddl-plugin-migrate-lib:[version]``
 
 Hopefully it is obvious why the order of operations is important:
 
