@@ -180,6 +180,7 @@ FAQ
 ---
 
 Q: Why does the ``jsonp`` stage have multiple steps?
+
 A: Because if you do limited selection from an array, you always get an array. Mostly this
    gives you the ability to punch out of it. You can select 
     ``$.something.other.array[(foo =="bar")]``,
