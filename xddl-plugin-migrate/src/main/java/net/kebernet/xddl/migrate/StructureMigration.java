@@ -17,10 +17,10 @@ package net.kebernet.xddl.migrate;
 
 import static java.util.Optional.ofNullable;
 import static net.kebernet.xddl.java.Resolver.resolvePackageName;
-import static net.kebernet.xddl.model.Utils.isNullOrEmpty;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.CodeBlock;
@@ -33,6 +33,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicInteger;
 import javax.lang.model.element.Modifier;
 import net.kebernet.xddl.Loader;
 import net.kebernet.xddl.model.BaseType;
@@ -40,7 +41,6 @@ import net.kebernet.xddl.model.List;
 import net.kebernet.xddl.model.PatchDelete;
 import net.kebernet.xddl.model.Reference;
 import net.kebernet.xddl.model.Structure;
-import net.kebernet.xddl.model.Type;
 import net.kebernet.xddl.plugins.Context;
 
 public class StructureMigration {
@@ -69,7 +69,73 @@ public class StructureMigration {
             .addParameter(ParameterSpec.builder(ObjectNode.class, ROOT).build())
             .addParameter(ParameterSpec.builder(ObjectNode.class, LOCAL).build());
 
-    structure.getProperties().forEach(this::visit);
+    structure.getProperties().forEach(this::visitNested);
+    structure.getProperties().forEach(this::visitStructureReference);
+    structure.getProperties().forEach(this::visitMigrationSteps);
+    structure.getProperties().forEach(this::visitPatchDelete);
+  }
+
+  private void visitPatchDelete(BaseType baseType) {
+    if (baseType instanceof PatchDelete) {
+      applyBuilder.addStatement(
+          "if(local.has($S)) local.remove($S)", baseType.getName(), baseType.getName());
+    }
+  }
+
+  private void visitLists(BaseType type) {
+    if (type instanceof List) {
+      List list = (List) type;
+      BaseType baseType = list.getContains();
+      applyBuilder.beginControlFlow(
+          "if(local.has($S) && local.get($S) != null)", type.getName(), type.getName());
+      applyBuilder.addStatement(
+          "$T $L_list = ($T) local.get($S)",
+          ArrayNode.class,
+          type.getName(),
+          ArrayNode.class,
+          type.getName());
+      applyBuilder.endControlFlow();
+
+      MethodSpec.methodBuilder("migrate_list_" + list.getName())
+          .addModifiers(Modifier.PUBLIC)
+          .addParameter(ParameterSpec.builder(ObjectNode.class, ROOT).build())
+          .addParameter(ParameterSpec.builder(ObjectNode.class, LOCAL).build())
+          .addParameter(ParameterSpec.builder(JsonNode.class, "current").build());
+    }
+  }
+
+  private void visitStructureReference(BaseType baseType) {
+    BaseType resolvedType = baseType;
+    if (baseType instanceof Reference) {
+      resolvedType =
+          ctx.resolveReference((Reference) baseType)
+              .orElseThrow(() -> ctx.stateException("Unable to resolve reference", baseType));
+
+      if (resolvedType instanceof Structure) {
+        ClassName migrationName = ClassName.get(this.className.packageName(), structure.getName());
+        writeNested(baseType, migrationName);
+      }
+    }
+  }
+
+  private void visitNested(BaseType baseType) {
+    if (baseType instanceof Structure) {
+      StructureMigration migration =
+          new StructureMigration(
+              ctx,
+              (Structure) baseType,
+              ClassName.get(
+                  this.className.packageName(), structure.getName() + "_" + baseType.getName()));
+      nested.add(migration);
+      writeNested(baseType, migration.className);
+    }
+  }
+
+  private void writeNested(BaseType type, ClassName className) {
+    applyBuilder.beginControlFlow("if(local.has($S))", type.getName());
+    applyBuilder.addStatement(
+        "new $T().apply(root, ($T) local.get($S))", className, ObjectNode.class, type.getName());
+    applyBuilder.endControlFlow();
   }
 
   public void write(File directory) {
@@ -83,7 +149,7 @@ public class StructureMigration {
     }
   }
 
-  private void visit(BaseType baseType) {
+  private void visitMigrationSteps(BaseType baseType) {
     BaseType resolvedType = baseType;
     if (baseType instanceof Reference) {
       resolvedType =
@@ -91,55 +157,66 @@ public class StructureMigration {
               .orElseThrow(() -> ctx.stateException("Unable to resolve reference", baseType));
     }
     doMigrationSteps(resolvedType);
-    if (resolvedType instanceof Structure & baseType instanceof Reference) {
-      doStructureReference((Structure) resolvedType);
-    } else if (resolvedType instanceof Type) {
-      Type type = (Type) resolvedType;
-      if (isNullOrEmpty(type.getAllowable())) doType(type);
-      else doEnum(baseType, type);
-    } else if (resolvedType instanceof List) {
-      List list = (List) resolvedType;
-      doListType(list);
-    } else if (resolvedType instanceof Structure) {
-      StructureMigration migration =
-          new StructureMigration(
-              ctx,
-              (Structure) resolvedType,
-              ClassName.get(
-                  this.className.packageName(),
-                  structure.getName() + "_" + resolvedType.getName()));
-      nested.add(migration);
-      writeNested(resolvedType, migration.className);
-    } else if (resolvedType instanceof PatchDelete) {
-      doDelete(baseType);
-    }
-  }
-
-  private void writeNested(BaseType type, ClassName className) {
-    applyBuilder.beginControlFlow("if(local.has($S))", type.getName());
-    applyBuilder.addStatement(
-        "new $T().apply(root, ($T) local.get($S))", className, ObjectNode.class, type.getName());
-    applyBuilder.endControlFlow();
   }
 
   private void doMigrationSteps(BaseType type) {
     if (!type.ext().containsKey("migration")) return;
     try {
+      MethodSpec.Builder groupMethod =
+          MethodSpec.methodBuilder("migrate_" + type.getName())
+              .addModifiers(Modifier.PUBLIC)
+              .addParameter(ParameterSpec.builder(ObjectNode.class, ROOT).build())
+              .addParameter(ParameterSpec.builder(ObjectNode.class, LOCAL).build());
+      groupMethod.addStatement(
+          "$T current = local.has($S) ? local.get($S) : null",
+          JsonNode.class,
+          type.getName(),
+          type.getName());
+
       Migration migration =
           Loader.mapper().treeToValue((JsonNode) type.ext().get("migration"), Migration.class);
-      migration.getGroups().forEach(s -> writeCodeBlock(type, s));
+      AtomicInteger index = new AtomicInteger(0);
+      migration.getStages().forEach(s -> s.setIndex(index.getAndIncrement()));
+      migration.getStages().forEach(s -> writeCodeBlock(type, s, groupMethod));
+      groupMethod.addStatement("local.set($S, current)", type.getName());
+
+      typeBuilder.addMethod(groupMethod.build());
+      applyBuilder.addStatement("migrate_$L(root, local)", type.getName());
     } catch (JsonProcessingException e) {
       throw ctx.stateException("Unable to parse migration node: " + e.getMessage(), type);
     }
   }
 
-  private void writeCodeBlock(BaseType type, StepGroup group) {
-    if (group instanceof JsonPathGroup) {
-      writeJsonPathSteps(type, (JsonPathGroup) group);
+  private void writeCodeBlock(BaseType type, Stage stage, MethodSpec.Builder groupsBuilder) {
+    if (stage instanceof JsonPathStage) {
+      writeJsonPathSteps(type, (JsonPathStage) stage, groupsBuilder);
+    } else if (stage instanceof RegexStage){
+      writeRegExStage(type, (RegexStage) stage, groupsBuilder);
     }
   }
 
-  private void writeJsonPathSteps(BaseType type, JsonPathGroup group) {
+  private void writeRegExStage(BaseType type, RegexStage stage, MethodSpec.Builder groupsBuilder) {
+    groupsBuilder.beginControlFlow("if(current != null)");
+    groupsBuilder.addStatement("current = $T.evaluateRegexReplace(current, $S, $S)",
+            MigrationVisitor.class,
+            escapeSlashes(stage.getSearch()),
+            stage.getReplace());
+    groupsBuilder.endControlFlow();
+  }
+
+  private String escapeSlashes(String search) {
+    StringBuilder sb = new StringBuilder();
+    for(char c : search.toCharArray()){
+      if(c == '\\') {
+        sb.append('\\');
+      }
+      sb.append(c);
+    }
+    return sb.toString();
+  }
+
+  private void writeJsonPathSteps(
+      BaseType type, JsonPathStage group, MethodSpec.Builder groupBuilder) {
     CodeBlock.Builder b = CodeBlock.builder();
     String scope = null;
     if (group.getStart() != null) {
@@ -151,43 +228,36 @@ public class StructureMigration {
           scope = ROOT;
       }
       b.addStatement(
-          "$T result_$L = $T.ofNullable($L)",
+          "$T result = $T.ofNullable($L)",
           ParameterizedTypeName.get(Optional.class, JsonNode.class),
-          type.getName(),
           Optional.class,
           scope);
+    } else {
+      b.addStatement(
+          "$T result = $T.ofNullable(current)",
+          ParameterizedTypeName.get(Optional.class, JsonNode.class),
+          Optional.class);
     }
 
     group.steps.forEach(
         step ->
             b.addStatement(
-                "result_$L = result_$L.map(n-> $T.evaluateJsonPath(n, $S))",
-                type.getName(),
-                type.getName(),
+                "result = result.map(n-> $T.evaluateJsonPath(n, $S))",
                 MigrationVisitor.class,
                 step));
 
-    b.addStatement("local.set($S, result_$L.orElse(null))", type.getName(), type.getName());
-    applyBuilder.addCode(b.build());
-  }
+    MethodSpec.Builder migrateMethod =
+        MethodSpec.methodBuilder("migrate_" + type.getName() + "_" + group.getIndex())
+            .addModifiers(Modifier.PUBLIC)
+            .addParameter(ParameterSpec.builder(ObjectNode.class, ROOT).build())
+            .addParameter(ParameterSpec.builder(ObjectNode.class, LOCAL).build())
+            .addParameter(ParameterSpec.builder(JsonNode.class, "current").build())
+            .returns(JsonNode.class);
 
-  private void doStructureReference(Structure resolvedType) {
-    // throw new UnsupportedOperationException();
-  }
-
-  private void doDelete(BaseType baseType) {
-    applyBuilder.addStatement("$L.remove($S)", LOCAL, baseType.getName());
-  }
-
-  private void doListType(List list) {
-    // throw new UnsupportedOperationException();
-  }
-
-  private void doEnum(BaseType baseType, Type type) {
-    // throw new UnsupportedOperationException();
-  }
-
-  private void doType(Type type) {
-    // throw new UnsupportedOperationException();
+    migrateMethod.addCode(b.build());
+    migrateMethod.addStatement("return result.orElse(null)");
+    typeBuilder.addMethod(migrateMethod.build());
+    groupBuilder.addStatement(
+        "current = migrate_$L_$L(root, local, current)", type.getName(), group.getIndex());
   }
 }

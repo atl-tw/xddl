@@ -106,6 +106,6 @@ public class StructureMigrationTest {
     visitor.apply(node, node);
     System.out.println(Loader.mapper().writeValueAsString(node));
     assertThat(node.get("bar").asText()).isEqualTo("quux");
-    assertThat(node.get("foo").get("local").asText()).isEqualTo("quux");
+    assertThat(node.get("foo").get("local").asText()).isEqualTo("q-x");
   }
 }

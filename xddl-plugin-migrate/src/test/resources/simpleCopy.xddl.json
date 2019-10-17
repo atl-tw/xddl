@@ -20,13 +20,16 @@
               "name": "local",
               "ext": {
                 "migration": {
-                  "groups": [
+                  "stages": [
                     {
-                      "@type": "jsonp",
-                      "start": "LOCAL",
+                      "@type": "jsonp", "start": "LOCAL",
                       "steps": [
                         "$.baz"
                       ]
+                    },
+                    {
+                      "@type": "regex",
+                      "search": "(.*)uu(.*)", "replace": "$1-$2"
                     }
                   ]
                 }
@@ -40,13 +43,12 @@
           "name": "bar",
           "ext": {
             "migration": {
-              "groups": [
+              "stages": [
                 {
                   "@type": "jsonp",
                   "start": "ROOT",
                   "steps": [
-                    "$.foo",
-                    "$.baz"
+                    "$.foo.baz"
                   ]
                 }
               ]

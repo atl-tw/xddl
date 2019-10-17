@@ -15,13 +15,13 @@
  */
 package net.kebernet.xddl.migrate;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import java.util.Map;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+@SuppressWarnings("WeakerAccess")
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class MapGroup extends StepGroup {
-  private Map<JsonNode, JsonNode> toFrom;
+public class RegexStage extends Stage {
+  String search;
+  String replace;
 }

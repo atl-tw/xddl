@@ -16,9 +16,19 @@
 package net.kebernet.xddl.migrate;
 
 import java.util.List;
+
+import com.fasterxml.jackson.databind.JsonNode;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 @Data
-public class Migration {
-  List<Stage> stages;
+@EqualsAndHashCode(callSuper = true)
+public class MapStage extends Stage {
+  private List<NodePair> values;
+
+  @Data
+  public static class NodePair {
+    private JsonNode from;
+    private JsonNode to;
+  }
 }

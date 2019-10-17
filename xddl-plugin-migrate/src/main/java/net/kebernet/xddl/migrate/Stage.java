@@ -15,12 +15,17 @@
  */
 package net.kebernet.xddl.migrate;
 
-import java.util.List;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 
 @Data
-@EqualsAndHashCode(callSuper = true)
-public class JsonPathGroup extends StepGroup {
-  List<String> steps;
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "@type")
+@JsonSubTypes({
+  @JsonSubTypes.Type(value = JsonPathStage.class, name = "jsonp"),
+  @JsonSubTypes.Type(value = MapStage.class, name = "map"),
+  @JsonSubTypes.Type(value = RegexStage.class, name = "regex")
+})
+public class Stage {
+  private int index;
 }
