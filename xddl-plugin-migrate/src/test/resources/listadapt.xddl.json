@@ -1,0 +1,75 @@
+{
+  "version": "0.2",
+  "structures": [
+    {
+      "@type": "Structure",
+      "name": "Name",
+      "properties": [
+        {
+          "@type": "PATCH_DELETE",
+          "name": "value"
+        },
+        {
+          "@type": "Type",
+          "core": "STRING",
+          "name": "lastName",
+          "ext": {
+            "migration": {
+              "stages": [
+                {
+                  "@type": "jsonp",
+                  "start": "LOCAL",
+                  "steps": [
+                    "$.value"
+                  ]
+                },
+                {
+                  "@type": "regex",
+                  "search": "^(.*), .*$",
+                  "replace": "$1"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "@type": "Type",
+          "core": "STRING",
+          "name": "firstName",
+          "ext": {
+            "migration": {
+              "stages": [
+                {
+                  "@type": "jsonp",
+                  "start": "LOCAL",
+                  "steps": [
+                    "$.value"
+                  ]
+                },
+                {
+                  "@type": "regex",
+                  "search": "^.*, (.*)$",
+                  "replace": "$1"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "@type": "Structure",
+      "name": "Foo",
+      "properties": [
+        {
+          "@type": "List",
+          "name": "list",
+          "contains": {
+            "@type": "Reference",
+            "ref": "Name"
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -20,6 +20,7 @@ import static net.kebernet.xddl.java.Resolver.resolvePackageName;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.squareup.javapoet.ClassName;
@@ -67,10 +68,11 @@ public class StructureMigration {
             .addAnnotation(Override.class)
             .addModifiers(Modifier.PUBLIC)
             .addParameter(ParameterSpec.builder(ObjectNode.class, ROOT).build())
-            .addParameter(ParameterSpec.builder(ObjectNode.class, LOCAL).build());
+            .addParameter(ParameterSpec.builder(JsonNode.class, LOCAL).build());
 
     structure.getProperties().forEach(this::visitNested);
     structure.getProperties().forEach(this::visitStructureReference);
+    structure.getProperties().forEach(this::visitLists);
     structure.getProperties().forEach(this::visitMigrationSteps);
     structure.getProperties().forEach(this::visitPatchDelete);
   }
@@ -78,7 +80,10 @@ public class StructureMigration {
   private void visitPatchDelete(BaseType baseType) {
     if (baseType instanceof PatchDelete) {
       applyBuilder.addStatement(
-          "if(local.has($S)) local.remove($S)", baseType.getName(), baseType.getName());
+          "if(local.has($S)) (($T)local).remove($S)",
+          baseType.getName(),
+          ObjectNode.class,
+          baseType.getName());
     }
   }
 
@@ -94,12 +99,40 @@ public class StructureMigration {
           type.getName(),
           ArrayNode.class,
           type.getName());
+      applyBuilder.beginControlFlow("for(int i=0; i < $L_list.size(); i++)", type.getName());
+      applyBuilder.addStatement(
+          "$T indexedValue =  $L_list.get(i)", JsonNode.class, type.getName());
+      applyBuilder.addStatement("$T current = null", ObjectNode.class);
+      if (baseType instanceof Reference || baseType instanceof Structure) {
+        BaseType resolvedType =
+            baseType instanceof Structure
+                ? (Structure) baseType
+                : ctx.resolveReference((Reference) baseType)
+                    .orElseThrow(() -> ctx.stateException("Unable to resolve reference", baseType));
+        if (resolvedType.getName() == null) {
+          resolvedType.setName(type.getName() + "Type");
+        }
+        if (resolvedType instanceof Structure) {
+          applyBuilder.beginControlFlow("if(!(indexedValue instanceof $T))", ObjectNode.class);
+          applyBuilder.addStatement("current = new $T().createObjectNode()", ObjectMapper.class);
+          applyBuilder.addStatement("current.set(\"_\", indexedValue)");
+          applyBuilder.nextControlFlow("else");
+          applyBuilder.addStatement("current = ($T) indexedValue", ObjectNode.class);
+          applyBuilder.endControlFlow();
+          visitListNested(resolvedType);
+          applyBuilder.beginControlFlow("if(!(indexedValue instanceof $T))", ObjectNode.class);
+          applyBuilder.addStatement("current.remove(\"_\")");
+          applyBuilder.endControlFlow();
+          applyBuilder.addStatement("$L_list.set(i, current)", type.getName());
+        }
+      }
+      applyBuilder.endControlFlow();
       applyBuilder.endControlFlow();
 
       MethodSpec.methodBuilder("migrate_list_" + list.getName())
           .addModifiers(Modifier.PUBLIC)
           .addParameter(ParameterSpec.builder(ObjectNode.class, ROOT).build())
-          .addParameter(ParameterSpec.builder(ObjectNode.class, LOCAL).build())
+          .addParameter(ParameterSpec.builder(JsonNode.class, LOCAL).build())
           .addParameter(ParameterSpec.builder(JsonNode.class, "current").build());
     }
   }
@@ -112,10 +145,28 @@ public class StructureMigration {
               .orElseThrow(() -> ctx.stateException("Unable to resolve reference", baseType));
 
       if (resolvedType instanceof Structure) {
-        ClassName migrationName = ClassName.get(this.className.packageName(), structure.getName());
+        ClassName migrationName =
+            ClassName.get(this.className.packageName(), resolvedType.getName());
         writeNested(baseType, migrationName);
       }
     }
+  }
+
+  private void visitListNested(BaseType baseType) {
+    if (baseType instanceof Structure) {
+      StructureMigration migration =
+          new StructureMigration(
+              ctx,
+              (Structure) baseType,
+              ClassName.get(
+                  this.className.packageName(), structure.getName() + "_" + baseType.getName()));
+      nested.add(migration);
+      writeListNested(baseType, migration.className);
+    }
+  }
+
+  private void writeListNested(BaseType type, ClassName className) {
+    applyBuilder.addStatement("new $T().apply(root, current)", className);
   }
 
   private void visitNested(BaseType baseType) {
@@ -166,7 +217,7 @@ public class StructureMigration {
           MethodSpec.methodBuilder("migrate_" + type.getName())
               .addModifiers(Modifier.PUBLIC)
               .addParameter(ParameterSpec.builder(ObjectNode.class, ROOT).build())
-              .addParameter(ParameterSpec.builder(ObjectNode.class, LOCAL).build());
+              .addParameter(ParameterSpec.builder(JsonNode.class, LOCAL).build());
       groupMethod.addStatement(
           "$T current = local.has($S) ? local.get($S) : null",
           JsonNode.class,
@@ -178,7 +229,7 @@ public class StructureMigration {
       AtomicInteger index = new AtomicInteger(0);
       migration.getStages().forEach(s -> s.setIndex(index.getAndIncrement()));
       migration.getStages().forEach(s -> writeCodeBlock(type, s, groupMethod));
-      groupMethod.addStatement("local.set($S, current)", type.getName());
+      groupMethod.addStatement("(($T) local).set($S, current)", ObjectNode.class, type.getName());
 
       typeBuilder.addMethod(groupMethod.build());
       applyBuilder.addStatement("migrate_$L(root, local)", type.getName());
@@ -251,7 +302,7 @@ public class StructureMigration {
         MethodSpec.methodBuilder("migrate_" + type.getName() + "_" + group.getIndex())
             .addModifiers(Modifier.PUBLIC)
             .addParameter(ParameterSpec.builder(ObjectNode.class, ROOT).build())
-            .addParameter(ParameterSpec.builder(ObjectNode.class, LOCAL).build())
+            .addParameter(ParameterSpec.builder(JsonNode.class, LOCAL).build())
             .addParameter(ParameterSpec.builder(JsonNode.class, "current").build())
             .returns(JsonNode.class);
 

@@ -21,9 +21,12 @@ import static net.kebernet.xddl.migrate.MigrationVisitor.evaluateJsonPath;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 import net.kebernet.xddl.Loader;
 import net.kebernet.xddl.java.Resolver;
@@ -135,5 +138,71 @@ public class StructureMigrationTest {
                     StructureMigrationTest.class.getResourceAsStream("/nameExample.sample.json"));
     visitor.apply(node, node);
     System.out.println(Loader.mapper().writeValueAsString(node));
+  }
+
+  @Test
+  public void testListExpand() throws Exception {
+    File output = new File("build/test-gen/listexpand");
+    output.mkdirs();
+    Specification spec =
+        Loader.builder()
+            .main(new File("src/test/resources/listexpand.xddl.json"))
+            .scrubPatchesFromBaseline(false)
+            .build()
+            .read();
+    Context ctx = new Context(Loader.mapper(), spec);
+    StructureMigration writer = new StructureMigration(ctx, spec.structures().get(0), null);
+    writer.write(output);
+
+    String packageName = Resolver.resolvePackageName(ctx);
+    ;
+    ClassLoader loader = new JavaTestCompiler(output).compile();
+    MigrationVisitor visitor =
+        (MigrationVisitor) loader.loadClass(packageName + ".migration.Foo").newInstance();
+    ObjectNode node =
+        (ObjectNode)
+            Loader.mapper()
+                .readTree(
+                    StructureMigrationTest.class.getResourceAsStream("/listexpand.sample.json"));
+    visitor.apply(node, node);
+    ArrayNode array = (ArrayNode) node.get("list");
+    List<String> values = Arrays.asList("a", "b", "c");
+    for (int i = 0; i < values.size(); i++) {
+      assertThat(values.get(i)).isEqualTo(array.get(i).get("value").asText());
+    }
+  }
+
+  @Test
+  public void testListAdapt() throws Exception {
+    File output = new File("build/test-gen/listadapt");
+    output.mkdirs();
+    Specification spec =
+        Loader.builder()
+            .main(new File("src/test/resources/listadapt.xddl.json"))
+            .scrubPatchesFromBaseline(false)
+            .build()
+            .read();
+    Context ctx = new Context(Loader.mapper(), spec);
+    StructureMigration writer = new StructureMigration(ctx, spec.structures().get(0), null);
+    writer.write(output);
+    writer = new StructureMigration(ctx, spec.structures().get(1), null);
+    writer.write(output);
+
+    String packageName = Resolver.resolvePackageName(ctx);
+    ;
+    ClassLoader loader = new JavaTestCompiler(output).compile();
+    MigrationVisitor visitor =
+        (MigrationVisitor) loader.loadClass(packageName + ".migration.Foo").newInstance();
+    ObjectNode node =
+        (ObjectNode)
+            Loader.mapper()
+                .readTree(
+                    StructureMigrationTest.class.getResourceAsStream("/listadapt.sample.json"));
+    visitor.apply(node, node);
+    ArrayNode array = (ArrayNode) node.get("list");
+    List<String> values = Arrays.asList("Robert", "Leslie");
+    for (int i = 0; i < values.size(); i++) {
+      assertThat(values.get(i)).isEqualTo(array.get(i).get("firstName").asText());
+    }
   }
 }

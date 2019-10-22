@@ -75,5 +75,5 @@ public interface MigrationVisitor {
    * @param root The root object of the document
    * @param local The local object within the root we are migrating.
    */
-  void apply(ObjectNode root, ObjectNode local);
+  void apply(ObjectNode root, JsonNode local);
 }
