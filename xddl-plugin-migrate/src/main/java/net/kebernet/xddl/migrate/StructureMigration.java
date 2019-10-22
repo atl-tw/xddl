@@ -20,7 +20,6 @@ import static net.kebernet.xddl.java.Resolver.resolvePackageName;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.squareup.javapoet.ClassName;
@@ -114,7 +113,7 @@ public class StructureMigration {
         }
         if (resolvedType instanceof Structure) {
           applyBuilder.beginControlFlow("if(!(indexedValue instanceof $T))", ObjectNode.class);
-          applyBuilder.addStatement("current = new $T().createObjectNode()", ObjectMapper.class);
+          applyBuilder.addStatement("current = mapper.createObjectNode()");
           applyBuilder.addStatement("current.set(\"_\", indexedValue)");
           applyBuilder.nextControlFlow("else");
           applyBuilder.addStatement("current = ($T) indexedValue", ObjectNode.class);
