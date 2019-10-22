@@ -179,11 +179,12 @@ Hopefully it is obvious why the order of operations is important:
 FAQ
 ---
 
-Q: Why does the ``jsonp`` stage have multiple steps?
+Q: Why does the ``jsonp`` stage have multiple steps, can't I use multiple stages?
 
 A: Because if you do limited selection from an array, you always get an array. Mostly this
    gives you the ability to punch out of it. You can select 
     ``$.something.other.array[(foo =="bar")]``,
     ``$[0]``
    to get the first thing in an array where the foo property equals "bar" WITHOUT ending up 
-   with a single element array, since the array is defreferenced in the second step.
+   with a single element array, since the array is dereferenced in the second step.
+   You could do this with multiple json path stages, but it would just be noisy.
