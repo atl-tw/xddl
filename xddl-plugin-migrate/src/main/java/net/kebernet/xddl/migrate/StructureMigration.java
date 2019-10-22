@@ -71,9 +71,9 @@ public class StructureMigration {
             .addParameter(ParameterSpec.builder(JsonNode.class, LOCAL).build());
 
     structure.getProperties().forEach(this::visitNested);
+    structure.getProperties().forEach(this::visitMigrationSteps);
     structure.getProperties().forEach(this::visitStructureReference);
     structure.getProperties().forEach(this::visitLists);
-    structure.getProperties().forEach(this::visitMigrationSteps);
     structure.getProperties().forEach(this::visitPatchDelete);
   }
 
@@ -159,13 +159,16 @@ public class StructureMigration {
               ctx,
               (Structure) baseType,
               ClassName.get(
-                  this.className.packageName(), structure.getName() + "_" + baseType.getName()));
-      nested.add(migration);
-      writeListNested(baseType, migration.className);
+                  this.className.packageName(),
+                  baseType.getName() != null
+                      ? baseType.getName()
+                      : structure.getName() + "_" + baseType.getName()));
+      if (baseType.getName() != null) nested.add(migration);
+      writeListNested(baseType.getName() == null ? className : migration.className);
     }
   }
 
-  private void writeListNested(BaseType type, ClassName className) {
+  private void writeListNested(ClassName className) {
     applyBuilder.addStatement("new $T().apply(root, current)", className);
   }
 

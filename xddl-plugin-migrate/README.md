@@ -188,3 +188,40 @@ A: Because if you do limited selection from an array, you always get an array. M
    to get the first thing in an array where the foo property equals "bar" WITHOUT ending up 
    with a single element array, since the array is dereferenced in the second step.
    You could do this with multiple json path stages, but it would just be noisy.
+   
+Q: I want to expand a list from simple values to composite!
+
+A: If your "contains" element is an object, but your original list value is a simple value 
+   like a String or Number value, you can reference the original value as an underscore ``_``:
+   
+```json
+
+{
+          "@type": "List",
+          "name": "list",
+          "contains": {
+            "@type": "Structure",
+            "properties": [
+              {
+                "@type": "Type",
+                "core": "STRING",
+                "name": "originalValue",
+                "ext": {
+                  "migration": {
+                    "stages": [
+                      {
+                        "@type": "jsonp",
+                        "start": "LOCAL", //<-- LOCAL inside a list structure means the list instance value.
+                        "steps": [
+                          "$._" // <-- "Underscore" means the current list iterator value if the list
+                                // doesn't contain a structure.
+                        ]
+                      }
+                    ]
+                  }
+                }
+              }
+            ]
+          }
+        }
+```   

@@ -205,4 +205,39 @@ public class StructureMigrationTest {
       assertThat(values.get(i)).isEqualTo(array.get(i).get("firstName").asText());
     }
   }
+
+  @Test
+  public void testListCopyAdapt() throws Exception {
+    File output = new File("build/test-gen/listcopyadapt");
+    output.mkdirs();
+    Specification spec =
+        Loader.builder()
+            .main(new File("src/test/resources/listcopyadapt.xddl.json"))
+            .scrubPatchesFromBaseline(false)
+            .build()
+            .read();
+    Context ctx = new Context(Loader.mapper(), spec);
+    StructureMigration writer = new StructureMigration(ctx, spec.structures().get(0), null);
+    writer.write(output);
+    writer = new StructureMigration(ctx, spec.structures().get(1), null);
+    writer.write(output);
+
+    String packageName = Resolver.resolvePackageName(ctx);
+    ;
+    ClassLoader loader = new JavaTestCompiler(output).compile();
+    MigrationVisitor visitor =
+        (MigrationVisitor) loader.loadClass(packageName + ".migration.Foo").newInstance();
+    ObjectNode node =
+        (ObjectNode)
+            Loader.mapper()
+                .readTree(
+                    StructureMigrationTest.class.getResourceAsStream("/listcopyadapt.sample.json"));
+    visitor.apply(node, node);
+    ArrayNode array = (ArrayNode) node.get("list");
+    List<String> values = Arrays.asList("Robert", "Leslie");
+    for (int i = 0; i < values.size(); i++) {
+      assertThat(values.get(i)).isEqualTo(array.get(i).get("firstName").asText());
+    }
+    System.out.println(node);
+  }
 }
