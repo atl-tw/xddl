@@ -15,10 +15,13 @@
  */
 package net.kebernet.xddl.migrate;
 
+import java.util.ArrayList;
 import java.util.List;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
-@Data
+@Getter
+@Setter
 public class Migration {
-  List<Stage> stages;
+  List<Stage> stages = new ArrayList<>();
 }

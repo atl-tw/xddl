@@ -1,0 +1,31 @@
+{
+  "version": "0.2",
+  "structures": [
+    {
+      "@type": "Structure",
+      "name": "Foo",
+      "properties": [
+        {
+          "@type": "List",
+          "name": "list",
+          "contains": {
+            "@type": "Type",
+            "core": "STRING",
+            "name": "value",
+            "ext": {
+              "migration": {
+                "stages": [
+                  {
+                    "@type": "regex",
+                    "search": "^(.*), (.*)$",
+                    "replace": "$2 $1"
+                  }
+                ]
+              }
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

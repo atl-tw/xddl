@@ -15,14 +15,15 @@
  */
 package net.kebernet.xddl.migrate;
 
+import java.util.ArrayList;
 import java.util.List;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
 
-@Data
-@EqualsAndHashCode(callSuper = true)
+@Getter
+@Setter
 public class JsonPathStage extends Stage {
-  List<String> steps;
+  List<String> steps = new ArrayList<>();
   private Context start = Context.CURRENT;
 
   @SuppressWarnings("unused")

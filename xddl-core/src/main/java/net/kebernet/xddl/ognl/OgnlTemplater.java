@@ -25,21 +25,30 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import net.kebernet.xddl.Loader;
+import net.kebernet.xddl.model.BaseType;
 import net.kebernet.xddl.model.Specification;
 import ognl.Ognl;
 
 public class OgnlTemplater implements BeanWalker.PropertyVisitor {
   private static final Pattern PATTERN = Pattern.compile("[^\\\\]?(\\$\\{(\\\\}|[^}])*})");
-
+  private static final Predicate<PropertyDescriptor> predicate = pd -> // is read/write
+      pd.getReadMethod() != null
+              // is collection or string.
+              && ((Collection.class.isAssignableFrom(pd.getPropertyType())
+                      || Map.class.isAssignableFrom(pd.getPropertyType()))
+                  || BaseType.class.isAssignableFrom(pd.getPropertyType())
+                  || (pd.getPropertyType() == String.class && pd.getWriteMethod() != null));
   private final Specification specification;
   private final Map<String, Object> context = new HashMap<>();
 
@@ -50,20 +59,15 @@ public class OgnlTemplater implements BeanWalker.PropertyVisitor {
   }
 
   public void run() {
-    BeanWalker beanWalker =
-        new BeanWalker(
-            specification,
-            pd -> // is read/write
-            pd.getReadMethod() != null
-                    // is collection or string.
-                    && ((Collection.class.isAssignableFrom(pd.getPropertyType())
-                            || Map.class.isAssignableFrom(pd.getPropertyType()))
-                        || (pd.getPropertyType() == String.class && pd.getWriteMethod() != null)));
+    BeanWalker beanWalker = new BeanWalker(specification, predicate);
     beanWalker.apply(this);
   }
 
   @Override
   public Optional<Set<Object>> visit(PropertyDescriptor property, Object target) {
+    if (property.getName().equals("contains")) {
+      System.out.println("");
+    }
     try {
       property.getReadMethod().setAccessible(true);
       if (Collection.class.isAssignableFrom(property.getPropertyType())) {
@@ -78,17 +82,25 @@ public class OgnlTemplater implements BeanWalker.PropertyVisitor {
             .map(HashSet::new);
       }
       property.getWriteMethod().setAccessible(true);
-      Optional.ofNullable((String) property.getReadMethod().invoke(target))
-          .map(this::fillTemplate)
-          .ifPresent(
-              s -> {
-                try {
-                  property.getWriteMethod().invoke(target, s);
-                } catch (IllegalAccessException | InvocationTargetException e) {
-                  throw new IllegalStateException(e);
-                }
-              });
-      return Optional.empty();
+      Object value = property.getReadMethod().invoke(target);
+      if (value instanceof String) {
+        Optional.of((String) value)
+            .map(this::fillTemplate)
+            .ifPresent(
+                s -> {
+                  try {
+                    property.getWriteMethod().invoke(target, s);
+                  } catch (IllegalAccessException | InvocationTargetException e) {
+                    throw new IllegalStateException(e);
+                  }
+                });
+        return Optional.empty();
+      } else if (value != null) {
+        new BeanWalker(value, predicate).apply(this);
+        return Optional.of(Collections.singleton(value));
+      } else {
+        return Optional.empty();
+      }
     } catch (IllegalAccessException | InvocationTargetException e) {
       throw new IllegalStateException(e);
     }

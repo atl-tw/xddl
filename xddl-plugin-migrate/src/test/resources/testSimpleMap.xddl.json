@@ -1,0 +1,31 @@
+{
+  "version": "0.2",
+  "structures": [
+    {
+      "@type": "Structure",
+      "name": "Foo",
+      "properties": [
+        {
+          "@type": "Type",
+          "core": "STRING",
+          "name": "bar",
+          "ext": {
+            "migration": {
+              "stages": [
+                {
+                  "@type": "map",
+                  "values": [
+                    {
+                      "from": "bar",
+                      "to": "baz"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

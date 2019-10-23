@@ -25,6 +25,7 @@ import com.fasterxml.jackson.databind.node.NullNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.CodeBlock;
+import com.squareup.javapoet.FieldSpec;
 import com.squareup.javapoet.JavaFile;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.ParameterSpec;
@@ -33,6 +34,7 @@ import com.squareup.javapoet.TypeSpec;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 import javax.lang.model.element.Modifier;
@@ -104,29 +106,40 @@ public class StructureMigration {
       applyBuilder.addStatement(
           "$T indexedValue =  $L_list.get(i)", JsonNode.class, type.getName());
       applyBuilder.addStatement("$T current = null", ObjectNode.class);
+      BaseType resolvedType = baseType;
       if (baseType instanceof Reference || baseType instanceof Structure) {
-        BaseType resolvedType =
+        resolvedType =
             baseType instanceof Structure
                 ? (Structure) baseType
                 : ctx.resolveReference((Reference) baseType)
                     .orElseThrow(() -> ctx.stateException("Unable to resolve reference", baseType));
+      }
+
+      if (resolvedType instanceof Structure) {
         if (resolvedType.getName() == null) {
           resolvedType.setName(type.getName() + "Type");
         }
-        if (resolvedType instanceof Structure) {
-          applyBuilder.beginControlFlow("if(!(indexedValue instanceof $T))", ObjectNode.class);
-          applyBuilder.addStatement("current = mapper.createObjectNode()");
-          applyBuilder.addStatement("current.set(\"_\", indexedValue)");
-          applyBuilder.nextControlFlow("else");
-          applyBuilder.addStatement("current = ($T) indexedValue", ObjectNode.class);
-          applyBuilder.endControlFlow();
-          visitListNested(resolvedType);
-          applyBuilder.beginControlFlow("if(!(indexedValue instanceof $T))", ObjectNode.class);
-          applyBuilder.addStatement("current.remove(\"_\")");
-          applyBuilder.endControlFlow();
-          applyBuilder.addStatement("$L_list.set(i, current)", type.getName());
-        }
+        applyBuilder.addStatement("current = mapper.createObjectNode()");
+        applyBuilder.beginControlFlow("if(!(indexedValue instanceof $T))", ObjectNode.class);
+        applyBuilder.addStatement("current.set(\"_\", indexedValue)");
+        applyBuilder.nextControlFlow("else");
+        applyBuilder.addStatement("current = ($T) indexedValue", ObjectNode.class);
+        applyBuilder.endControlFlow();
+        visitListNested(resolvedType);
+        applyBuilder.beginControlFlow("if(!(indexedValue instanceof $T))", ObjectNode.class);
+        applyBuilder.addStatement("current.remove(\"_\")");
+        applyBuilder.endControlFlow();
+        applyBuilder.addStatement("$L_list.set(i, current)", type.getName());
+      } else {
+        resolvedType.setName(type.getName() + "_member");
+        doMigrationSteps(resolvedType, false);
+        applyBuilder.addStatement("current = mapper.createObjectNode()", ObjectNode.class);
+        applyBuilder.addStatement("current.set($S, indexedValue)", resolvedType.getName());
+        applyBuilder.addStatement("migrate_$L(root, current)", resolvedType.getName());
+        applyBuilder.addStatement(
+            "$L_list.set(i, current.get($S))", type.getName(), resolvedType.getName());
       }
+
       applyBuilder.endControlFlow();
       applyBuilder.endControlFlow();
     }
@@ -209,10 +222,10 @@ public class StructureMigration {
           ctx.resolveReference((Reference) baseType)
               .orElseThrow(() -> ctx.stateException("Unable to resolve reference", baseType));
     }
-    doMigrationSteps(resolvedType);
+    doMigrationSteps(resolvedType, true);
   }
 
-  private void doMigrationSteps(BaseType type) {
+  private void doMigrationSteps(BaseType type, boolean apply) {
     if (!type.ext().containsKey("migration")) return;
     try {
       MethodSpec.Builder groupMethod =
@@ -234,7 +247,7 @@ public class StructureMigration {
       groupMethod.addStatement("(($T) local).set($S, current)", ObjectNode.class, type.getName());
 
       typeBuilder.addMethod(groupMethod.build());
-      applyBuilder.addStatement("migrate_$L(root, local)", type.getName());
+      if (apply) applyBuilder.addStatement("migrate_$L(root, local)", type.getName());
     } catch (JsonProcessingException e) {
       throw ctx.stateException("Unable to parse migration node: " + e.getMessage(), type);
     }
@@ -245,17 +258,70 @@ public class StructureMigration {
       writeJsonPathSteps(type, (JsonPathStage) stage, groupsBuilder);
     } else if (stage instanceof RegexStage) {
       writeRegExStage((RegexStage) stage, groupsBuilder);
+    } else if (stage instanceof MapStage) {
+      writeMapStage(type, (MapStage) stage, groupsBuilder);
+    } else if (stage instanceof LiteralStage) {
+      writeLiteralStage((LiteralStage) stage, groupsBuilder);
     }
   }
 
+  private void writeLiteralStage(LiteralStage stage, MethodSpec.Builder groupsBuilder) {
+    try {
+      groupsBuilder.addStatement(
+          "current = $T.readTree($S)",
+          MigrationVisitor.class,
+          MigrationVisitor.mapper.writeValueAsString(stage.getValue()));
+    } catch (JsonProcessingException e) {
+      throw ctx.stateException("Couldn't serialize ", stage.getValue());
+    }
+  }
+
+  private void writeMapStage(BaseType type, MapStage stage, MethodSpec.Builder groupsBuilder) {
+
+    String mapName = type.getName() + "_group_" + stage.getIndex();
+
+    typeBuilder.addField(
+        FieldSpec.builder(
+                ParameterizedTypeName.get(HashMap.class, JsonNode.class, JsonNode.class),
+                mapName,
+                Modifier.STATIC,
+                Modifier.FINAL)
+            .initializer("new $T<>()", HashMap.class)
+            .build());
+    CodeBlock.Builder staticBlock = CodeBlock.builder();
+    stage
+        .getValues()
+        .forEach(
+            v -> {
+              try {
+                staticBlock.addStatement(
+                    "$L.put( $T.readTree($S), $T.readTree($S))",
+                    mapName,
+                    MigrationVisitor.class,
+                    ctx.getMapper().writeValueAsString(v.getFrom()),
+                    MigrationVisitor.class,
+                    ctx.getMapper().writeValueAsString(v.getTo()));
+              } catch (JsonProcessingException e) {
+                throw ctx.stateException("Couldn't serialize ", v);
+              }
+            });
+    typeBuilder.addStaticBlock(staticBlock.build());
+
+    groupsBuilder
+        .beginControlFlow("if(current != null)")
+        .addStatement("current = $L.get(current)", mapName)
+        .endControlFlow();
+  }
+
   private void writeRegExStage(RegexStage stage, MethodSpec.Builder groupsBuilder) {
-    groupsBuilder.beginControlFlow("if(current != null)");
-    groupsBuilder.addStatement(
-        "current = $T.evaluateRegexReplace(current, $S, $S)",
-        MigrationVisitor.class,
-        escapeSlashes(stage.getSearch()),
-        stage.getReplace());
-    groupsBuilder.endControlFlow();
+    groupsBuilder
+        .beginControlFlow("if(current != null)")
+        .addStatement(
+            "current = $T.evaluateRegexReplace(current, $S, $S)",
+            MigrationVisitor.class,
+            escapeSlashes(stage.getSearch()),
+            stage.getReplace())
+        .endControlFlow();
   }
 
   private String escapeSlashes(String search) {

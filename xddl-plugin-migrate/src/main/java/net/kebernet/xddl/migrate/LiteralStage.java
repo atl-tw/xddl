@@ -15,8 +15,13 @@
  */
 package net.kebernet.xddl.migrate;
 
-import lombok.Data;
+import com.fasterxml.jackson.databind.JsonNode;
+import lombok.Getter;
+import lombok.Setter;
 
 @SuppressWarnings("WeakerAccess")
-@Data
-public class Step {}
+@Getter
+@Setter
+public class LiteralStage extends Stage {
+  private JsonNode value;
+}

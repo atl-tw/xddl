@@ -75,15 +75,16 @@ public class ElasticSearchPlugin implements Plugin {
                 put(
                     CoreType.DATE,
                     DEFAULT_MAPPER.readValue(
-                        "{ \"type\":\"date\", \"format\":\"basic_date\" }", ObjectNode.class));
+                        "{ \"type\":\"date\", \"format\":\"strict_date\" }", ObjectNode.class));
                 put(
                     CoreType.TIME,
                     DEFAULT_MAPPER.readValue(
-                        "{ \"type\":\"date\", \"format\":\"basic_time\" }", ObjectNode.class));
+                        "{ \"type\":\"date\", \"format\":\"strict_time\" }", ObjectNode.class));
                 put(
                     CoreType.DATETIME,
                     DEFAULT_MAPPER.readValue(
-                        "{ \"type\":\"date\", \"format\":\"basic_date_time\" }", ObjectNode.class));
+                        "{ \"type\":\"date\", \"format\":\"strict_date_time\" }",
+                        ObjectNode.class));
                 put(
                     CoreType.STRING,
                     DEFAULT_MAPPER.readValue("{ \"type\":\"keyword\"}", ObjectNode.class));

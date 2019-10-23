@@ -195,33 +195,35 @@ A: If your "contains" element is an object, but your original list value is a si
    like a String or Number value, you can reference the original value as an underscore ``_``:
    
 ```json
-
 {
-          "@type": "List",
-          "name": "list",
-          "contains": {
-            "@type": "Structure",
-            "properties": [
+  "@type": "List",
+  "name": "list",
+  "contains": {
+    "@type": "Structure",
+    "properties": [
+      {
+        "@type": "Type",
+        "core": "STRING",
+        "name": "originalValue",
+        "ext": {
+          "migration": {
+            "stages": [
               {
-                "@type": "Type",
-                "core": "STRING",
-                "name": "originalValue",
-                "ext": {
-                  "migration": {
-                    "stages": [
-                      {
-                        "@type": "jsonp",
-                        "start": "LOCAL", //<-- LOCAL inside a list structure means the list instance value.
-                        "steps": [
-                          "$._" // <-- "Underscore" means the current list iterator value if the list
-                                // doesn't contain a structure.
-                        ]
-                      }
-                    ]
-                  }
-                }
+                "@type": "jsonp",
+                "start": "LOCAL", //<-- LOCAL inside a list structure means the list instance value.
+                "steps": [
+                  "$._" // <-- "Underscore" means the current list iterator value if the list
+                        // doesn't contain a structure.
+                ]
               }
             ]
           }
         }
+      }
+    ]
+  }
+}
 ```   
+
+But let's look at our Name example, where we want to extract values:
+

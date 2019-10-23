@@ -23,6 +23,7 @@ import com.jayway.jsonpath.InvalidPathException;
 import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.spi.json.JacksonJsonNodeJsonProvider;
 import com.jayway.jsonpath.spi.mapper.JacksonMappingProvider;
+import java.io.IOException;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
 
@@ -36,6 +37,14 @@ public interface MigrationVisitor {
           .build();
 
   ConcurrentHashMap<String, Pattern> PATTERN_CACHE = new ConcurrentHashMap<>();
+
+  static JsonNode readTree(String s) {
+    try {
+      return mapper.readTree(s);
+    } catch (IOException e) {
+      throw new RuntimeException("Failed to parse value:\n" + s, e);
+    }
+  }
 
   /**
    * A utility method to evaluate a json path expression
@@ -63,6 +72,7 @@ public interface MigrationVisitor {
    * @param replace the replacement expression
    * @return A new json node with the replaced value.
    */
+  @SuppressWarnings("unused")
   static JsonNode evaluateRegexReplace(JsonNode node, String search, String replace) {
     Pattern pattern = PATTERN_CACHE.get(search);
     if (pattern == null) {

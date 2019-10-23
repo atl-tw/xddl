@@ -17,14 +17,17 @@ package net.kebernet.xddl.migrate;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
-@Data
+@Getter
+@Setter
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "@type")
 @JsonSubTypes({
   @JsonSubTypes.Type(value = JsonPathStage.class, name = "jsonp"),
   @JsonSubTypes.Type(value = MapStage.class, name = "map"),
-  @JsonSubTypes.Type(value = RegexStage.class, name = "regex")
+  @JsonSubTypes.Type(value = RegexStage.class, name = "regex"),
+  @JsonSubTypes.Type(value = LiteralStage.class, name = "literal")
 })
 public class Stage {
   private int index;

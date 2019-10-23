@@ -17,15 +17,17 @@ package net.kebernet.xddl.migrate;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import java.util.List;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
 
-@Data
-@EqualsAndHashCode(callSuper = true)
-public class MapStage extends Stage {
+@Getter
+@Setter
+class MapStage extends Stage {
   private List<NodePair> values;
 
-  @Data
+  @SuppressWarnings("WeakerAccess")
+  @Getter
+  @Setter
   public static class NodePair {
     private JsonNode from;
     private JsonNode to;

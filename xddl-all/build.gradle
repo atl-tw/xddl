@@ -8,6 +8,7 @@ dependencies {
     api project(':xddl-plugin-elasticsearch')
     api project(':xddl-plugin-java')
     api project(':xddl-plugin-hive')
+    api project(':xddl-plugin-migrate')
 }
 
 application {

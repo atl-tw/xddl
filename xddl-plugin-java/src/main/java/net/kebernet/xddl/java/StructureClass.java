@@ -183,6 +183,8 @@ public class StructureClass implements Writable {
       StringBuilder codeBlock, Pair<BaseType, FieldSpec> p, String reference) {
     String wrapper = null;
     if (p.left instanceof List && !NONE.equals(wrapper = resolveListEqualityType((List) p.left))) {
+      codeBlock =
+          codeBlock.append(reference).append(".").append(p.right.name).append(" == null ? null : ");
       codeBlock = codeBlock.append(" new ").append(wrapper).append("<>(");
     }
     codeBlock = codeBlock.append(reference).append(".");

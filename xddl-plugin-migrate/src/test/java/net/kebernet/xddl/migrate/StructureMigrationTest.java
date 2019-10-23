@@ -309,4 +309,92 @@ public class StructureMigrationTest {
     assertThat(node.get("spy").get("firstName").asText()).isEqualTo("James");
     assertThat(node.get("person3")).isInstanceOf(NullNode.class);
   }
+
+  @Test
+  public void testSimpleMap() throws Exception {
+    File output = new File("build/test-gen/testSimpleMap");
+    output.mkdirs();
+    Specification spec =
+        Loader.builder()
+            .main(new File("src/test/resources/testSimpleMap.xddl.json"))
+            .scrubPatchesFromBaseline(false)
+            .build()
+            .read();
+    Context ctx = new Context(Loader.mapper(), spec);
+    StructureMigration writer = new StructureMigration(ctx, spec.structures().get(0), null);
+    writer.write(output);
+
+    String packageName = Resolver.resolvePackageName(ctx);
+    ;
+    ClassLoader loader = new JavaTestCompiler(output).compile();
+    MigrationVisitor visitor =
+        (MigrationVisitor) loader.loadClass(packageName + ".migration.Foo").newInstance();
+    ObjectNode node =
+        (ObjectNode)
+            Loader.mapper()
+                .readTree(
+                    StructureMigrationTest.class.getResourceAsStream("/testSimpleMap.sample.json"));
+    visitor.apply(node, node);
+    assertThat(node.get("bar").asText()).isEqualTo("baz");
+  }
+
+  @Test
+  public void testMigrateListMembers() throws Exception {
+    File output = new File("build/test-gen/listMemberMigrate");
+    output.mkdirs();
+    Specification spec =
+        Loader.builder()
+            .main(new File("src/test/resources/listMemberMigrate.xddl.json"))
+            .scrubPatchesFromBaseline(false)
+            .build()
+            .read();
+    Context ctx = new Context(Loader.mapper(), spec);
+    StructureMigration writer = new StructureMigration(ctx, spec.structures().get(0), null);
+    writer.write(output);
+
+    String packageName = Resolver.resolvePackageName(ctx);
+    ;
+    ClassLoader loader = new JavaTestCompiler(output).compile();
+    MigrationVisitor visitor =
+        (MigrationVisitor) loader.loadClass(packageName + ".migration.Foo").newInstance();
+    ObjectNode node =
+        (ObjectNode)
+            Loader.mapper()
+                .readTree(
+                    StructureMigrationTest.class.getResourceAsStream(
+                        "/listMemberMigrate.sample.json"));
+    visitor.apply(node, node);
+    assertThat(node.get("list").get(0).asText()).isEqualTo("Robert Cooper");
+    assertThat(node.get("list").get(1).asText()).isEqualTo("Leslie Cooper");
+  }
+
+  @Test
+  public void testMigrateListMemberLiteral() throws Exception {
+    File output = new File("build/test-gen/listMemberLiterals");
+    output.mkdirs();
+    Specification spec =
+        Loader.builder()
+            .main(new File("src/test/resources/listMemberLiterals.xddl.json"))
+            .scrubPatchesFromBaseline(false)
+            .build()
+            .read();
+    Context ctx = new Context(Loader.mapper(), spec);
+    StructureMigration writer = new StructureMigration(ctx, spec.structures().get(0), null);
+    writer.write(output);
+
+    String packageName = Resolver.resolvePackageName(ctx);
+    ;
+    ClassLoader loader = new JavaTestCompiler(output).compile();
+    MigrationVisitor visitor =
+        (MigrationVisitor) loader.loadClass(packageName + ".migration.Foo").newInstance();
+    ObjectNode node =
+        (ObjectNode)
+            Loader.mapper()
+                .readTree(
+                    StructureMigrationTest.class.getResourceAsStream(
+                        "/listMemberLiterals.sample.json"));
+    visitor.apply(node, node);
+    assertThat(node.get("list").get(0).asText()).isEqualTo("0.2");
+    assertThat(node.get("list").get(1).asText()).isEqualTo("0.2");
+  }
 }
