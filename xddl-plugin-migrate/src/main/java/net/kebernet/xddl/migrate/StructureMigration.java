@@ -47,6 +47,7 @@ import net.kebernet.xddl.plugins.Context;
 public class StructureMigration {
   private static final String LOCAL = "local";
   private static final String ROOT = "root";
+  public static final String CURRENT = "current";
   private final Context ctx;
   private final Structure structure;
   private final String packageName;
@@ -243,11 +244,11 @@ public class StructureMigration {
     if (stage instanceof JsonPathStage) {
       writeJsonPathSteps(type, (JsonPathStage) stage, groupsBuilder);
     } else if (stage instanceof RegexStage) {
-      writeRegExStage(type, (RegexStage) stage, groupsBuilder);
+      writeRegExStage((RegexStage) stage, groupsBuilder);
     }
   }
 
-  private void writeRegExStage(BaseType type, RegexStage stage, MethodSpec.Builder groupsBuilder) {
+  private void writeRegExStage(RegexStage stage, MethodSpec.Builder groupsBuilder) {
     groupsBuilder.beginControlFlow("if(current != null)");
     groupsBuilder.addStatement(
         "current = $T.evaluateRegexReplace(current, $S, $S)",
@@ -271,26 +272,22 @@ public class StructureMigration {
   private void writeJsonPathSteps(
       BaseType type, JsonPathStage group, MethodSpec.Builder groupBuilder) {
     CodeBlock.Builder b = CodeBlock.builder();
-    String scope = null;
-    if (group.getStart() != null) {
-      switch (group.getStart()) {
-        case LOCAL:
-          scope = LOCAL;
-          break;
-        default:
-          scope = ROOT;
-      }
-      b.addStatement(
-          "$T result = $T.ofNullable($L)",
-          ParameterizedTypeName.get(Optional.class, JsonNode.class),
-          Optional.class,
-          scope);
-    } else {
-      b.addStatement(
-          "$T result = $T.ofNullable(current)",
-          ParameterizedTypeName.get(Optional.class, JsonNode.class),
-          Optional.class);
+    String scope;
+    switch (group.getStart()) {
+      case LOCAL:
+        scope = LOCAL;
+        break;
+      case ROOT:
+        scope = ROOT;
+        break;
+      default:
+        scope = CURRENT;
     }
+    b.addStatement(
+        "$T result = $T.ofNullable($L)",
+        ParameterizedTypeName.get(Optional.class, JsonNode.class),
+        Optional.class,
+        scope);
 
     group.steps.forEach(
         step ->
@@ -304,7 +301,7 @@ public class StructureMigration {
             .addModifiers(Modifier.PUBLIC)
             .addParameter(ParameterSpec.builder(ObjectNode.class, ROOT).build())
             .addParameter(ParameterSpec.builder(JsonNode.class, LOCAL).build())
-            .addParameter(ParameterSpec.builder(JsonNode.class, "current").build())
+            .addParameter(ParameterSpec.builder(JsonNode.class, CURRENT).build())
             .returns(JsonNode.class);
 
     migrateMethod.addCode(b.build());

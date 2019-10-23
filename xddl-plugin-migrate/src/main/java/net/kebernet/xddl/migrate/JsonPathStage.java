@@ -23,13 +23,15 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(callSuper = true)
 public class JsonPathStage extends Stage {
   List<String> steps;
-  private Context start;
+  private Context start = Context.CURRENT;
 
   @SuppressWarnings("unused")
   public enum Context {
     /** Indicates that this step should be evaluated from the document root. */
     ROOT,
     /** Indicates that this step should be evaluated from the local context. */
-    LOCAL
+    LOCAL,
+    /** Indicates that this step should start from the current value */
+    CURRENT;
   }
 }
