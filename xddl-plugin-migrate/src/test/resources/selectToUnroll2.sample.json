@@ -1,0 +1,16 @@
+{
+  "people": [
+    {
+      "type": "PERSON",
+      "value": "Cooper, Robert"
+    },
+    {
+      "type": "PERSON",
+      "value": "Cooper, Leslie"
+    },
+    {
+      "type": "SPY",
+      "value": "Bond, James"
+    }
+  ]
+}

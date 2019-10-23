@@ -22,6 +22,7 @@ import static net.kebernet.xddl.migrate.MigrationVisitor.evaluateJsonPath;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.NullNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.io.File;
 import java.io.IOException;
@@ -239,5 +240,73 @@ public class StructureMigrationTest {
       assertThat(values.get(i)).isEqualTo(array.get(i).get("firstName").asText());
     }
     System.out.println(node);
+  }
+
+  @Test
+  public void testSelectToUnroll() throws Exception {
+    File output = new File("build/test-gen/selectToUnroll");
+    output.mkdirs();
+    Specification spec =
+        Loader.builder()
+            .main(new File("src/test/resources/selectToUnroll.xddl.json"))
+            .scrubPatchesFromBaseline(false)
+            .build()
+            .read();
+    Context ctx = new Context(Loader.mapper(), spec);
+    StructureMigration writer = new StructureMigration(ctx, spec.structures().get(0), null);
+    writer.write(output);
+    writer = new StructureMigration(ctx, spec.structures().get(1), null);
+    writer.write(output);
+
+    String packageName = Resolver.resolvePackageName(ctx);
+    ;
+    ClassLoader loader = new JavaTestCompiler(output).compile();
+    MigrationVisitor visitor =
+        (MigrationVisitor) loader.loadClass(packageName + ".migration.Foo").newInstance();
+    ObjectNode node =
+        (ObjectNode)
+            Loader.mapper()
+                .readTree(
+                    StructureMigrationTest.class.getResourceAsStream(
+                        "/selectToUnroll.sample.json"));
+    visitor.apply(node, node);
+    assertThat(node.get("person1").get("firstName").asText()).isEqualTo("Leslie");
+    assertThat(node.get("person2").get("firstName").asText()).isEqualTo("Robert");
+    System.out.println(node);
+  }
+
+  @Test
+  public void testSelectToUnroll2() throws Exception {
+    File output = new File("build/test-gen/selectToUnroll2");
+    output.mkdirs();
+    Specification spec =
+        Loader.builder()
+            .main(new File("src/test/resources/selectToUnroll2.xddl.json"))
+            .scrubPatchesFromBaseline(false)
+            .build()
+            .read();
+    Context ctx = new Context(Loader.mapper(), spec);
+    StructureMigration writer = new StructureMigration(ctx, spec.structures().get(0), null);
+    writer.write(output);
+    writer = new StructureMigration(ctx, spec.structures().get(1), null);
+    writer.write(output);
+
+    String packageName = Resolver.resolvePackageName(ctx);
+    ;
+    ClassLoader loader = new JavaTestCompiler(output).compile();
+    MigrationVisitor visitor =
+        (MigrationVisitor) loader.loadClass(packageName + ".migration.Foo").newInstance();
+    ObjectNode node =
+        (ObjectNode)
+            Loader.mapper()
+                .readTree(
+                    StructureMigrationTest.class.getResourceAsStream(
+                        "/selectToUnroll2.sample.json"));
+    visitor.apply(node, node);
+    System.out.println(node);
+    assertThat(node.get("person1").get("firstName").asText()).isEqualTo("Robert");
+    assertThat(node.get("person2").get("firstName").asText()).isEqualTo("Leslie");
+    assertThat(node.get("spy").get("firstName").asText()).isEqualTo("James");
+    assertThat(node.get("person3")).isInstanceOf(NullNode.class);
   }
 }

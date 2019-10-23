@@ -1,0 +1,151 @@
+{
+  "version": "0.2",
+  "structures": [
+    {
+      "@type": "Structure",
+      "name": "Person",
+      "properties": [
+        {
+          "@type": "PATCH_DELETE",
+          "name": "type"
+        },
+        {
+          "@type": "PATCH_DELETE",
+          "name": "value"
+        },
+        {
+          "@type": "Type",
+          "core": "STRING",
+          "name": "lastName",
+          "ext": {
+            "migration": {
+              "stages": [
+                {
+                  "@type": "jsonp",
+                  "start": "LOCAL",
+                  "steps": [
+                    "$.value"
+                  ]
+                },
+                {
+                  "@type": "regex",
+                  "search": "^(.*), .*$",
+                  "replace": "$1"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "@type": "Type",
+          "core": "STRING",
+          "name": "firstName",
+          "ext": {
+            "migration": {
+              "stages": [
+                {
+                  "@type": "jsonp",
+                  "start": "LOCAL",
+                  "steps": [
+                    "$.value"
+                  ]
+                },
+                {
+                  "@type": "regex",
+                  "search": "^.*, (.*)$",
+                  "replace": "$1"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "@type": "Structure",
+      "name": "Foo",
+      "properties": [
+        {
+          "@type": "PATCH_DELETE",
+          "name": "people"
+        },
+        {
+          "@type": "Reference",
+          "ref": "Person",
+          "name": "person1",
+          "ext": {
+            "migration": {
+              "stages": [
+                {
+                  "@type": "jsonp",
+                  "start": "ROOT",
+                  "steps": [
+                    "$.people[?(@.type=='PERSON')]",
+                    "$[0]"
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        {
+          "@type": "Reference",
+          "ref": "Person",
+          "name": "person2",
+          "ext": {
+            "migration": {
+              "stages": [
+                {
+                  "@type": "jsonp",
+                  "start": "ROOT",
+                  "steps": [
+                    "$.people[?(@.type=='PERSON')]",
+                    "$[1]"
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        {
+          "@type": "Reference",
+          "ref": "Person",
+          "name": "spy",
+          "ext": {
+            "migration": {
+              "stages": [
+                {
+                  "@type": "jsonp",
+                  "start": "ROOT",
+                  "steps": [
+                    "$.people[?(@.type=='SPY')]",
+                    "$[0]"
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        {
+          "@type": "Reference",
+          "ref": "Person",
+          "name": "person3",
+          "ext": {
+            "migration": {
+              "stages": [
+                {
+                  "@type": "jsonp",
+                  "start": "ROOT",
+                  "steps": [
+                    "$.people[?(@.type=='PERSON')]",
+                    "$[2]"
+                  ]
+                }
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

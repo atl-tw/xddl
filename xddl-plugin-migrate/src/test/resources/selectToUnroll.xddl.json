@@ -1,0 +1,113 @@
+{
+  "version": "0.2",
+  "structures": [
+    {
+      "@type": "Structure",
+      "name": "Person",
+      "properties": [
+        {
+          "@type": "PATCH_DELETE",
+          "name": "value"
+        },
+        {
+          "@type": "PATCH_DELETE",
+          "name": "person"
+        },
+        {
+          "@type": "Type",
+          "core": "STRING",
+          "name": "lastName",
+          "ext": {
+            "migration": {
+              "stages": [
+                {
+                  "@type": "jsonp",
+                  "start": "LOCAL",
+                  "steps": [
+                    "$.value"
+                  ]
+                },
+                {
+                  "@type": "regex",
+                  "search": "^(.*), .*$",
+                  "replace": "$1"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "@type": "Type",
+          "core": "STRING",
+          "name": "firstName",
+          "ext": {
+            "migration": {
+              "stages": [
+                {
+                  "@type": "jsonp",
+                  "start": "LOCAL",
+                  "steps": [
+                    "$.value"
+                  ]
+                },
+                {
+                  "@type": "regex",
+                  "search": "^.*, (.*)$",
+                  "replace": "$1"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "@type": "Structure",
+      "name": "Foo",
+      "properties": [
+        {
+          "@type": "PATCH_DELETE",
+          "name": "people"
+        },
+        {
+          "@type": "Reference",
+          "ref": "Person",
+          "name": "person1",
+          "ext": {
+            "migration": {
+              "stages": [
+                {
+                  "@type": "jsonp",
+                  "start": "ROOT",
+                  "steps": [
+                    "$.people[?(@.person=='FIRST')]",
+                    "$[0]"
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        {
+          "@type": "Reference",
+          "ref": "Person",
+          "name": "person2",
+          "ext": {
+            "migration": {
+              "stages": [
+                {
+                  "@type": "jsonp",
+                  "start": "ROOT",
+                  "steps": [
+                    "$.people[?(@.person=='SECOND')]",
+                    "$[0]"
+                  ]
+                }
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

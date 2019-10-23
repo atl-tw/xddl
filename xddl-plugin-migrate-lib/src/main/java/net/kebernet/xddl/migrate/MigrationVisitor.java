@@ -19,6 +19,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.jayway.jsonpath.Configuration;
+import com.jayway.jsonpath.InvalidPathException;
 import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.spi.json.JacksonJsonNodeJsonProvider;
 import com.jayway.jsonpath.spi.mapper.JacksonMappingProvider;
@@ -44,10 +45,14 @@ public interface MigrationVisitor {
    * @return the node that results.
    */
   static JsonNode evaluateJsonPath(JsonNode node, String expression) {
-    return (JsonNode)
-        JsonPath.using(JACKSON_JSON_NODE_CONFIGURATION)
-            .parse(node)
-            .read(JsonPath.compile(expression));
+    try {
+      return (JsonNode)
+          JsonPath.using(JACKSON_JSON_NODE_CONFIGURATION)
+              .parse(node)
+              .read(JsonPath.compile(expression));
+    } catch (InvalidPathException e) {
+      throw new IllegalArgumentException("Unable to parse:(" + expression + ")", e);
+    }
   }
 
   /**

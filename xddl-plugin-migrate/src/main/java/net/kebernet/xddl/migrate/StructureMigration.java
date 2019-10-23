@@ -21,6 +21,7 @@ import static net.kebernet.xddl.java.Resolver.resolvePackageName;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.NullNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.CodeBlock;
@@ -45,7 +46,7 @@ import net.kebernet.xddl.plugins.Context;
 
 public class StructureMigration {
   private static final String LOCAL = "local";
-  public static final String ROOT = "root";
+  private static final String ROOT = "root";
   private final Context ctx;
   private final Structure structure;
   private final String packageName;
@@ -69,8 +70,8 @@ public class StructureMigration {
             .addParameter(ParameterSpec.builder(ObjectNode.class, ROOT).build())
             .addParameter(ParameterSpec.builder(JsonNode.class, LOCAL).build());
 
-    structure.getProperties().forEach(this::visitNested);
     structure.getProperties().forEach(this::visitMigrationSteps);
+    structure.getProperties().forEach(this::visitNested);
     structure.getProperties().forEach(this::visitStructureReference);
     structure.getProperties().forEach(this::visitLists);
     structure.getProperties().forEach(this::visitPatchDelete);
@@ -127,17 +128,11 @@ public class StructureMigration {
       }
       applyBuilder.endControlFlow();
       applyBuilder.endControlFlow();
-
-      MethodSpec.methodBuilder("migrate_list_" + list.getName())
-          .addModifiers(Modifier.PUBLIC)
-          .addParameter(ParameterSpec.builder(ObjectNode.class, ROOT).build())
-          .addParameter(ParameterSpec.builder(JsonNode.class, LOCAL).build())
-          .addParameter(ParameterSpec.builder(JsonNode.class, "current").build());
     }
   }
 
   private void visitStructureReference(BaseType baseType) {
-    BaseType resolvedType = baseType;
+    BaseType resolvedType;
     if (baseType instanceof Reference) {
       resolvedType =
           ctx.resolveReference((Reference) baseType)
@@ -145,7 +140,7 @@ public class StructureMigration {
 
       if (resolvedType instanceof Structure) {
         ClassName migrationName =
-            ClassName.get(this.className.packageName(), resolvedType.getName());
+            ClassName.get(this.className.packageName(), ((Reference) baseType).getRef());
         writeNested(baseType, migrationName);
       }
     }
@@ -185,7 +180,11 @@ public class StructureMigration {
   }
 
   private void writeNested(BaseType type, ClassName className) {
-    applyBuilder.beginControlFlow("if(local.has($S))", type.getName());
+    applyBuilder.beginControlFlow(
+        "if(local.has($S) && !(local.get($S) instanceof $T))",
+        type.getName(),
+        type.getName(),
+        NullNode.class);
     applyBuilder.addStatement(
         "new $T().apply(root, ($T) local.get($S))", className, ObjectNode.class, type.getName());
     applyBuilder.endControlFlow();
