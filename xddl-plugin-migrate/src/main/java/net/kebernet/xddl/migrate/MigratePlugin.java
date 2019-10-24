@@ -29,9 +29,15 @@ public class MigratePlugin implements Plugin {
 
   @Override
   public String generateArtifacts(Context context, File outputDirectory) throws IOException {
-    StructureMigration migration =
-        new StructureMigration(context, context.entryRefStructure(), null);
-    migration.write(outputDirectory);
+    context
+        .getSpecification()
+        .getStructures()
+        .forEach(
+            s -> {
+              StructureMigration migration = new StructureMigration(context, s, null);
+              migration.write(outputDirectory);
+            });
+
     return outputDirectory.getAbsolutePath();
   }
 }

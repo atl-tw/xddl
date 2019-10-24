@@ -16,7 +16,7 @@ plugins {
 }
 
 group 'net.kebernet'
-version '0.3.0'
+version '0.3.2'
 
 buildScan {
     termsOfServiceUrl = 'https://gradle.com/terms-of-service'
@@ -69,7 +69,7 @@ subprojects {
     }
 
     dependencies {
-        api 'com.fasterxml.jackson.core:jackson-databind:2.9.10'
+        api 'com.fasterxml.jackson.core:jackson-databind:2.10.0'
         implementation 'org.projectlombok:lombok:1.18.8'
         implementation 'com.google.guava:guava:28.0-jre'
         annotationProcessor 'org.projectlombok:lombok:1.18.8'

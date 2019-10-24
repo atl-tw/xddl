@@ -9,6 +9,12 @@ task xddlJava(type: XDDLGenerate){
     outputDirectory = file(project.buildDir.getAbsolutePath()+ "/xddl-java")
 }
 
+
+task xddlMigrate(type: XDDLGenerate){
+    plugin = "migrate"
+    outputDirectory = file(project.buildDir.getAbsolutePath()+ "/xddl-java")
+}
+
 sourceSets {
     xddl {
         java.srcDir file(project.buildDir.getAbsolutePath()+ "/xddl-java")
@@ -47,3 +53,4 @@ build.dependsOn xddlGraphvis
 build.dependsOn xddlMarkdown
 build.dependsOn xddlElasticSearch
 build.dependsOn xddlJson
+build.dependsOn xddlMigrate
