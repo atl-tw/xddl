@@ -14,6 +14,7 @@ dependencies {
     api project(':xddl-plugin-java')
     api project(':xddl-plugin-hive')
     api project(':xddl-plugin-migrate')
+    api 'ognl:ognl:3.0.4'
     api 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
     testImplementation('org.spockframework:spock-core:1.1-groovy-2.4') {
         exclude group: 'org.codehaus.groovy'
@@ -101,9 +102,12 @@ pluginBundle {
 }
 
 gradlePlugin {
+    //noinspection GroovyAssignabilityCheck
     plugins {
+        //noinspection GroovyAssignabilityCheck
         xddl {
             id = 'net.kebernet.xddl'
+            //noinspection GroovyAssignabilityCheck
             implementationClass = 'net.kebernet.xddl.gradle.XDDLPlugin'
         }
     }

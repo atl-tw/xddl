@@ -5,14 +5,8 @@
       "@type": "Structure",
       "name": "Person",
       "properties": [
-        {
-          "@type": "PATCH_DELETE",
-          "name": "type"
-        },
-        {
-          "@type": "PATCH_DELETE",
-          "name": "value"
-        },
+        {"@type": "PATCH_DELETE", "name": "type"},
+        {"@type": "PATCH_DELETE", "name": "value"},
         {
           "@type": "Type",
           "core": "STRING",
@@ -21,16 +15,12 @@
             "migration": {
               "stages": [
                 {
-                  "@type": "jsonp",
-                  "start": "LOCAL",
-                  "steps": [
+                  "@type": "jsonp", "start": "LOCAL", "steps": [
                     "$.value"
                   ]
                 },
                 {
-                  "@type": "regex",
-                  "search": "^(.*), .*$",
-                  "replace": "$1"
+                  "@type": "regex", "search": "^(.*), .*$", "replace": "$1"
                 }
               ]
             }
@@ -44,17 +34,11 @@
             "migration": {
               "stages": [
                 {
-                  "@type": "jsonp",
-                  "start": "LOCAL",
-                  "steps": [
+                  "@type": "jsonp", "start": "LOCAL", "steps": [
                     "$.value"
                   ]
                 },
-                {
-                  "@type": "regex",
-                  "search": "^.*, (.*)$",
-                  "replace": "$1"
-                }
+                {"@type": "regex", "search": "^.*, (.*)$", "replace": "$1"}
               ]
             }
           }
@@ -66,9 +50,18 @@
       "name": "Foo",
       "properties": [
         {
-          "@type": "PATCH_DELETE",
-          "name": "people"
+          "@type": "Type",
+          "core": "STRING",
+          "name": "version",
+          "ext": {
+            "migration": {
+              "stages": [
+                {"@type": "literal", "value": "${specification.version}"}
+              ]
+            }
+          }
         },
+        {"@type": "PATCH_DELETE", "name": "people"},
         {
           "@type": "Reference",
           "ref": "Person",
@@ -77,9 +70,7 @@
             "migration": {
               "stages": [
                 {
-                  "@type": "jsonp",
-                  "start": "ROOT",
-                  "steps": [
+                  "@type": "jsonp", "start": "ROOT", "steps": [
                     "$.people[?(@.type=='PERSON')]",
                     "$[0]"
                   ]
@@ -96,9 +87,7 @@
             "migration": {
               "stages": [
                 {
-                  "@type": "jsonp",
-                  "start": "ROOT",
-                  "steps": [
+                  "@type": "jsonp", "start": "ROOT", "steps": [
                     "$.people[?(@.type=='PERSON')]",
                     "$[1]"
                   ]
@@ -115,9 +104,7 @@
             "migration": {
               "stages": [
                 {
-                  "@type": "jsonp",
-                  "start": "ROOT",
-                  "steps": [
+                  "@type": "jsonp", "start": "ROOT", "steps": [
                     "$.people[?(@.type=='SPY')]",
                     "$[0]"
                   ]

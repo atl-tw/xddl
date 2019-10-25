@@ -59,7 +59,15 @@ public class Loader {
   }
 
   public Specification read() {
-    Specification spec = null;
+    Specification spec;
+    spec = readWithoutEvaluate();
+    new OgnlTemplater(spec, vals).run();
+
+    return spec;
+  }
+
+  public Specification readWithoutEvaluate() {
+    Specification spec;
     try {
       spec = MAPPER.readValue(main, Specification.class);
 
@@ -85,7 +93,6 @@ public class Loader {
         //noinspection unchecked
         vals.putAll(fromFile);
       }
-      new OgnlTemplater(spec, vals).run();
 
     } catch (IOException e) {
       throw new RuntimeException(main.getPath() + " " + e.getMessage(), e);
@@ -93,6 +100,7 @@ public class Loader {
     return spec;
   }
 
+  @SuppressWarnings("WeakerAccess")
   void scanDirectories(
       String suffix, Collection<File> files, ObjectMapper mapper, Specification specification) {
     neverNull(files)

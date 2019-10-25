@@ -24,6 +24,7 @@ import java.util.stream.Collectors;
 import lombok.Builder;
 import net.kebernet.xddl.model.BaseType;
 import net.kebernet.xddl.model.PatchDelete;
+import net.kebernet.xddl.model.Reference;
 import net.kebernet.xddl.model.Specification;
 import net.kebernet.xddl.model.Structure;
 import net.kebernet.xddl.model.Type;
@@ -46,6 +47,7 @@ public class Patcher {
           Structure original = spec.get(key);
           if (original == null && value != null)
             throw ctx.stateException("Attempt to patch a Structure not found in original", value);
+          assert original != null;
           merge(ctx, original, value);
         });
     return specification;
@@ -92,6 +94,9 @@ public class Patcher {
                     merge(ctx, (Structure) o.getContains(), (Structure) pl.getContains());
                   } else if (o.getContains() instanceof Type && pl.getContains() instanceof Type) {
                     o.setContains(pl.getContains());
+                  } else //noinspection StatementWithEmptyBody
+                    if (o.getContains() instanceof Reference) {
+                    // no op
                   } else {
                     throw ctx.stateException("Unable to merge on list contains ", p);
                   }

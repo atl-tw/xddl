@@ -1,0 +1,7 @@
+{
+  "version": "0.2",
+  "person1": {"lastName": "Cooper", "firstName": "Robert"},
+  "person2":  {"lastName": "Cooper", "firstName": "Leslie"},
+  "spy": {"lastName": "Bond", "firstName": "James"},
+  "person3": null
+}

@@ -70,4 +70,10 @@ public class UnifyCommand implements HasStacktrace {
       names = {"--vals-file", "-v"},
       description = "JSON file of values")
   private File valsFile;
+
+  @Parameter(
+      names = {"--evaluate-ognl", "-eval"},
+      description = "Should we evaluate the OGNL in the file (default true)")
+  @Builder.Default
+  private boolean evaluateOgnl = true;
 }

@@ -26,7 +26,7 @@ public class UnifyRunner {
   private UnifyCommand command;
 
   public void run() throws IOException {
-    Specification base =
+    Loader loader =
         Loader.builder()
             .main(command.getInputFile())
             .includes(command.getIncludes())
@@ -34,8 +34,8 @@ public class UnifyRunner {
             .vals(command.getVals())
             .valsFile(command.getValsFile())
             .scrubPatchesFromBaseline(command.isScrubPatch())
-            .build()
-            .read();
+            .build();
+    Specification base = command.isEvaluateOgnl() ? loader.read() : loader.readWithoutEvaluate();
     if (command.getNewVersion() != null) {
       base.setVersion(command.getNewVersion());
     }

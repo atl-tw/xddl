@@ -16,7 +16,7 @@ plugins {
 }
 
 group 'net.kebernet'
-version '0.3.2'
+version '0.4.0'
 
 buildScan {
     termsOfServiceUrl = 'https://gradle.com/terms-of-service'
@@ -85,6 +85,7 @@ subprojects {
     task packageJavadoc(type: Jar, dependsOn: ['javadoc', 'dokka']  ) {
         from javadoc.destinationDir
         from file("${project.buildDir.absolutePath}/dokka")
+        //noinspection GrDeprecatedAPIUsage
         classifier = 'javadoc'
     }
 

@@ -45,6 +45,7 @@ public class GlideRunner {
                 .outputFile(baseline)
                 .vals(command.getVals())
                 .valsFile(command.getValsFile())
+                .evaluateOgnl(false)
                 .build())
         .build()
         .run();
@@ -74,6 +75,7 @@ public class GlideRunner {
                   .inputFile(lastUnified)
                   .patches(Collections.singletonList(patches))
                   .outputFile(outputFile)
+                  .evaluateOgnl(false)
                   .build())
           .build()
           .run();

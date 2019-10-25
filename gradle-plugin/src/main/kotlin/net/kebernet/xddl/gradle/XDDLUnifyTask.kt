@@ -60,6 +60,7 @@ open class XDDLUnifyTask : DefaultTask() {
                                 .patches(listOf(patchDirectory))
                                 .outputFile(outputFile)
                                 .newVersion(newVersion)
+                                .evaluateOgnl(true)
                                 .build()
                 )
                 .build()
