@@ -1,0 +1,20 @@
+{
+  "members": [
+    {
+      "id": "member1",
+      "value": "Cooper, Robert"
+    },
+    {
+      "id": "member2",
+      "value": "Cooper, Leslie"
+    },
+    {
+      "id": "member2",
+      "value": "Cooper, Cheryl"
+    },
+    {
+      "id": "member2",
+      "value": "Cooper, Richard"
+    }
+  ]
+}

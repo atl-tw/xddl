@@ -1,8 +1,27 @@
+buildscript {
+    repositories {
+        mavenCentral()
+        jcenter()
+        mavenLocal()
+    }
+    dependencies {
+        classpath 'ognl:ognl:3.0.4'
+    }
+}
 plugins {
-    id 'net.kebernet.xddl'
+    id "net.kebernet.xddl" //version "0.4.0"
 }
 
 apply plugin: 'java'
+
+repositories {
+    jcenter()
+}
+
+dependencies {
+    compile 'net.kebernet.xddl:xddl-plugin-migrate-lib:+'
+    testCompile 'junit:junit:4.12'
+}
 
 sourceSets {
     main {
@@ -18,10 +37,20 @@ task glide(type: XDDLGlide){
 
 }
 
-task glideGenerate(type: XDDLGlideGenerate){
+task glideJava(type: XDDLGlideGenerate){
     plugin "java"
     outputDirectory file("${project.buildDir}/xddl-java")
 }
+task glideMigration(type: XDDLGlideGenerate){
+    plugin "migrate"
+    outputDirectory file("${project.buildDir}/xddl-java")
+}
+task glideElastic(type: XDDLGlideGenerate){
+    plugin "elasticsearch"
+}
 
-glideGenerate.dependsOn glide
-compileJava.dependsOn glideGenerate
+
+glideJava.dependsOn glide
+compileJava.dependsOn glideJava
+compileJava.dependsOn glideMigration
+build.dependsOn glideElastic

@@ -1,3 +1,9 @@
 {
-  "version": "1.0"
+  "version": "1.0",
+  "entryRef": "Team",
+  "ext": {
+    "java": {
+      "package": "com.my.project.model"
+    }
+  }
 }

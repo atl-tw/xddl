@@ -9,12 +9,36 @@
     {
       "@type": "Type",
       "core": "STRING",
-      "name": "firstName"
+      "name": "firstName",
+      "ext": {
+        "migration": {
+          "stages": [
+            {
+              "@type": "jsonp", "start": "LOCAL", "steps": [
+              "$.value"
+            ]
+            },
+            {"@type": "regex", "search": "^.*, (.*)$", "replace": "$1"}
+          ]
+        }
+      }
     },
     {
       "@type": "Type",
       "core": "STRING",
-      "name": "lastName"
+      "name": "lastName",
+      "ext": {
+        "migration": {
+          "stages": [
+            {
+              "@type": "jsonp", "start": "LOCAL", "steps": [
+              "$.value"
+            ]
+            },
+            {"@type": "regex", "search": "^(.*), .*$", "replace": "$1"}
+          ]
+        }
+      }
     }
   ]
 }

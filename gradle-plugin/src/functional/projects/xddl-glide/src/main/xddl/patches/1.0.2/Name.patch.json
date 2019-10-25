@@ -13,12 +13,26 @@
     {
       "@type": "Type",
       "core": "STRING",
-      "name": "givenName"
+      "name": "givenName",
+      "ext": {
+        "migration": {
+          "stages": [
+            {"@type": "jsonp",  "start": "LOCAL", "steps": ["$.firstName"]}
+          ]
+        }
+      }
     },
     {
       "@type": "Type",
       "core": "STRING",
-      "name": "surname"
+      "name": "surname",
+      "ext": {
+      "migration": {
+        "stages": [
+          {"@type": "jsonp", "start": "LOCAL", "steps": ["$.lastName"]}
+        ]
+      }
+    }
     }
   ]
 }
