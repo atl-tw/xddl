@@ -11,9 +11,9 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.my.project.model.v1_0.Team;
 import org.junit.Test;
 
+import static org.junit.Assert.assertEquals;
+
 public class ExampleTest {
-
-
 
     @Test
     public void example() throws IOException {
@@ -36,7 +36,7 @@ public class ExampleTest {
         com.my.project.model.v1_0_1.migration.Team firstMigration =
                 new com.my.project.model.v1_0_1.migration.Team();
         firstMigration.apply((ObjectNode) tree, tree);
-
+        assertEquals("1.0.1", tree.get("version").asText());
         //Now we can parse map it to the new version:
         com.my.project.model.v1_0_1.Team step2 = mapper.treeToValue(tree,
                 com.my.project.model.v1_0_1.Team.class
@@ -44,13 +44,14 @@ public class ExampleTest {
 
 
         System.out.println("Migrated to v1.0.1:\n"+mapper.writeValueAsString(step2)+"\n\n");
+
         mapper.writeValue(new File("build/test/output/1.0.1.json"), step2);
 
         //Now we can migrate it to the v1.0.2 version
         com.my.project.model.v1_0_2.migration.Team secondMigration =
                 new com.my.project.model.v1_0_2.migration.Team();
         secondMigration.apply((ObjectNode) tree, tree);
-
+        assertEquals("1.0.2", tree.get("version").asText());
         //Now we can parse map it to the third version:
         com.my.project.model.v1_0_2.Team step3 = mapper.treeToValue(tree,
                 com.my.project.model.v1_0_2.Team.class

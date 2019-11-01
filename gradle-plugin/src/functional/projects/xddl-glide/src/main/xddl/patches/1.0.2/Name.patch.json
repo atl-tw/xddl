@@ -27,12 +27,25 @@
       "core": "STRING",
       "name": "surname",
       "ext": {
-      "migration": {
-        "stages": [
-          {"@type": "jsonp", "start": "LOCAL", "steps": ["$.lastName"]}
-        ]
+        "migration": {
+          "stages": [
+            {"@type": "jsonp", "start": "LOCAL", "steps": ["$.lastName"]}
+          ]
+        }
       }
-    }
+    },
+    {
+      "@type": "List",
+      "name": "titles",
+      "ext": {
+        "java": {
+          "type": "java.util.Set"
+        }
+      },
+      "contains": {
+        "@type": "Reference",
+        "ref": "Title"
+      }
     }
   ]
 }
