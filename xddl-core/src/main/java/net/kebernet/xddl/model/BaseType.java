@@ -15,10 +15,12 @@
  */
 package net.kebernet.xddl.model;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.JsonNode;
+import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 import lombok.Data;
@@ -43,6 +45,10 @@ import lombok.experimental.SuperBuilder;
 })
 @JsonPropertyOrder({"name", "description", "required", "ext"})
 public abstract class BaseType<T extends BaseType> implements HasExtensions {
+  @JsonInclude(JsonInclude.Include.NON_NULL)
+  private Boolean patch;
+
+  private File sourceFile;
   private String name;
   private String description;
   private String comment;

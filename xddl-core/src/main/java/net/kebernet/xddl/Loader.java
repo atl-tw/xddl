@@ -71,14 +71,15 @@ public class Loader {
     try {
       spec = MAPPER.readValue(main, Specification.class);
 
-      scanDirectories("xddl", neverNull(this.includes), MAPPER, spec);
+      scanDirectories("xddl", neverNull(this.includes), MAPPER, spec, false);
       if (scrubPatchesFromBaseline) {
         spec.getStructures().forEach(this::visitStructure);
       }
 
       if (!isNullOrEmpty(patches)) {
         Specification patch = new Specification();
-        scanDirectories("patch", patches, MAPPER, patch);
+        scanDirectories("patch", patches, MAPPER, patch, true);
+        scanDirectories("xddl", patches, MAPPER, patch, true);
         spec = Patcher.builder().specification(spec).patches(patch).build().apply();
       }
       if (vals == null) {
@@ -102,7 +103,11 @@ public class Loader {
 
   @SuppressWarnings("WeakerAccess")
   void scanDirectories(
-      String suffix, Collection<File> files, ObjectMapper mapper, Specification specification) {
+      String suffix,
+      Collection<File> files,
+      ObjectMapper mapper,
+      Specification specification,
+      boolean isPatch) {
     neverNull(files)
         .forEach(
             f -> {
@@ -113,22 +118,30 @@ public class Loader {
                   f.listFiles(
                       scan -> scan.getName().toLowerCase().endsWith("." + suffix + ".json"));
               if (xddls != null) {
-                Arrays.stream(xddls).forEach(xddl -> readFile(xddl, mapper, specification));
+                Arrays.stream(xddls)
+                    .forEach(xddl -> readFile(xddl, mapper, specification, isPatch));
               }
               File[] directories = f.listFiles(File::isDirectory);
               if (directories != null) {
-                scanDirectories(suffix, Arrays.asList(directories), mapper, specification);
+                scanDirectories(suffix, Arrays.asList(directories), mapper, specification, isPatch);
               }
             });
   }
 
-  private void readFile(File xddl, ObjectMapper mapper, Specification specification) {
+  private void readFile(
+      File xddl, ObjectMapper mapper, Specification specification, boolean isPatch) {
     try {
       BaseType type = mapper.readValue(xddl, BaseType.class);
       if (type instanceof Structure) {
-        specification.structures().add((Structure) type);
+        Structure read = (Structure) type;
+        read.setSourceFile(xddl);
+        read.setPatch(isPatch);
+        specification.structures().add(read);
       } else if (type instanceof Type) {
-        specification.types().add((Type) type);
+        Type read = (Type) type;
+        read.setSourceFile(xddl);
+        read.setPatch(isPatch);
+        specification.types().add(read);
       }
     } catch (IOException e) {
       throw new RuntimeException(
@@ -150,6 +163,7 @@ public class Loader {
               } else if (p instanceof Structure) {
                 visitStructure((Structure) p);
               }
+              p.ext().remove("migration");
             });
   }
 }

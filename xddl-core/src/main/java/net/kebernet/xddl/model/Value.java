@@ -15,10 +15,12 @@
  */
 package net.kebernet.xddl.model;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import net.kebernet.xddl.Loader;
 
 @SuppressWarnings("WeakerAccess")
 @Data
@@ -28,4 +30,13 @@ public class Value {
   private JsonNode value;
   private String description;
   private String comment;
+
+  @Override
+  public String toString() {
+    try {
+      return Loader.mapper().writeValueAsString(this);
+    } catch (JsonProcessingException e) {
+      throw new IllegalStateException("Why can't I write myself to string? " + this.getClass(), e);
+    }
+  }
 }

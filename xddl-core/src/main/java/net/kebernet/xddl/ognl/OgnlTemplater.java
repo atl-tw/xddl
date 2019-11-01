@@ -65,9 +65,6 @@ public class OgnlTemplater implements BeanWalker.PropertyVisitor {
 
   @Override
   public Optional<Set<Object>> visit(PropertyDescriptor property, Object target) {
-    if (property.getName().equals("contains")) {
-      System.out.println("");
-    }
     try {
       property.getReadMethod().setAccessible(true);
       if (Collection.class.isAssignableFrom(property.getPropertyType())) {

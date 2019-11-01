@@ -15,6 +15,7 @@
  */
 package net.kebernet.xddl;
 
+import static java.lang.Boolean.TRUE;
 import static net.kebernet.xddl.model.Utils.neverNull;
 
 import java.util.List;
@@ -45,10 +46,15 @@ public class Patcher {
     patch.forEach(
         (key, value) -> {
           Structure original = spec.get(key);
-          if (original == null && value != null)
+          if (original == null && value != null && !TRUE.equals(value.getPatch()))
+            // trying to create something that exists.
             throw ctx.stateException("Attempt to patch a Structure not found in original", value);
-          assert original != null;
-          merge(ctx, original, value);
+          else if (original == null && value != null)
+            // value is patch, and it is a whole new thing
+            specification.structures().add(value);
+          else if (original != null)
+            // just do the patch
+            merge(ctx, original, value);
         });
     return specification;
   }
@@ -95,7 +101,7 @@ public class Patcher {
                   } else if (o.getContains() instanceof Type && pl.getContains() instanceof Type) {
                     o.setContains(pl.getContains());
                   } else //noinspection StatementWithEmptyBody
-                    if (o.getContains() instanceof Reference) {
+                  if (o.getContains() instanceof Reference) {
                     // no op
                   } else {
                     throw ctx.stateException("Unable to merge on list contains ", p);

@@ -389,9 +389,10 @@ public class StructureClass implements Writable {
 
       FieldSpec.Builder builder =
           FieldSpec.builder(
-              ParameterizedTypeName.get(
-                  collectionType, ClassName.get(packageName, ((Reference) contains).getRef())),
-              listType.getName());
+                  ParameterizedTypeName.get(
+                      collectionType, ClassName.get(packageName, ((Reference) contains).getRef())),
+                  listType.getName())
+              .addModifiers(Modifier.PRIVATE);
       ifNotNullOrEmpty(contains.getDescription(), s -> builder.addJavadoc(escape(s)));
       ifNotNullOrEmpty(contains.getComment(), s -> builder.addJavadoc("Comment: " + escape(s)));
       return builder.build();

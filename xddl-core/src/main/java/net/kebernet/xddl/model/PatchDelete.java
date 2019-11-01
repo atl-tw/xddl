@@ -15,10 +15,22 @@
  */
 package net.kebernet.xddl.model;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import net.kebernet.xddl.Loader;
+
 public class PatchDelete extends BaseType<PatchDelete> {
 
   @Override
   public PatchDelete merge(Reference reference) {
     return this;
+  }
+
+  @Override
+  public String toString() {
+    try {
+      return Loader.mapper().writeValueAsString(this);
+    } catch (JsonProcessingException e) {
+      throw new IllegalStateException("Why can't I write myself to string? " + this.getClass(), e);
+    }
   }
 }

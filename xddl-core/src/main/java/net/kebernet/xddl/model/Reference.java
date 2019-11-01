@@ -15,10 +15,12 @@
  */
 package net.kebernet.xddl.model;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
+import net.kebernet.xddl.Loader;
 
 @Data
 @SuperBuilder
@@ -30,5 +32,14 @@ public class Reference extends BaseType<Reference> {
   @Override
   public Reference merge(Reference reference) {
     return ModelUtil.merge(new Reference(), this, reference);
+  }
+
+  @Override
+  public String toString() {
+    try {
+      return Loader.mapper().writeValueAsString(this);
+    } catch (JsonProcessingException e) {
+      throw new IllegalStateException("Why can't I write myself to string? " + this.getClass(), e);
+    }
   }
 }

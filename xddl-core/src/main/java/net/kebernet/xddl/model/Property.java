@@ -15,11 +15,22 @@
  */
 package net.kebernet.xddl.model;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.Data;
+import net.kebernet.xddl.Loader;
 
 @Data
 public class Property {
   private String name;
   private String description;
   private Type type;
+
+  @Override
+  public String toString() {
+    try {
+      return Loader.mapper().writeValueAsString(this);
+    } catch (JsonProcessingException e) {
+      throw new IllegalStateException("Why can't I write myself to string? " + this.getClass(), e);
+    }
+  }
 }

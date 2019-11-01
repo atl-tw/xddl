@@ -15,12 +15,14 @@
  */
 package net.kebernet.xddl.model;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import lombok.Data;
+import net.kebernet.xddl.Loader;
 
 @Data
 public class Specification implements HasExtensions {
@@ -58,5 +60,14 @@ public class Specification implements HasExtensions {
       this.types = new ArrayList<>();
     }
     return this.types;
+  }
+
+  @Override
+  public String toString() {
+    try {
+      return Loader.mapper().writeValueAsString(this);
+    } catch (JsonProcessingException e) {
+      throw new IllegalStateException("Why can't I write myself to string? " + this.getClass(), e);
+    }
   }
 }

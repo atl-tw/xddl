@@ -55,7 +55,6 @@ public class DiffRunner {
   }
 
   private boolean output(SchemaElement e) {
-    System.out.println(e.toString());
     return true;
   }
 

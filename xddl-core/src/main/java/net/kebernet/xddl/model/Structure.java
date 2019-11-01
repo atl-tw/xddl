@@ -15,23 +15,34 @@
  */
 package net.kebernet.xddl.model;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import java.util.List;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
+import net.kebernet.xddl.Loader;
 
 @Data
 @SuperBuilder
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 public class Structure extends BaseType<Structure> {
-  List<BaseType> properties;
+  private List<BaseType> properties;
 
   @Override
   public Structure merge(Reference reference) {
     Structure newValue = ModelUtil.merge(new Structure(), this, reference);
     newValue.setProperties(this.properties);
     return newValue;
+  }
+
+  @Override
+  public String toString() {
+    try {
+      return Loader.mapper().writeValueAsString(this);
+    } catch (JsonProcessingException e) {
+      throw new IllegalStateException("Why can't I write myself to string? " + this.getClass(), e);
+    }
   }
 }

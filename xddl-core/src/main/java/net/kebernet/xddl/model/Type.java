@@ -16,11 +16,13 @@
 package net.kebernet.xddl.model;
 
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import java.util.List;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
+import net.kebernet.xddl.Loader;
 
 @Data
 @SuperBuilder
@@ -40,5 +42,14 @@ public class Type extends BaseType<Type> {
     newValue.setAllowable(this.getAllowable());
     newValue.setExamples(this.getExamples());
     return newValue;
+  }
+
+  @Override
+  public String toString() {
+    try {
+      return Loader.mapper().writeValueAsString(this);
+    } catch (JsonProcessingException e) {
+      throw new IllegalStateException("Why can't I write myself to string? " + this.getClass(), e);
+    }
   }
 }
