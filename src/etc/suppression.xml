@@ -4,6 +4,15 @@
         <cpe>cpe:/a:elasticsearch:elasticsearch</cpe>
     </suppress>
     <suppress>
+        <vulnerabilityName>CVE-2016-3093</vulnerabilityName>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+      file name: gradle-installation-beacon-5.3.jar
+      ]]></notes>
+        <cpe>cpe:/a:gradle:gradle</cpe>
+    </suppress>
+    <suppress>
         <notes><![CDATA[
       file name: gradle-installation-beacon-5.3.jar
       ]]></notes>

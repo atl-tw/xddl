@@ -25,6 +25,7 @@ import com.jayway.jsonpath.spi.json.JacksonJsonNodeJsonProvider;
 import com.jayway.jsonpath.spi.mapper.JacksonMappingProvider;
 import java.io.IOException;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
 /** This is a visitor interface that is called to handle a migration from one type to another. */
@@ -77,7 +78,9 @@ public interface MigrationVisitor {
     Pattern pattern = PATTERN_CACHE.get(search);
     if (pattern == null) {
       pattern = Pattern.compile(search);
-      PATTERN_CACHE.put(search, pattern);
+      if (PATTERN_CACHE.putIfAbsent(search, pattern) != null) {
+        Logger.getAnonymousLogger().finest("Suspicious race to putIfAbsent");
+      }
     }
     String result = pattern.matcher(node.asText()).replaceAll(replace);
     return mapper.valueToTree(result);

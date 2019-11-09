@@ -19,11 +19,13 @@ import static java.util.Optional.ofNullable;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.google.common.base.Charsets;
 import guru.nidi.graphviz.engine.Format;
 import guru.nidi.graphviz.engine.Graphviz;
 import java.io.File;
-import java.io.FileWriter;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -54,7 +56,9 @@ public class GraphVisPlugin implements Plugin {
         throw new IOException("Unable to create " + outputDirectory.getAbsolutePath());
       }
     }
-    try (PrintWriter pw = new PrintWriter(new FileWriter(outputFile, false))) {
+    try (PrintWriter pw =
+        new PrintWriter(
+            new OutputStreamWriter(new FileOutputStream(outputFile, false), Charsets.UTF_8))) {
       Specification spec = context.getSpecification();
       BaseType type = context.getReferences().get(spec.getEntryRef());
       if (!(type instanceof Structure)) {

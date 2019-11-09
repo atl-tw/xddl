@@ -36,6 +36,33 @@ public class Specification implements HasExtensions {
   private Map<String, JsonNode> ext;
   private Map<String, Object> constants;
 
+  public synchronized Specification setTypes(List<Type> types) {
+    this.types = types;
+    return this;
+  }
+
+  public synchronized Specification setStructures(List<Structure> structures) {
+    this.structures = structures;
+    return this;
+  }
+
+  public synchronized Specification setExt(Map<String, JsonNode> ext) {
+    this.ext = ext;
+    return this;
+  }
+
+  public synchronized List<Type> getTypes() {
+    return types;
+  }
+
+  public synchronized List<Structure> getStructures() {
+    return structures;
+  }
+
+  public synchronized Map<String, JsonNode> getExt() {
+    return ext;
+  }
+
   /**
    * Returns the ext map, creating it if it is null
    *

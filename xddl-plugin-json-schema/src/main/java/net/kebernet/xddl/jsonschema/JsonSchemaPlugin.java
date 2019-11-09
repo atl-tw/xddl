@@ -28,6 +28,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import net.kebernet.xddl.jsonschema.model.Definition;
 import net.kebernet.xddl.jsonschema.model.Schema;
@@ -43,6 +44,7 @@ import net.kebernet.xddl.plugins.Context;
 import net.kebernet.xddl.plugins.Plugin;
 
 public class JsonSchemaPlugin implements Plugin {
+  private static final Logger LOGGER = Logger.getLogger(JsonSchemaPlugin.class.getCanonicalName());
   static final String PATTERN_BIG_DECIMAL = "^-?\\d*(\\.\\d*)?$";
   static final String PATTERN_BIG_INTEGER = "^-?\\d*$";
   private static final String STRING = "string";
@@ -103,8 +105,9 @@ public class JsonSchemaPlugin implements Plugin {
   @Override
   public String generateArtifacts(Context context, File outputDirectory) throws IOException {
     File file = new File(outputDirectory, context.createBaseFilename() + ".schema.json");
-    //noinspection ResultOfMethodCallIgnored
-    file.getParentFile().mkdirs();
+    if (!file.getParentFile().mkdirs()) {
+      LOGGER.finest(file.getParentFile().getAbsolutePath() + " mkdirs skipped");
+    }
 
     ObjectMapper mapper = context.getMapper();
     mapper.writeValue(file, createSchema(context));

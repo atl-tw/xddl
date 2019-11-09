@@ -22,12 +22,15 @@ import static net.kebernet.xddl.model.Utils.ifNotNullOrEmpty;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.google.common.base.Charsets;
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
 import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.Reader;
 import net.kebernet.xddl.model.List;
@@ -57,7 +60,9 @@ public class MarkdownPlugin implements Plugin {
         ofNullable(System.getProperty("markdown.filename")).orElseGet(context::createBaseFilename);
 
     File outputFile = new File(outputDirectory, filename + ".md");
-    try (PrintWriter pw = new PrintWriter(new FileWriter(outputFile, false))) {
+    try (PrintWriter pw =
+        new PrintWriter(
+            new OutputStreamWriter(new FileOutputStream(outputFile, false), Charsets.UTF_8))) {
       Specification spec = context.getSpecification();
       pw.println(ofNullable(spec.getTitle()).orElse("Untitled Specification"));
       pw.println("===========================================================");
@@ -100,8 +105,11 @@ public class MarkdownPlugin implements Plugin {
     }
 
     Parser parser = Parser.builder().build();
-    try (Reader reader = new FileReader(outputFile);
-        FileWriter writer = new FileWriter(new File(outputDirectory, filename + ".html"))) {
+    try (Reader reader = new InputStreamReader(new FileInputStream(outputFile), Charsets.UTF_8);
+        OutputStreamWriter writer =
+            new OutputStreamWriter(
+                new FileOutputStream(new File(outputDirectory, filename + ".html")),
+                Charsets.UTF_8)) {
       writer.append("<html><head></head><body>");
       Node document = parser.parseReader(reader);
       HtmlRenderer renderer = HtmlRenderer.builder().build();
@@ -332,9 +340,5 @@ public class MarkdownPlugin implements Plugin {
       sb.append("  ");
     }
     return sb.toString();
-  }
-
-  private String indent(int indetationLevel, String value) {
-    return Joiner.on("\n" + indent(indetationLevel)).join(Splitter.on('\n').split(value));
   }
 }

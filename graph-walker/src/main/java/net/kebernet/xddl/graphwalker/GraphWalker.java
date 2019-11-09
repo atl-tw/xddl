@@ -26,15 +26,23 @@ import java.util.function.Predicate;
 import java.util.stream.Stream;
 import javax.annotation.concurrent.ThreadSafe;
 
+@SuppressWarnings("unchecked")
 @ThreadSafe
 public class GraphWalker {
 
   private final List<Visitor> visitors = new CopyOnWriteArrayList<>();
   private final List<ChildrenStrategy> strategies = new CopyOnWriteArrayList<>();
   private final boolean visitMultipleTimes;
+  private boolean bottomUp;
 
   public GraphWalker(boolean visitMultipleTimes) {
     this.visitMultipleTimes = visitMultipleTimes;
+  }
+
+  @SuppressWarnings("unused")
+  public GraphWalker fromBottomUp() {
+    this.bottomUp = true;
+    return this;
   }
 
   public GraphWalker withVisitor(Predicate<?> accepts, Consumer<?> visit) {
@@ -57,15 +65,19 @@ public class GraphWalker {
 
   private void walk(Context context, Object o) {
     if (o != null && !context.visited.contains(o)) {
+      if (bottomUp) doChildren(context, o);
       visit(o);
       context.visited.add(o);
-      //noinspection unchecked
-      this.strategies.stream()
-          .filter(s -> s.accepts.test(o))
-          .findFirst()
-          .map(s -> (Map<String, Object>) s.children.apply(o))
-          .ifPresent(children -> children.forEach((key, value) -> walk(context, value)));
+      if (!bottomUp) doChildren(context, o);
     }
+  }
+
+  private void doChildren(Context context, Object o) {
+    this.strategies.stream()
+        .filter(s -> s.accepts.test(o))
+        .findFirst()
+        .map(s -> (Map<String, Object>) s.children.apply(o))
+        .ifPresent(children -> children.forEach((key, value) -> walk(context, value)));
   }
 
   private void visit(Object o) {

@@ -20,6 +20,7 @@ import static net.kebernet.xddl.graphwalker.util.Closures.consumerToRuntimeExcep
 import java.beans.IntrospectionException;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
+import java.lang.reflect.Modifier;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -39,7 +40,9 @@ public class PropertiesStrategy implements Function<Object, Map<String, ?>> {
   public static Function<Object, Map<String, ?>> create() {
     return create(
         d -> {
-          if (!"class".equals(d.getName()) && d.getReadMethod() != null) {
+          if (!"class".equals(d.getName())
+              && d.getReadMethod() != null
+              && (d.getReadMethod().getModifiers() & Modifier.STATIC) == 0) {
             d.getReadMethod().setAccessible(true);
             return true;
           }

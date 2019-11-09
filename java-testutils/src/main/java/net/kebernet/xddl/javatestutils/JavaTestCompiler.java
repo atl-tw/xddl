@@ -19,6 +19,8 @@ import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -45,6 +47,7 @@ public class JavaTestCompiler {
   }
 
   public ClassLoader compile() throws MalformedURLException {
+
     File[] files = javaFiles(directory).toArray(new File[0]);
     JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
     StandardJavaFileManager fileManager = compiler.getStandardFileManager(null, null, null);
@@ -52,8 +55,11 @@ public class JavaTestCompiler {
         fileManager.getJavaFileObjectsFromFiles(Arrays.asList(files));
     compiler.getTask(null, fileManager, null, null, null, compilationUnits1).call();
 
-    return new CompositeClassLoader(
-        Thread.currentThread().getContextClassLoader(),
-        new URLClassLoader(new URL[] {directory.toURI().toURL()}));
+    URL[] urls = new URL[] {directory.toURI().toURL()};
+    return AccessController.doPrivileged(
+        (PrivilegedAction<CompositeClassLoader>)
+            () ->
+                new CompositeClassLoader(
+                    Thread.currentThread().getContextClassLoader(), new URLClassLoader(urls)));
   }
 }

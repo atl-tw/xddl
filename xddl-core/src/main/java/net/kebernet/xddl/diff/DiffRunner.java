@@ -50,7 +50,7 @@ public class DiffRunner {
             .map(e -> command.isComparison() ? compare(e, diff) : output(e))
             .collect(Collectors.toSet());
     if (!results.isEmpty()) {
-      System.exit(-1);
+      throw new RuntimeException("No results.");
     }
   }
 

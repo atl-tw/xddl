@@ -35,7 +35,7 @@ open class XDDLUnifyTask : DefaultTask() {
             else
                 Collections.emptyList()
     @Optional
-    @Input
+    @InputFile
     lateinit var patchDirectory: File
 
     @InputFile

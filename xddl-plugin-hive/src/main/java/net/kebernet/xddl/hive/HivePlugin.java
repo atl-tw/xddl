@@ -21,12 +21,14 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.github.mustachejava.DefaultMustacheFactory;
 import com.github.mustachejava.Mustache;
 import com.github.mustachejava.MustacheFactory;
+import com.google.common.base.Charsets;
 import com.google.common.base.Joiner;
 import java.io.File;
-import java.io.FileWriter;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -99,14 +101,15 @@ public class HivePlugin implements Plugin {
 
     MustacheFactory mf = new DefaultMustacheFactory();
     InputStream is = HivePlugin.class.getResourceAsStream("/baseTemplate.mustache");
-    Mustache mustache = mf.compile(new InputStreamReader(is), "baseTemplate");
+    Mustache mustache = mf.compile(new InputStreamReader(is, Charsets.UTF_8), "baseTemplate");
     HashMap<String, Object> scopes = new HashMap<>();
     scopes.put("tableName", tableName);
     scopes.put("tableSpec", tableSpec);
     scopes.put("partitionedBy", partitionedBy);
     scopes.put("location", location);
     File outputFile = new File(outputDirectory, context.createBaseFilename() + ".hive");
-    try (FileWriter writer = new FileWriter(outputFile)) {
+    try (OutputStreamWriter writer =
+        new OutputStreamWriter(new FileOutputStream(outputFile), Charsets.UTF_8)) {
       mustache.execute(writer, scopes);
     }
     return outputFile.getName();

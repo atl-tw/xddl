@@ -28,7 +28,7 @@ public abstract class Utils {
   private Utils() {}
 
   public static Integer neverNull(Integer i) {
-    return i == null ? 0 : i;
+    return i == null ? Integer.valueOf(0) : i;
   }
 
   public static File[] neverNull(File[] files) {

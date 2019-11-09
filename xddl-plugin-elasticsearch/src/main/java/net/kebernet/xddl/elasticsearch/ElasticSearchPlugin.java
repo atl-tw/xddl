@@ -19,9 +19,11 @@ import static java.util.Optional.ofNullable;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.google.common.base.Charsets;
 import java.io.File;
-import java.io.FileWriter;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.util.Collections;
 import java.util.HashMap;
@@ -116,7 +118,9 @@ public class ElasticSearchPlugin implements Plugin {
     }
     File outputFile = new File(outputDirectory, filename + ".mappings.json");
 
-    try (PrintWriter pw = new PrintWriter(new FileWriter(outputFile, false))) {
+    try (PrintWriter pw =
+        new PrintWriter(
+            new OutputStreamWriter(new FileOutputStream(outputFile, false), Charsets.UTF_8))) {
       LinkedHashSet<Structure> tree = new LinkedHashSet<>();
       Specification spec = context.getSpecification();
       BaseType type = context.getReferences().get(spec.getEntryRef());
