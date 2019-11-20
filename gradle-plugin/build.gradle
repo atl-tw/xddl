@@ -113,4 +113,6 @@ gradlePlugin {
     }
 }
 
+tasks.functionalTest.dependsOn clean
+
 

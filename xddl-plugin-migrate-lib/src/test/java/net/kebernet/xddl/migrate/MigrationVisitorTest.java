@@ -25,6 +25,18 @@ import org.junit.Test;
 public class MigrationVisitorTest {
 
   @Test
+  public void testReadTree() {
+    JsonNode read = MigrationVisitor.readTree("{\"test\":1}");
+    assertThat(read.get("test").asInt()).isEqualTo(1);
+  }
+
+  @Test(expected = RuntimeException.class)
+  public void testReadTreeFail() {
+    JsonNode read = MigrationVisitor.readTree("{\"test:1}");
+    assertThat(read.get("test").asInt()).isEqualTo(1);
+  }
+
+  @Test
   public void testCaseFormat() {
     JsonNode node = new ObjectMapper().valueToTree("thisIsATest");
     JsonNode result =
