@@ -15,22 +15,13 @@
  */
 package net.kebernet.xddl.migrate;
 
-import com.fasterxml.jackson.annotation.JsonSubTypes;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import lombok.Getter;
 import lombok.Setter;
 
+@SuppressWarnings("WeakerAccess")
 @Getter
 @Setter
-@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "@type")
-@JsonSubTypes({
-  @JsonSubTypes.Type(value = JsonPathStage.class, name = "jsonp"),
-  @JsonSubTypes.Type(value = MapStage.class, name = "map"),
-  @JsonSubTypes.Type(value = RegexStage.class, name = "regex"),
-  @JsonSubTypes.Type(value = LiteralStage.class, name = "literal"),
-  @JsonSubTypes.Type(value = RenameStage.class, name = "rename"),
-  @JsonSubTypes.Type(value = CaseStage.class, name = "case")
-})
-public class Stage {
-  private int index;
+public class RenameStage extends Stage {
+  private String from;
+  private String to;
 }

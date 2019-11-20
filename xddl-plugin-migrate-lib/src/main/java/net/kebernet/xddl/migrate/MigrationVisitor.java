@@ -17,6 +17,7 @@ package net.kebernet.xddl.migrate;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.NullNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.jayway.jsonpath.Configuration;
 import com.jayway.jsonpath.InvalidPathException;
@@ -27,6 +28,7 @@ import java.io.IOException;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
+import net.kebernet.xddl.migrate.format.CaseFormat;
 
 /** This is a visitor interface that is called to handle a migration from one type to another. */
 public interface MigrationVisitor {
@@ -45,6 +47,13 @@ public interface MigrationVisitor {
     } catch (IOException e) {
       throw new RuntimeException("Failed to parse value:\n" + s, e);
     }
+  }
+
+  static JsonNode convertCase(CaseFormat from, CaseFormat to, JsonNode value) {
+    if (value == null || value instanceof NullNode) {
+      return value;
+    }
+    return mapper.valueToTree(from.to(to).apply(value.asText()));
   }
 
   /**

@@ -1,0 +1,21 @@
+{
+  "version": "0.2",
+  "structures": [
+    {
+      "@type": "Structure",
+      "name": "Thing",
+      "properties": [
+        {
+          "@type": "Type", "core": "STRING", "name": "value",
+          "ext": {
+            "migration": {
+              "stages": [
+                {"@type": "case", "from": "LOWER_WORDS", "to": "UPPER_SNAKE"}
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

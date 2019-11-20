@@ -1,3 +1,4 @@
+
 migrate
 =======
 
@@ -174,6 +175,25 @@ Hopefully it is obvious why the order of operations is important:
    them.
 2. Migrations down-tree are executed before value migrations at the top level.
 3. Deletes, from leaf nodes in are executed.
+
+State Types
+-----------
+
+1. jsonp - has ``"steps":[]`` with Jayway JSON-Path queries starting from ``"start": "[ROOT|LOCAL|CURRENT]"``
+1. regex - has ``"search"`` and ``"replace"`` based the Java Regular expression replacement.
+1. map - has ``"values"`` where each is in the format ``{"from": any, "to": any}`` that maps from one literal json 
+   value to another
+1. literal - has ``"value": somevalue``
+1. rename - has ``"from": "aPropertyName", "to":"otherPropertyName"`` which renames a field on the CHILD properties of
+   a node.
+1. case - has ``"from": "[a format], "to":"[a format]"`` converts from one casing format to another where casing formats
+   are one of:
+   1. LOWER_WORDS Whitespace separated words starting with all lowercase characters.
+   1. UPPER_WORDS Whitespace separated words starting with uppercase characters.
+   1. UPPER_CAMEL "CamelCaseWords" where each word starts with an uppercase.
+   1. LOWER_CAME  "camelCaseWords" where each word after the first starts with an uppercase.
+   1. LOWER_SNAKE "snake_case_words" where each word is lowercase and separated by an underscore.
+   1. UPPER_SNAKE "SNAKE_CASE_WORDS" where each word is uppercase and separated by an underscore. 
 
 
 FAQ

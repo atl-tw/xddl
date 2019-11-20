@@ -39,6 +39,7 @@ import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 import javax.lang.model.element.Modifier;
 import net.kebernet.xddl.Loader;
+import net.kebernet.xddl.migrate.format.CaseFormat;
 import net.kebernet.xddl.model.BaseType;
 import net.kebernet.xddl.model.List;
 import net.kebernet.xddl.model.PatchDelete;
@@ -49,7 +50,7 @@ import net.kebernet.xddl.plugins.Context;
 public class StructureMigration {
   private static final String LOCAL = "local";
   private static final String ROOT = "root";
-  public static final String CURRENT = "current";
+  private static final String CURRENT = "current";
   private final Context ctx;
   private final Structure structure;
   private final String packageName;
@@ -233,6 +234,7 @@ public class StructureMigration {
               .addModifiers(Modifier.PUBLIC)
               .addParameter(ParameterSpec.builder(ObjectNode.class, ROOT).build())
               .addParameter(ParameterSpec.builder(JsonNode.class, LOCAL).build());
+      groupMethod.addStatement("String fieldName = $S", type.getName());
       groupMethod.addStatement(
           "$T current = local.has($S) ? local.get($S) : null",
           JsonNode.class,
@@ -244,7 +246,7 @@ public class StructureMigration {
       AtomicInteger index = new AtomicInteger(0);
       migration.getStages().forEach(s -> s.setIndex(index.getAndIncrement()));
       migration.getStages().forEach(s -> writeCodeBlock(type, s, groupMethod));
-      groupMethod.addStatement("(($T) local).set($S, current)", ObjectNode.class, type.getName());
+      groupMethod.addStatement("(($T) local).set(fieldName, current)", ObjectNode.class);
 
       typeBuilder.addMethod(groupMethod.build());
       if (apply) applyBuilder.addStatement("migrate_$L(root, local)", type.getName());
@@ -262,7 +264,32 @@ public class StructureMigration {
       writeMapStage(type, (MapStage) stage, groupsBuilder);
     } else if (stage instanceof LiteralStage) {
       writeLiteralStage((LiteralStage) stage, groupsBuilder);
+    } else if (stage instanceof RenameStage) {
+      writeRenameState((RenameStage) stage, groupsBuilder);
+    } else if (stage instanceof CaseStage) {
+      writeCaseStage((CaseStage) stage, groupsBuilder);
     }
+  }
+
+  private void writeCaseStage(CaseStage stage, MethodSpec.Builder groupsBuilder) {
+    groupsBuilder.addStatement(
+        "current = $T.convertCase($T.$L, $T.$L, current)",
+        MigrationVisitor.class,
+        CaseFormat.class,
+        stage.getFrom().name(),
+        CaseFormat.class,
+        stage.getTo().name());
+  }
+
+  private void writeRenameState(RenameStage stage, MethodSpec.Builder groupsBuilder) {
+    groupsBuilder.beginControlFlow("if(current.has($S))", stage.getFrom());
+    groupsBuilder.addStatement(
+        "(($T) current).set($S, current.get($S))",
+        ObjectNode.class,
+        stage.getTo(),
+        stage.getFrom());
+    groupsBuilder.addStatement("(($T) current).remove($S)", ObjectNode.class, stage.getFrom());
+    groupsBuilder.endControlFlow();
   }
 
   private void writeLiteralStage(LiteralStage stage, MethodSpec.Builder groupsBuilder) {

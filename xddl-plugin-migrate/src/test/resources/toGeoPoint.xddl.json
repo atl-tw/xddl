@@ -1,0 +1,45 @@
+{
+  "version": "0.2",
+  "structures": [
+    {
+      "@type": "Structure",
+      "name": "Address",
+      "properties": [
+        {"@type":"PATCH_DELETE", "name":"latitude"},
+        {"@type":"PATCH_DELETE", "name": "longitude"},
+        {"@type": "Reference", "ref": "GeoPoint",  "name": "location",
+          "ext": {
+            "migration": {
+              "stages": [
+                {"@type": "jsonp", "start": "LOCAL",
+                  "steps": [
+                    "$.[\"latitude\", \"longitude\"]"
+                  ]
+                },
+                {"@type": "rename", "from": "latitude", "to": "lat"},
+                {"@type": "rename", "from": "longitude", "to": "lon"}
+              ]
+            }
+          }
+
+        }
+      ]
+    },
+    {
+      "@type": "Structure",
+      "name": "GeoPoint",
+      "properties": [
+        {
+          "@type": "Type",
+          "core": "STRING",
+          "name": "lat"
+        },
+        {
+          "@type": "Type",
+          "core": "STRING",
+          "name": "lon"
+        }
+      ]
+    }
+  ]
+}

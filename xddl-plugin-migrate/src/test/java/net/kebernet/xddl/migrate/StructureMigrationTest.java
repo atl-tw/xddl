@@ -397,4 +397,68 @@ public class StructureMigrationTest {
     assertThat(node.get("list").get(0).asText()).isEqualTo("0.2");
     assertThat(node.get("list").get(1).asText()).isEqualTo("0.2");
   }
+
+  @Test
+  public void testRename()
+      throws IOException, ClassNotFoundException, IllegalAccessException, InstantiationException {
+    File output = new File("build/test-gen/rename");
+    output.mkdirs();
+    Specification spec =
+        Loader.builder()
+            .main(new File("src/test/resources/toGeoPoint.xddl.json"))
+            .scrubPatchesFromBaseline(false)
+            .build()
+            .read();
+    Context ctx = new Context(Loader.mapper(), spec);
+    StructureMigration writer = new StructureMigration(ctx, spec.structures().get(0), null);
+    writer.write(output);
+    writer = new StructureMigration(ctx, spec.structures().get(1), null);
+    writer.write(output);
+
+    String packageName = Resolver.resolvePackageName(ctx);
+    ;
+    ClassLoader loader = new JavaTestCompiler(output).compile();
+    MigrationVisitor visitor =
+        (MigrationVisitor) loader.loadClass(packageName + ".migration.Address").newInstance();
+
+    ObjectNode node =
+        (ObjectNode)
+            new ObjectMapper()
+                .readTree(
+                    StructureMigrationTest.class.getResourceAsStream("/toGeoPoint.sample.json"));
+    visitor.apply(node, node);
+    assertThat(node.has("location")).isTrue();
+    assertThat(node.get("location").get("lat").asText()).isEqualTo("123");
+    assertThat(node.get("location").get("lon").asText()).isEqualTo("234");
+  }
+
+  @Test
+  public void testCase()
+      throws IOException, ClassNotFoundException, IllegalAccessException, InstantiationException {
+    File output = new File("build/test-gen/caseMigration");
+    output.mkdirs();
+    Specification spec =
+        Loader.builder()
+            .main(new File("src/test/resources/caseMigration.xddl.json"))
+            .scrubPatchesFromBaseline(false)
+            .build()
+            .read();
+    Context ctx = new Context(Loader.mapper(), spec);
+    StructureMigration writer = new StructureMigration(ctx, spec.structures().get(0), null);
+    writer.write(output);
+
+    String packageName = Resolver.resolvePackageName(ctx);
+    ;
+    ClassLoader loader = new JavaTestCompiler(output).compile();
+    MigrationVisitor visitor =
+        (MigrationVisitor) loader.loadClass(packageName + ".migration.Thing").newInstance();
+
+    ObjectNode node =
+        (ObjectNode)
+            new ObjectMapper()
+                .readTree(
+                    StructureMigrationTest.class.getResourceAsStream("/caseMigration.sample.json"));
+    visitor.apply(node, node);
+    assertThat(node.get("value").asText()).isEqualTo("THIS_IS_A_TEST");
+  }
 }
