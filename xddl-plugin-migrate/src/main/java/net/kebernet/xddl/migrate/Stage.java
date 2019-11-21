@@ -29,7 +29,8 @@ import lombok.Setter;
   @JsonSubTypes.Type(value = RegexStage.class, name = "regex"),
   @JsonSubTypes.Type(value = LiteralStage.class, name = "literal"),
   @JsonSubTypes.Type(value = RenameStage.class, name = "rename"),
-  @JsonSubTypes.Type(value = CaseStage.class, name = "case")
+  @JsonSubTypes.Type(value = CaseStage.class, name = "case"),
+  @JsonSubTypes.Type(value = TemplateStage.class, name = "template")
 })
 public class Stage {
   private int index;

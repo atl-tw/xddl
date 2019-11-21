@@ -22,6 +22,6 @@ import lombok.Setter;
 @SuppressWarnings("WeakerAccess")
 @Getter
 @Setter
-public class TemplateIntoStage extends Stage {
+public class TemplateStage extends Stage {
   JsonNode insertInto;
 }

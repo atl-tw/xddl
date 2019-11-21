@@ -40,6 +40,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import javax.lang.model.element.Modifier;
 import net.kebernet.xddl.Loader;
 import net.kebernet.xddl.migrate.format.CaseFormat;
+import net.kebernet.xddl.migrate.format.Template;
 import net.kebernet.xddl.model.BaseType;
 import net.kebernet.xddl.model.List;
 import net.kebernet.xddl.model.PatchDelete;
@@ -268,7 +269,17 @@ public class StructureMigration {
       writeRenameState((RenameStage) stage, groupsBuilder);
     } else if (stage instanceof CaseStage) {
       writeCaseStage((CaseStage) stage, groupsBuilder);
+    } else if (stage instanceof TemplateStage) {
+      writeTemplateStage((TemplateStage) stage, groupsBuilder);
     }
+  }
+
+  private void writeTemplateStage(TemplateStage stage, MethodSpec.Builder groupsBuilder) {
+    groupsBuilder.addStatement(
+        "current = new $T(current).insertInto($T.readTree($S))",
+        Template.class,
+        MigrationVisitor.class,
+        stage.getInsertInto().toString());
   }
 
   private void writeCaseStage(CaseStage stage, MethodSpec.Builder groupsBuilder) {

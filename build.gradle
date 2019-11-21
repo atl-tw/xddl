@@ -17,7 +17,7 @@ plugins {
 }
 
 group 'net.kebernet'
-version '0.5.0'
+version '0.5.1'
 
 buildScan {
     termsOfServiceUrl = 'https://gradle.com/terms-of-service'

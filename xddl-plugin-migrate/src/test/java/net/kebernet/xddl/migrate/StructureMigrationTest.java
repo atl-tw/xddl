@@ -461,4 +461,40 @@ public class StructureMigrationTest {
     visitor.apply(node, node);
     assertThat(node.get("value").asText()).isEqualTo("THIS_IS_A_TEST");
   }
+
+  @Test
+  public void testInsertInto()
+      throws IOException, ClassNotFoundException, IllegalAccessException, InstantiationException {
+    File output = new File("build/test-gen/insertInto");
+    output.mkdirs();
+    Specification spec =
+        Loader.builder()
+            .main(new File("src/test/resources/insertInto.xddl.json"))
+            .scrubPatchesFromBaseline(false)
+            .build()
+            .read();
+    Context ctx = new Context(Loader.mapper(), spec);
+    StructureMigration writer = new StructureMigration(ctx, spec.structures().get(0), null);
+    writer.write(output);
+
+    String packageName = Resolver.resolvePackageName(ctx);
+    ;
+    ClassLoader loader = new JavaTestCompiler(output).compile();
+    MigrationVisitor visitor =
+        (MigrationVisitor) loader.loadClass(packageName + ".migration.Thing").newInstance();
+
+    ObjectNode node =
+        (ObjectNode)
+            new ObjectMapper()
+                .readTree(
+                    StructureMigrationTest.class.getResourceAsStream("/insertInto.sample.json"));
+    visitor.apply(node, node);
+    assertThat(node.get("value"))
+        .isEqualTo(
+            MigrationVisitor.mapper.readTree(
+                "{\n"
+                    + "                    \"foo\": \"bar\",\n"
+                    + "                    \"newVal\": \"oldValue\"\n"
+                    + "                  }"));
+  }
 }
