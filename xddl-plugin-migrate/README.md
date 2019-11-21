@@ -11,6 +11,33 @@ instance of one version to an object instance of another version.
 Concepts
 --------
 
+### migration
+
+The migration extension has the following properties:
+1. op - ``REPLACE`` or ``MIXIN`` (default: REPLACE) whether the results of the stages should replace the current
+   value, or be mixed into it. For arrays, if the result of the stages is an array, they will be concatenated, otherwise
+   appended. For objects, the property values of the result of the stages will be set on the original value.
+1. ``defaultMixinValue`` - if the original value of the property is "nullish" (missing or ``null``), then this will
+   be the value the mixins are added to (this is usually like ``{}`` or ``[]``). If you do not provide this value
+   and the current value is nullish, then the mixins will be ignored. If the mixin value is nullish, it will be ignored.
+1. stages -- an array of serial operations to be performed to synthesize a new value. They can be:   
+    1. jsonp - has ``"steps":[]`` with Jayway JSON-Path queries starting from ``"start": "[ROOT|LOCAL|CURRENT]"``
+    1. regex - has ``"search"`` and ``"replace"`` based the Java Regular expression replacement.
+    1. map - has ``"values"`` where each is in the format ``{"from": any, "to": any}`` that maps from one literal json 
+       value to another. Any value that doesn't match a ``from`` value will be passed through unmodified.
+    1. literal - has ``"value": somevalue``
+    1. rename - has ``"from": "aPropertyName", "to":"otherPropertyName"`` which renames a field on the CHILD properties 
+      of the current working value.
+    1. case - has ``"from": "[a format], "to":"[a format]"`` converts from one casing format to another where casing formats
+       are one of:
+       1. ``LOWER_WORDS`` "whitespace separated words" starting with all lowercase characters.
+       1. ``UPPER_WORDS`` "Whitespace Separated Words" starting with uppercase characters.
+       1. ``UPPER_CAMEL`` "CamelCaseWords" where each word starts with an uppercase.
+       1. ``LOWER_CAMEL`` "camelCaseWords" where each word after the first starts with an uppercase.
+       1. ``LOWER_SNAKE`` "snake_case_words" where each word is lowercase and separated by an underscore.
+       1. ``UPPER_SNAKE`` "SNAKE_CASE_WORDS" where each word is uppercase and separated by an underscore. 
+
+
 ### Patch Files
 
 xDDL supports expressing "patch operations" as part of a specification. These are meant
@@ -21,8 +48,8 @@ guide this process.
 Migration operates on Jackson JsonNode objects, and performs steps in a particular order
 that is important to understand:
 
-1. Apply migrations on child objects
 1. Apply migrations on current objects
+1. Apply migrations on child objects
 1. Delete deleted fields.
 
 Let's imagine you have a xDDL specification for Structure called "Name" and 
@@ -76,13 +103,7 @@ fields for your "2.0" spec. Lets look at an example:
           "ext": {
             "migration": {
               "stages": [
-                {
-                  "@type": "jsonp",
-                  "start": "LOCAL",
-                  "steps": [
-                    "$.value"
-                  ]
-                },
+                {"@type": "jsonp", "start": "LOCAL", "steps": ["$.value"]},
                 { "@type": "regex", 
                   "search": "^.*, (.*)$","replace": "$1" } //<-- Select the first name as group 1 and replace
               ]
@@ -175,25 +196,6 @@ Hopefully it is obvious why the order of operations is important:
    them.
 2. Migrations down-tree are executed before value migrations at the top level.
 3. Deletes, from leaf nodes in are executed.
-
-State Types
------------
-
-1. jsonp - has ``"steps":[]`` with Jayway JSON-Path queries starting from ``"start": "[ROOT|LOCAL|CURRENT]"``
-1. regex - has ``"search"`` and ``"replace"`` based the Java Regular expression replacement.
-1. map - has ``"values"`` where each is in the format ``{"from": any, "to": any}`` that maps from one literal json 
-   value to another
-1. literal - has ``"value": somevalue``
-1. rename - has ``"from": "aPropertyName", "to":"otherPropertyName"`` which renames a field on the CHILD properties of
-   a node.
-1. case - has ``"from": "[a format], "to":"[a format]"`` converts from one casing format to another where casing formats
-   are one of:
-   1. LOWER_WORDS Whitespace separated words starting with all lowercase characters.
-   1. UPPER_WORDS Whitespace separated words starting with uppercase characters.
-   1. UPPER_CAMEL "CamelCaseWords" where each word starts with an uppercase.
-   1. LOWER_CAME  "camelCaseWords" where each word after the first starts with an uppercase.
-   1. LOWER_SNAKE "snake_case_words" where each word is lowercase and separated by an underscore.
-   1. UPPER_SNAKE "SNAKE_CASE_WORDS" where each word is uppercase and separated by an underscore. 
 
 
 FAQ

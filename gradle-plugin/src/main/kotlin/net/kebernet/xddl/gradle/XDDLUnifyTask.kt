@@ -20,6 +20,7 @@ import net.kebernet.xddl.unify.UnifyRunner
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFile
+import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
@@ -35,7 +36,7 @@ open class XDDLUnifyTask : DefaultTask() {
             else
                 Collections.emptyList()
     @Optional
-    @InputFile
+    @InputFiles
     lateinit var patchDirectory: File
 
     @InputFile
@@ -61,6 +62,7 @@ open class XDDLUnifyTask : DefaultTask() {
                                 .outputFile(outputFile)
                                 .newVersion(newVersion)
                                 .evaluateOgnl(true)
+                                .scrubPatch(true)
                                 .build()
                 )
                 .build()

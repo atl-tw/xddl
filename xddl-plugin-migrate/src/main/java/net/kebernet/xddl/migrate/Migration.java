@@ -15,6 +15,7 @@
  */
 package net.kebernet.xddl.migrate;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.Getter;
@@ -23,5 +24,12 @@ import lombok.Setter;
 @Getter
 @Setter
 public class Migration {
-  List<Stage> stages = new ArrayList<>();
+  private Operation op = Operation.REPLACE;
+  private JsonNode defaultMixinValue;
+  private List<Stage> stages = new ArrayList<>();
+
+  public enum Operation {
+    REPLACE,
+    MIXIN
+  }
 }

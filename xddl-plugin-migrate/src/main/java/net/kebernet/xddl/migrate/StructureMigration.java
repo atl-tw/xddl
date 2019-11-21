@@ -40,6 +40,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import javax.lang.model.element.Modifier;
 import net.kebernet.xddl.Loader;
 import net.kebernet.xddl.migrate.format.CaseFormat;
+import net.kebernet.xddl.migrate.format.Mixin;
 import net.kebernet.xddl.migrate.format.Template;
 import net.kebernet.xddl.model.BaseType;
 import net.kebernet.xddl.model.List;
@@ -228,7 +229,15 @@ public class StructureMigration {
   }
 
   private void doMigrationSteps(BaseType type, boolean apply) {
-    if (!type.ext().containsKey("migration")) return;
+    if (!type.ext().containsKey("migration")) {
+      typeBuilder.addMethod(
+          MethodSpec.methodBuilder("migrate_" + type.getName())
+              .addModifiers(Modifier.PUBLIC)
+              .addParameter(ParameterSpec.builder(ObjectNode.class, ROOT).build())
+              .addParameter(ParameterSpec.builder(JsonNode.class, LOCAL).build())
+              .build());
+      return;
+    }
     try {
       MethodSpec.Builder groupMethod =
           MethodSpec.methodBuilder("migrate_" + type.getName())
@@ -244,9 +253,31 @@ public class StructureMigration {
 
       Migration migration =
           Loader.mapper().treeToValue((JsonNode) type.ext().get("migration"), Migration.class);
+      if (migration.getOp() == Migration.Operation.MIXIN) {
+        groupMethod.addStatement(
+            "$T original = $T.readTree(current.toString())",
+            JsonNode.class,
+            MigrationVisitor.class);
+        if (migration.getDefaultMixinValue() != null
+            && !(migration.getDefaultMixinValue() instanceof NullNode)) {
+          groupMethod
+              .beginControlFlow("if($T.nullish(original))", MigrationVisitor.class)
+              .addStatement(
+                  "original = $T.readTree($S)",
+                  MigrationVisitor.class,
+                  migration.getDefaultMixinValue().toString())
+              .endControlFlow();
+        }
+      }
       AtomicInteger index = new AtomicInteger(0);
       migration.getStages().forEach(s -> s.setIndex(index.getAndIncrement()));
       migration.getStages().forEach(s -> writeCodeBlock(type, s, groupMethod));
+
+      if (migration.getOp() == Migration.Operation.MIXIN) {
+        groupMethod
+            .addStatement("$T.mix(original, current)", Mixin.class)
+            .addStatement("current = original");
+      }
       groupMethod.addStatement("(($T) local).set(fieldName, current)", ObjectNode.class);
 
       typeBuilder.addMethod(groupMethod.build());
@@ -347,7 +378,8 @@ public class StructureMigration {
 
     groupsBuilder
         .beginControlFlow("if(current != null)")
-        .addStatement("current = $L.get(current)", mapName)
+        .addStatement(
+            "current = $L.containsKey(current) ? $L.get(current) : current", mapName, mapName)
         .endControlFlow();
   }
 

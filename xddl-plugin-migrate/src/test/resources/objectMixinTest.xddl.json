@@ -1,0 +1,31 @@
+{
+  "version": "0.2",
+  "structures": [
+    {
+      "@type": "Structure",
+      "name": "Foo",
+      "properties": [
+        {"@type": "Type", "core": "STRING", "name": "foo" },
+        {"@type": "Type", "core": "STRING", "name": "bar" },
+        {
+          "@type": "Structure",
+          "name": "mixed",
+          "properties": [{
+            "@type": "Type",
+            "core": "STRING",
+            "name": "value"
+          }],
+          "ext": {
+            "migration": {
+              "op": "MIXIN",
+              "defaultMixinValue": {},
+              "stages": [
+                {"@type": "jsonp", "start": "LOCAL", "steps":["$.[\"foo\", \"bar\"]"]}
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

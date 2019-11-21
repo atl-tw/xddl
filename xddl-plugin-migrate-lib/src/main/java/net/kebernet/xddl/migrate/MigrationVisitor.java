@@ -41,6 +41,10 @@ public interface MigrationVisitor {
 
   ConcurrentHashMap<String, Pattern> PATTERN_CACHE = new ConcurrentHashMap<>();
 
+  static boolean nullish(JsonNode node) {
+    return node == null || node instanceof NullNode;
+  }
+
   static JsonNode readTree(String s) {
     try {
       return mapper.readTree(s);
@@ -50,7 +54,7 @@ public interface MigrationVisitor {
   }
 
   static JsonNode convertCase(CaseFormat from, CaseFormat to, JsonNode value) {
-    if (value == null || value instanceof NullNode) {
+    if (nullish(value)) {
       return value;
     }
     return mapper.valueToTree(from.to(to).apply(value.asText()));

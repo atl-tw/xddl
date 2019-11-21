@@ -1,0 +1,8 @@
+{
+  "foo": "fooValue",
+  "bar": "barValue",
+  "mixed": {
+    "foo": "fooChild",
+    "quux": "quuxValue"
+  }
+}

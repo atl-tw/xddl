@@ -36,6 +36,7 @@ import net.kebernet.xddl.model.Specification;
 import net.kebernet.xddl.plugins.Context;
 import org.junit.Test;
 
+@SuppressWarnings("ResultOfMethodCallIgnored")
 public class StructureMigrationTest {
 
   @Test
@@ -54,7 +55,7 @@ public class StructureMigrationTest {
     writer.write(output);
 
     String packageName = Resolver.resolvePackageName(ctx);
-    ;
+
     ClassLoader loader = new JavaTestCompiler(output).compile();
     MigrationVisitor visitor =
         (MigrationVisitor) loader.loadClass(packageName + ".migration.Foo").newInstance();
@@ -98,7 +99,7 @@ public class StructureMigrationTest {
     writer.write(output);
 
     String packageName = Resolver.resolvePackageName(ctx);
-    ;
+
     ClassLoader loader = new JavaTestCompiler(output).compile();
     MigrationVisitor visitor =
         (MigrationVisitor) loader.loadClass(packageName + ".migration.Foo").newInstance();
@@ -128,7 +129,7 @@ public class StructureMigrationTest {
     writer.write(output);
 
     String packageName = Resolver.resolvePackageName(ctx);
-    ;
+
     ClassLoader loader = new JavaTestCompiler(output).compile();
     MigrationVisitor visitor =
         (MigrationVisitor) loader.loadClass(packageName + ".migration.Name").newInstance();
@@ -156,7 +157,7 @@ public class StructureMigrationTest {
     writer.write(output);
 
     String packageName = Resolver.resolvePackageName(ctx);
-    ;
+
     ClassLoader loader = new JavaTestCompiler(output).compile();
     MigrationVisitor visitor =
         (MigrationVisitor) loader.loadClass(packageName + ".migration.Foo").newInstance();
@@ -190,7 +191,7 @@ public class StructureMigrationTest {
     writer.write(output);
 
     String packageName = Resolver.resolvePackageName(ctx);
-    ;
+
     ClassLoader loader = new JavaTestCompiler(output).compile();
     MigrationVisitor visitor =
         (MigrationVisitor) loader.loadClass(packageName + ".migration.Foo").newInstance();
@@ -224,7 +225,7 @@ public class StructureMigrationTest {
     writer.write(output);
 
     String packageName = Resolver.resolvePackageName(ctx);
-    ;
+
     ClassLoader loader = new JavaTestCompiler(output).compile();
     MigrationVisitor visitor =
         (MigrationVisitor) loader.loadClass(packageName + ".migration.Foo").newInstance();
@@ -259,7 +260,7 @@ public class StructureMigrationTest {
     writer.write(output);
 
     String packageName = Resolver.resolvePackageName(ctx);
-    ;
+
     ClassLoader loader = new JavaTestCompiler(output).compile();
     MigrationVisitor visitor =
         (MigrationVisitor) loader.loadClass(packageName + ".migration.Foo").newInstance();
@@ -292,7 +293,7 @@ public class StructureMigrationTest {
     writer.write(output);
 
     String packageName = Resolver.resolvePackageName(ctx);
-    ;
+
     ClassLoader loader = new JavaTestCompiler(output).compile();
     MigrationVisitor visitor =
         (MigrationVisitor) loader.loadClass(packageName + ".migration.Foo").newInstance();
@@ -325,7 +326,7 @@ public class StructureMigrationTest {
     writer.write(output);
 
     String packageName = Resolver.resolvePackageName(ctx);
-    ;
+
     ClassLoader loader = new JavaTestCompiler(output).compile();
     MigrationVisitor visitor =
         (MigrationVisitor) loader.loadClass(packageName + ".migration.Foo").newInstance();
@@ -353,7 +354,7 @@ public class StructureMigrationTest {
     writer.write(output);
 
     String packageName = Resolver.resolvePackageName(ctx);
-    ;
+
     ClassLoader loader = new JavaTestCompiler(output).compile();
     MigrationVisitor visitor =
         (MigrationVisitor) loader.loadClass(packageName + ".migration.Foo").newInstance();
@@ -383,7 +384,7 @@ public class StructureMigrationTest {
     writer.write(output);
 
     String packageName = Resolver.resolvePackageName(ctx);
-    ;
+
     ClassLoader loader = new JavaTestCompiler(output).compile();
     MigrationVisitor visitor =
         (MigrationVisitor) loader.loadClass(packageName + ".migration.Foo").newInstance();
@@ -416,7 +417,7 @@ public class StructureMigrationTest {
     writer.write(output);
 
     String packageName = Resolver.resolvePackageName(ctx);
-    ;
+
     ClassLoader loader = new JavaTestCompiler(output).compile();
     MigrationVisitor visitor =
         (MigrationVisitor) loader.loadClass(packageName + ".migration.Address").newInstance();
@@ -448,7 +449,7 @@ public class StructureMigrationTest {
     writer.write(output);
 
     String packageName = Resolver.resolvePackageName(ctx);
-    ;
+
     ClassLoader loader = new JavaTestCompiler(output).compile();
     MigrationVisitor visitor =
         (MigrationVisitor) loader.loadClass(packageName + ".migration.Thing").newInstance();
@@ -478,7 +479,7 @@ public class StructureMigrationTest {
     writer.write(output);
 
     String packageName = Resolver.resolvePackageName(ctx);
-    ;
+
     ClassLoader loader = new JavaTestCompiler(output).compile();
     MigrationVisitor visitor =
         (MigrationVisitor) loader.loadClass(packageName + ".migration.Thing").newInstance();
@@ -496,5 +497,79 @@ public class StructureMigrationTest {
                     + "                    \"foo\": \"bar\",\n"
                     + "                    \"newVal\": \"oldValue\"\n"
                     + "                  }"));
+  }
+
+  @Test
+  public void testListMixin() throws Exception {
+    File output = new File("build/test-gen/listMixinTest");
+    output.mkdirs();
+    Specification spec =
+        Loader.builder()
+            .main(new File("src/test/resources/listMixinTest.xddl.json"))
+            .scrubPatchesFromBaseline(false)
+            .build()
+            .read();
+    Context ctx = new Context(Loader.mapper(), spec);
+    StructureMigration writer = new StructureMigration(ctx, spec.structures().get(0), null);
+    writer.write(output);
+
+    String packageName = Resolver.resolvePackageName(ctx);
+
+    ClassLoader loader = new JavaTestCompiler(output).compile();
+    MigrationVisitor visitor =
+        (MigrationVisitor) loader.loadClass(packageName + ".migration.Foo").newInstance();
+    ObjectNode node =
+        (ObjectNode)
+            Loader.mapper()
+                .readTree(
+                    StructureMigrationTest.class.getResourceAsStream("/listMixinTest.sample.json"));
+    visitor.apply(node, node);
+    assertThat(node.get("list"))
+        .isEqualTo(MigrationVisitor.readTree("[\"first\", \"second\", \"third\", \"mixedIn\"]"));
+
+    node =
+        (ObjectNode)
+            Loader.mapper()
+                .readTree(
+                    StructureMigrationTest.class.getResourceAsStream(
+                        "/listMixinTestDefault.sample.json"));
+    visitor.apply(node, node);
+    assertThat(node.get("list")).isEqualTo(MigrationVisitor.readTree("[\"mixedIn\"]"));
+  }
+
+  @Test
+  public void testObjectMixin() throws Exception {
+    File output = new File("build/test-gen/objectMixinTest");
+    output.mkdirs();
+    Specification spec =
+        Loader.builder()
+            .main(new File("src/test/resources/objectMixinTest.xddl.json"))
+            .scrubPatchesFromBaseline(false)
+            .build()
+            .read();
+    Context ctx = new Context(Loader.mapper(), spec);
+    StructureMigration writer = new StructureMigration(ctx, spec.structures().get(0), null);
+    writer.write(output);
+
+    String packageName = Resolver.resolvePackageName(ctx);
+
+    ClassLoader loader = new JavaTestCompiler(output).compile();
+    MigrationVisitor visitor =
+        (MigrationVisitor) loader.loadClass(packageName + ".migration.Foo").newInstance();
+    ObjectNode node =
+        (ObjectNode)
+            Loader.mapper()
+                .readTree(
+                    StructureMigrationTest.class.getResourceAsStream(
+                        "/objectMixinTest.sample.json"));
+    visitor.apply(node, node);
+    assertThat(node.get("mixed"))
+        .isEqualTo(
+            MigrationVisitor.readTree(
+                "{"
+                    + " \"foo\": \"fooValue\",\n"
+                    + "  \"bar\": \"barValue\","
+                    + "\"quux\": \"quuxValue\""
+                    + "}"));
   }
 }
