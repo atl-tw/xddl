@@ -72,6 +72,7 @@ public class Patcher {
         neverNull(original.getProperties()).stream()
             .filter(Objects::nonNull)
             .collect(Collectors.toMap(BaseType::getName, b -> b));
+    original.ext().putAll(patch.ext());
     patch
         .getProperties()
         .forEach(

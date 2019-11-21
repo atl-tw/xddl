@@ -3,6 +3,9 @@
     {
       "@type": "Structure",
       "name": "Parent",
+      "ext": {
+        "foo": "bar"
+      },
       "properties": [
         {
           "@type": "Type",

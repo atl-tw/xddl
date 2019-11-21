@@ -17,6 +17,7 @@ package net.kebernet.xddl;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.File;
 import java.io.IOException;
 import java.util.stream.Collectors;
@@ -68,5 +69,7 @@ public class PatcherTest {
                 .map(BaseType::getName)
                 .collect(Collectors.toSet()))
         .containsExactly("property2", "property4");
+    assertThat(patched.structures().get(0).ext().get("foo"))
+        .isEqualTo(new ObjectMapper().valueToTree("bar"));
   }
 }
