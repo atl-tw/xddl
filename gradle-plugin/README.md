@@ -146,6 +146,8 @@ For our sample project, we will end up with three unified files in the ``build/g
         * v1_0_1 <- Package containing the 1.0.1 version classes
         * v1_0_2 <- Package containing the 1.0.2 version classes
         
+For more about patches, see the [migrate-plugin](../xddl-plugin-migrate/README.md)
+        
  ##### Configuration Parameters
  
  XDDLGlide has the following:

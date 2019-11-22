@@ -45,7 +45,7 @@ Please see the [Getting Started Guide](./doc/Getting_Started.md).
 Gradle
 ------
 
-Please see the [Gradle Plugin](./gradle-plugin)
+Please see the [Gradle Plugin](./gradle-plugin) or at [plugins.gradle.com](https://plugins.gradle.org/plugin/net.kebernet.xddl)
 
      
 Simple Example
