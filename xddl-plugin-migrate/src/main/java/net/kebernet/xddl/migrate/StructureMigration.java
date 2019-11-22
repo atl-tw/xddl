@@ -255,8 +255,9 @@ public class StructureMigration {
           Loader.mapper().treeToValue((JsonNode) type.ext().get("migration"), Migration.class);
       if (migration.getOp() == Migration.Operation.MIXIN) {
         groupMethod.addStatement(
-            "$T original = $T.readTree(current.toString())",
+            "$T original = $T.nullish(current) ? current : $T.readTree(current.toString())",
             JsonNode.class,
+            MigrationVisitor.class,
             MigrationVisitor.class);
         if (migration.getDefaultMixinValue() != null
             && !(migration.getDefaultMixinValue() instanceof NullNode)) {
