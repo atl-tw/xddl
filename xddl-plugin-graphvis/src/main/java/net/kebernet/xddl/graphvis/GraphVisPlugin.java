@@ -107,11 +107,12 @@ public class GraphVisPlugin implements Plugin {
                         : p)
             .filter(p -> p instanceof Structure)
             .map(p -> (Structure) p)
-            .peek(
+            .map(
                 p -> {
                   String opts = ofNullable(p.ext().get("_gv_tmp")).map(JsonNode::asText).orElse("");
                   p.ext().remove("_gv_tmp");
                   pw.println(s.getName() + " -> " + p.getName() + " " + opts + ";");
+                  return p;
                 })
             .filter(p -> !visited.contains(p))
             .peek(visited::add)
@@ -126,7 +127,7 @@ public class GraphVisPlugin implements Plugin {
     return outputFile.getAbsolutePath();
   }
 
-  @SuppressWarnings("SameParameterValue")
+  @SuppressWarnings({"SameParameterValue", "unused"})
   private String writeValueAsString(Context context, String s) {
     try {
       return context.getMapper().writeValueAsString(s);

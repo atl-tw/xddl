@@ -88,6 +88,9 @@ public interface MigrationVisitor {
    */
   @SuppressWarnings("unused")
   static JsonNode evaluateRegexReplace(JsonNode node, String search, String replace) {
+    if (nullish(node)) {
+      return node;
+    }
     Pattern pattern = PATTERN_CACHE.get(search);
     if (pattern == null) {
       pattern = Pattern.compile(search);

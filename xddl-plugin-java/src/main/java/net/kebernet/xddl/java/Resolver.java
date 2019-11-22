@@ -93,6 +93,7 @@ public abstract class Resolver {
             .orElse("");
   }
 
+  @SuppressWarnings("unused")
   public TypeName resolve(Context context, BaseType type) {
     if (type instanceof Type) {
       return resolveType(context, (Type) type);

@@ -123,6 +123,7 @@ public class EnumClass implements Writable {
     file.writeTo(directory);
   }
 
+  @SuppressWarnings("RegExpRedundantEscape")
   private static String makeJavaNameFriendly(String value) {
     value = value.replaceAll("[-\\+ ]", "_");
     char c = value.charAt(0);

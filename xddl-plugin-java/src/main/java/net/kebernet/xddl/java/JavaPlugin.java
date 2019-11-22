@@ -30,7 +30,7 @@ public class JavaPlugin implements Plugin {
   }
 
   @Override
-  public String generateArtifacts(Context context, File outputDirectory) throws IOException {
+  public String generateArtifacts(Context context, File outputDirectory) {
     Stream<EnumClass> enums =
         context.getSpecification().types().stream()
             .filter(t -> !isNullOrEmpty(t.getAllowable()))

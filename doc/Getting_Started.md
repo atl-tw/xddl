@@ -256,6 +256,7 @@ The core plugins are:
    document structure.
  * ``java``: To generate a set of Java classes suitable for mapping to your specification.
  * ``hive``: Generates table specs for Apache Hive/Amazon Athena
+ * ``migrate``: Generates a class to migrate data from one version of the spec to another.
  
 Best Practices
 -------------- 

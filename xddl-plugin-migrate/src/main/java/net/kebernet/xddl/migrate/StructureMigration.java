@@ -385,14 +385,11 @@ public class StructureMigration {
   }
 
   private void writeRegExStage(RegexStage stage, MethodSpec.Builder groupsBuilder) {
-    groupsBuilder
-        .beginControlFlow("if(current != null)")
-        .addStatement(
-            "current = $T.evaluateRegexReplace(current, $S, $S)",
-            MigrationVisitor.class,
-            escapeSlashes(stage.getSearch()),
-            stage.getReplace())
-        .endControlFlow();
+    groupsBuilder.addStatement(
+        "current = $T.evaluateRegexReplace(current, $S, $S)",
+        MigrationVisitor.class,
+        escapeSlashes(stage.getSearch()),
+        stage.getReplace());
   }
 
   private String escapeSlashes(String search) {

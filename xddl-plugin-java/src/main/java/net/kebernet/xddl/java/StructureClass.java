@@ -141,11 +141,9 @@ public class StructureClass implements Writable {
   private void generateEquals(java.util.List<Pair<BaseType, FieldSpec>> allProperties) {
     StringBuilder codeBlock = new StringBuilder("return \n");
     for (Pair<BaseType, FieldSpec> p : allProperties) {
-      codeBlock = codeBlock.append("   java.util.Objects.equals(");
-      codeBlock = wrapReference(codeBlock, p, "this");
-      codeBlock = codeBlock.append(",");
-      codeBlock = wrapReference(codeBlock, p, "that");
-      codeBlock = codeBlock.append(") && \n   ");
+      codeBlock.append("   java.util.Objects.equals(");
+      wrapReference(codeBlock, p, "this").append(",");
+      wrapReference(codeBlock, p, "that").append(") && \n   ");
     }
     codeBlock.append("   true");
 
@@ -165,8 +163,7 @@ public class StructureClass implements Writable {
   private void generateHashCode(java.util.List<Pair<BaseType, FieldSpec>> allProperties) {
     StringBuilder codeBlock = new StringBuilder("return   java.util.Objects.hash(\n   ");
     for (Pair<BaseType, FieldSpec> p : allProperties) {
-      codeBlock = wrapReference(codeBlock, p, "this");
-      codeBlock = codeBlock.append(",\n   ");
+      wrapReference(codeBlock, p, "this").append(",\n   ");
     }
     codeBlock.append(" 0)");
 
@@ -183,14 +180,18 @@ public class StructureClass implements Writable {
       StringBuilder codeBlock, Pair<BaseType, FieldSpec> p, String reference) {
     String wrapper = null;
     if (p.left instanceof List && !NONE.equals(wrapper = resolveListEqualityType((List) p.left))) {
-      codeBlock =
-          codeBlock.append(reference).append(".").append(p.right.name).append(" == null ? null : ");
-      codeBlock = codeBlock.append(" new ").append(wrapper).append("<>(");
+      codeBlock
+          .append(reference)
+          .append(".")
+          .append(p.right.name)
+          .append(" == null ? null : ")
+          .append(" new ")
+          .append(wrapper)
+          .append("<>(");
     }
-    codeBlock = codeBlock.append(reference).append(".");
-    codeBlock = codeBlock.append(p.right.name);
+    codeBlock.append(reference).append(".").append(p.right.name);
     if (p.left instanceof List && !NONE.equals(wrapper)) {
-      codeBlock = codeBlock.append(")");
+      codeBlock.append(")");
     }
     return codeBlock;
   }
