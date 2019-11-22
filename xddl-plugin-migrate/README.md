@@ -20,15 +20,15 @@ The migration extension has the following properties:
 1. ``defaultMixinValue`` - if the original value of the property is "nullish" (missing or ``null``), then this will
    be the value the mixins are added to (this is usually like ``{}`` or ``[]``). If you do not provide this value
    and the current value is nullish, then the mixins will be ignored. If the mixin value is nullish, it will be ignored.
-1. stages -- an array of serial operations to be performed to synthesize a new value. They can be:   
-    1. jsonp - has ``"steps":[]`` with Jayway JSON-Path queries starting from ``"start": "[ROOT|LOCAL|CURRENT]"``
-    1. regex - has ``"search"`` and ``"replace"`` based the Java Regular expression replacement.
-    1. map - has ``"values"`` where each is in the format ``{"from": any, "to": any}`` that maps from one literal json 
+1. ``stages`` -- an array of serial operations to be performed to synthesize a new value. They can be:   
+    1. *jsonp* - has ``"steps":[]`` with Jayway JSON-Path queries starting from ``"start": "[ROOT|LOCAL|CURRENT]"``
+    1. *regex* - has ``"search"`` and ``"replace"`` based the Java Regular expression replacement.
+    1. *map* - has ``"values"`` where each is in the format ``{"from": any, "to": any}`` that maps from one literal json 
        value to another. Any value that doesn't match a ``from`` value will be passed through unmodified.
-    1. literal - has ``"value": somevalue``
-    1. rename - has ``"from": "aPropertyName", "to":"otherPropertyName"`` which renames a field on the CHILD properties 
+    1. *literal* - has ``"value": somevalue``
+    1. *rename* - has ``"from": "aPropertyName", "to":"otherPropertyName"`` which renames a field on the CHILD properties 
       of the current working value.
-    1. case - has ``"from": "[a format], "to":"[a format]"`` converts from one casing format to another where casing formats
+    1. *case* - has ``"from": "[a format], "to":"[a format]"`` converts from one casing format to another where casing formats
        are one of:
        1. ``LOWER_WORDS`` "whitespace separated words" starting with all lowercase characters.
        1. ``UPPER_WORDS`` "Whitespace Separated Words" starting with uppercase characters.
@@ -36,6 +36,9 @@ The migration extension has the following properties:
        1. ``LOWER_CAMEL`` "camelCaseWords" where each word after the first starts with an uppercase.
        1. ``LOWER_SNAKE`` "snake_case_words" where each word is lowercase and separated by an underscore.
        1. ``UPPER_SNAKE`` "SNAKE_CASE_WORDS" where each word is uppercase and separated by an underscore. 
+       
+   1. template - has ``insertInto`` which is a graph that contains an empty object reference somewhere that where the 
+      current value will be injected into the tree.
 
 
 ### Patch Files
