@@ -2,16 +2,8 @@
   "@type": "Structure",
   "name": "Name",
   "properties": [
-    {
-      "@type": "Type",
-      "core": "STRING",
-      "name": "id"
-    },
-    {
-      "@type": "Type",
-      "core": "TEXT",
-      "name": "value"
-    }
+    {"@type": "Type", "core": "STRING", "name": "id"},
+    {"@type": "Type", "core": "TEXT", "name": "value"}
   ],
   "ext": {
     "java": {

@@ -49,17 +49,23 @@ public class OgnlTemplater implements BeanWalker.PropertyVisitor {
                       || Map.class.isAssignableFrom(pd.getPropertyType()))
                   || BaseType.class.isAssignableFrom(pd.getPropertyType())
                   || (pd.getPropertyType() == String.class && pd.getWriteMethod() != null));
-  private final Specification specification;
+  private final Object target;
   private final Map<String, Object> context = new HashMap<>();
 
-  public OgnlTemplater(Specification specification, Map<String, Object> vals) {
-    this.specification = specification;
-    context.put("specification", specification);
+  public OgnlTemplater(Specification target, Map<String, Object> vals) {
+    this.target = target;
+    context.put("specification", target);
     context.put("vals", vals);
   }
 
+  @SuppressWarnings("unused")
+  public OgnlTemplater(Object target, Map<String, Object> context) {
+    this.target = target;
+    this.context.putAll(context);
+  }
+
   public void run() {
-    BeanWalker beanWalker = new BeanWalker(specification, predicate);
+    BeanWalker beanWalker = new BeanWalker(target, predicate);
     beanWalker.apply(this);
   }
 

@@ -2,49 +2,33 @@
   "@type": "Structure",
   "name": "Name",
   "properties": [
+    {"@type": "PATCH_DELETE", "name": "firstName"},
+    {"@type": "PATCH_DELETE", "name": "lastName"},
     {
-      "@type": "PATCH_DELETE",
-      "name": "firstName"
-    },
-    {
-      "@type": "PATCH_DELETE",
-      "name": "lastName"
-    },
-    {
-      "@type": "Type",
-      "core": "STRING",
-      "name": "givenName",
+      "@type": "Type", "core": "STRING", "name": "givenName",
       "ext": {
         "migration": {
-          "stages": [
-            {"@type": "jsonp",  "start": "LOCAL", "steps": ["$.firstName"]}
-          ]
+          "stages": [{"@type": "jsonp", "start": "LOCAL", "steps": ["$.firstName"]}]
         }
       }
     },
     {
-      "@type": "Type",
-      "core": "STRING",
-      "name": "surname",
+      "@type": "Type", "core": "STRING", "name": "surname",
       "ext": {
         "migration": {
-          "stages": [
-            {"@type": "jsonp", "start": "LOCAL", "steps": ["$.lastName"]}
-          ]
+          "stages": [{"@type": "jsonp", "start": "LOCAL", "steps": ["$.lastName"]}]
         }
       }
     },
     {
-      "@type": "List",
-      "name": "titles",
+      "@type": "List", "name": "titles",
       "ext": {
         "java": {
           "type": "java.util.Set"
         }
       },
       "contains": {
-        "@type": "Reference",
-        "ref": "Title"
+        "@type": "Reference", "ref": "Title"
       }
     }
   ]
