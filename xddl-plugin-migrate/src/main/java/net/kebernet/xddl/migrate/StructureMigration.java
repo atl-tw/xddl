@@ -295,6 +295,21 @@ public class StructureMigration {
       writeCaseStage((CaseStage) stage, groupsBuilder);
     } else if (stage instanceof TemplateStage) {
       writeTemplateStage((TemplateStage) stage, groupsBuilder);
+    } else if (stage instanceof JavaStage) {
+      writeJavaStage((JavaStage) stage, groupsBuilder);
+    }
+  }
+
+  private void writeJavaStage(JavaStage stage, MethodSpec.Builder groupsBuilder) {
+    try {
+      Class clazz = Class.forName(stage.getClassName());
+      if (!JavaMigration.class.isAssignableFrom(clazz)) {
+        throw ctx.stateException("Class is not a valid JavaMigration.", stage);
+      }
+      groupsBuilder.addStatement(
+          "current = new $T().migrate(root, local, fieldName, current)", clazz);
+    } catch (ClassNotFoundException e) {
+      throw ctx.stateException("Could not find class from stage", stage);
     }
   }
 

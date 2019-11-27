@@ -572,4 +572,64 @@ public class StructureMigrationTest {
                     + "\"quux\": \"quuxValue\""
                     + "}"));
   }
+
+  @Test
+  public void testJava()
+      throws IOException, ClassNotFoundException, IllegalAccessException, InstantiationException {
+    File output = new File("build/test-gen/javaMigration");
+    output.mkdirs();
+    Specification spec =
+        Loader.builder()
+            .main(new File("src/test/resources/javaMigration.xddl.json"))
+            .scrubPatchesFromBaseline(false)
+            .build()
+            .read();
+    Context ctx = new Context(Loader.mapper(), spec);
+    StructureMigration writer = new StructureMigration(ctx, spec.structures().get(0), null);
+    writer.write(output);
+
+    String packageName = Resolver.resolvePackageName(ctx);
+
+    ClassLoader loader = new JavaTestCompiler(output).compile();
+    MigrationVisitor visitor =
+        (MigrationVisitor) loader.loadClass(packageName + ".migration.Thing").newInstance();
+
+    ObjectNode node =
+        (ObjectNode)
+            new ObjectMapper()
+                .readTree(
+                    StructureMigrationTest.class.getResourceAsStream("/javaMigration.sample.json"));
+    visitor.apply(node, node);
+    assertThat(node.get("value").asText()).isEqualTo("fromJava");
+  }
+
+  @Test(expected = IllegalStateException.class)
+  public void testJavaFail() {
+    File output = new File("build/test-gen/javaFail");
+    output.mkdirs();
+    Specification spec =
+        Loader.builder()
+            .main(new File("src/test/resources/javaMigrationFail.xddl.json"))
+            .scrubPatchesFromBaseline(false)
+            .build()
+            .read();
+    Context ctx = new Context(Loader.mapper(), spec);
+    StructureMigration writer = new StructureMigration(ctx, spec.structures().get(0), null);
+    writer.write(output);
+  }
+
+  @Test(expected = IllegalStateException.class)
+  public void testJavaFail2() {
+    File output = new File("build/test-gen/javaFail");
+    output.mkdirs();
+    Specification spec =
+        Loader.builder()
+            .main(new File("src/test/resources/javaMigrationFail2.xddl.json"))
+            .scrubPatchesFromBaseline(false)
+            .build()
+            .read();
+    Context ctx = new Context(Loader.mapper(), spec);
+    StructureMigration writer = new StructureMigration(ctx, spec.structures().get(0), null);
+    writer.write(output);
+  }
 }

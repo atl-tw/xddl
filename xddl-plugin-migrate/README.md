@@ -8,6 +8,13 @@ Purpose
 This is a plugin that generates Java code that will use Jackson to migrate an object
 instance of one version to an object instance of another version.
 
+Usage
+-----
+
+You can generate classes with the plugin, but you need to be sure to include the
+``net.kebernet.xddl:xddl-plugin-migrate-lib:[version]`` dependency in your project to use the generated classes.
+
+
 Concepts
 --------
 
@@ -19,7 +26,7 @@ The migration extension has the following properties:
    appended. For objects, the property values of the result of the stages will be set on the original value.
 1. ``defaultMixinValue`` - if the original value of the property is "nullish" (missing or ``null``), then this will
    be the value the mixins are added to (this is usually like ``{}`` or ``[]``). If you do not provide this value
-   and the current value is nullish, then the mixins will be ignored. If the mixin value is nullish, it will be ignored.
+   and the current value is nullish, then the mixins will be ignored. If the mixin result value is nullish, it will be ignored.
 1. ``stages`` -- an array of serial operations to be performed to synthesize a new value. They can be:   
     1. *jsonp* - has ``"steps":[]`` with Jayway JSON-Path queries starting from ``"start": "[ROOT|LOCAL|CURRENT]"``
     1. *regex* - has ``"search"`` and ``"replace"`` based the Java Regular expression replacement.
@@ -36,9 +43,13 @@ The migration extension has the following properties:
        1. ``LOWER_CAMEL`` "camelCaseWords" where each word after the first starts with an uppercase.
        1. ``LOWER_SNAKE`` "snake_case_words" where each word is lowercase and separated by an underscore.
        1. ``UPPER_SNAKE`` "SNAKE_CASE_WORDS" where each word is uppercase and separated by an underscore. 
-       
-   1. template - has ``insertInto`` which is a graph that contains an empty object reference somewhere that where the 
+   1. *template* - has ``insertInto`` which is a graph that contains an empty object reference somewhere that where the 
       current value will be injected into the tree.
+   1. *java* - has ``className`` which is a fully-qualified Java class name that implements 
+      ``net.kebernet.xddl.migrate.JavaMigration``. The class needs to be available at plugin-execution time, 
+      and needs to have a default no-args constructor. The ``migrate()`` method should return a new "current"
+      value that will be passed to the subsequent stages. This is intended to be a catch-all for anything you
+      simply cannot 
 
 
 ### Patch Files

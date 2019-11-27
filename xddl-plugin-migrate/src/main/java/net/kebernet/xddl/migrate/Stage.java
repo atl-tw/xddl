@@ -30,7 +30,8 @@ import lombok.Setter;
   @JsonSubTypes.Type(value = LiteralStage.class, name = "literal"),
   @JsonSubTypes.Type(value = RenameStage.class, name = "rename"),
   @JsonSubTypes.Type(value = CaseStage.class, name = "case"),
-  @JsonSubTypes.Type(value = TemplateStage.class, name = "template")
+  @JsonSubTypes.Type(value = TemplateStage.class, name = "template"),
+  @JsonSubTypes.Type(value = JavaStage.class, name = "java")
 })
 public class Stage {
   private int index;
