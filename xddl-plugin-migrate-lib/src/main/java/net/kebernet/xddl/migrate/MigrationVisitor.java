@@ -28,7 +28,6 @@ import com.jayway.jsonpath.spi.json.JacksonJsonNodeJsonProvider;
 import com.jayway.jsonpath.spi.mapper.JacksonMappingProvider;
 import java.io.IOException;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Supplier;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
 import net.kebernet.xddl.migrate.format.CaseFormat;
@@ -86,18 +85,18 @@ public interface MigrationVisitor {
     }
   }
 
-  static void migrateArrayChildren(
-      ObjectNode root, ArrayNode list, Supplier<MigrationVisitor> childSupplier) {
+  @SuppressWarnings("unused")
+  static void migrateArrayChildren(ObjectNode root, ArrayNode list, MigrationVisitor childVisitor) {
     for (int i = 0; i < list.size(); i++) {
       JsonNode indexedValue = list.get(i);
       ObjectNode current = null;
       if (indexedValue instanceof ObjectNode) {
         current = (ObjectNode) indexedValue;
-        childSupplier.get().apply(root, current);
+        childVisitor.apply(root, current);
       } else {
         current = mapper.createObjectNode();
         current.set("_", indexedValue);
-        childSupplier.get().apply(root, current);
+        childVisitor.apply(root, current);
         current.remove("_");
       }
       list.set(i, current);

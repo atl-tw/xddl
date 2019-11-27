@@ -37,7 +37,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Supplier;
 import javax.lang.model.element.Modifier;
 import net.kebernet.xddl.Loader;
 import net.kebernet.xddl.migrate.format.CaseFormat;
@@ -82,6 +81,11 @@ public class StructureMigration {
     structure.getProperties().forEach(this::visitStructureReference);
     structure.getProperties().forEach(this::visitLists);
     structure.getProperties().forEach(this::visitPatchDelete);
+    typeBuilder.addField(
+        FieldSpec.builder(
+                this.className, "INSTANCE", Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL)
+            .initializer("new $T()", className)
+            .build());
   }
 
   private void visitPatchDelete(BaseType baseType) {
@@ -121,7 +125,7 @@ public class StructureMigration {
         }
         visitListNested(resolvedType);
         applyBuilder.addStatement(
-            "$T.migrateArrayChildren(root, $L_list, supplier)",
+            "$T.migrateArrayChildren(root, $L_list, childVisitor)",
             MigrationVisitor.class,
             type.getName());
       } else if (resolvedType.ext().get("migration") != null) {
@@ -174,8 +178,7 @@ public class StructureMigration {
   }
 
   private void writeListNested(ClassName className) {
-    applyBuilder.addStatement(
-        "$T<$T> supplier = $T::new", Supplier.class, MigrationVisitor.class, className);
+    applyBuilder.addStatement("$T childVisitor = $T.INSTANCE", MigrationVisitor.class, className);
   }
 
   private void visitNested(BaseType baseType) {
@@ -198,7 +201,7 @@ public class StructureMigration {
         type.getName(),
         NullNode.class);
     applyBuilder.addStatement(
-        "new $T().apply(root, ($T) local.get($S))", className, ObjectNode.class, type.getName());
+        "$T.INSTANCE.apply(root, ($T) local.get($S))", className, ObjectNode.class, type.getName());
     applyBuilder.endControlFlow();
   }
 
