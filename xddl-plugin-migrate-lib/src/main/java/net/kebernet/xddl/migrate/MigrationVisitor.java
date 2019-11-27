@@ -17,15 +17,18 @@ package net.kebernet.xddl.migrate;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.NullNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.jayway.jsonpath.Configuration;
 import com.jayway.jsonpath.InvalidPathException;
 import com.jayway.jsonpath.JsonPath;
+import com.jayway.jsonpath.PathNotFoundException;
 import com.jayway.jsonpath.spi.json.JacksonJsonNodeJsonProvider;
 import com.jayway.jsonpath.spi.mapper.JacksonMappingProvider;
 import java.io.IOException;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Supplier;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
 import net.kebernet.xddl.migrate.format.CaseFormat;
@@ -68,13 +71,36 @@ public interface MigrationVisitor {
    * @return the node that results.
    */
   static JsonNode evaluateJsonPath(JsonNode node, String expression) {
+    if (nullish(node)) {
+      return node;
+    }
     try {
       return (JsonNode)
           JsonPath.using(JACKSON_JSON_NODE_CONFIGURATION)
               .parse(node)
               .read(JsonPath.compile(expression));
+    } catch (PathNotFoundException e) {
+      return mapper.valueToTree(null);
     } catch (InvalidPathException e) {
       throw new IllegalArgumentException("Unable to parse:(" + expression + ")", e);
+    }
+  }
+
+  static void migrateArrayChildren(
+      ObjectNode root, ArrayNode list, Supplier<MigrationVisitor> childSupplier) {
+    for (int i = 0; i < list.size(); i++) {
+      JsonNode indexedValue = list.get(i);
+      ObjectNode current = null;
+      if (indexedValue instanceof ObjectNode) {
+        current = (ObjectNode) indexedValue;
+        childSupplier.get().apply(root, current);
+      } else {
+        current = mapper.createObjectNode();
+        current.set("_", indexedValue);
+        childSupplier.get().apply(root, current);
+        current.remove("_");
+      }
+      list.set(i, current);
     }
   }
 

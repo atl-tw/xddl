@@ -37,6 +37,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Supplier;
 import javax.lang.model.element.Modifier;
 import net.kebernet.xddl.Loader;
 import net.kebernet.xddl.migrate.format.CaseFormat;
@@ -99,16 +100,6 @@ public class StructureMigration {
       BaseType baseType = list.getContains();
       applyBuilder.beginControlFlow(
           "if(local.has($S) && local.get($S) != null)", type.getName(), type.getName());
-      applyBuilder.addStatement(
-          "$T $L_list = ($T) local.get($S)",
-          ArrayNode.class,
-          type.getName(),
-          ArrayNode.class,
-          type.getName());
-      applyBuilder.beginControlFlow("for(int i=0; i < $L_list.size(); i++)", type.getName());
-      applyBuilder.addStatement(
-          "$T indexedValue =  $L_list.get(i)", JsonNode.class, type.getName());
-      applyBuilder.addStatement("$T current = null", ObjectNode.class);
       BaseType resolvedType = baseType;
       if (baseType instanceof Reference || baseType instanceof Structure) {
         resolvedType =
@@ -117,23 +108,27 @@ public class StructureMigration {
                 : ctx.resolveReference((Reference) baseType)
                     .orElseThrow(() -> ctx.stateException("Unable to resolve reference", baseType));
       }
+      applyBuilder.addStatement(
+          "$T $L_list = ($T) local.get($S)",
+          ArrayNode.class,
+          type.getName(),
+          ArrayNode.class,
+          type.getName());
 
       if (resolvedType instanceof Structure) {
         if (resolvedType.getName() == null) {
           resolvedType.setName(type.getName() + "Type");
         }
-        applyBuilder.addStatement("current = mapper.createObjectNode()");
-        applyBuilder.beginControlFlow("if(!(indexedValue instanceof $T))", ObjectNode.class);
-        applyBuilder.addStatement("current.set(\"_\", indexedValue)");
-        applyBuilder.nextControlFlow("else");
-        applyBuilder.addStatement("current = ($T) indexedValue", ObjectNode.class);
-        applyBuilder.endControlFlow();
         visitListNested(resolvedType);
-        applyBuilder.beginControlFlow("if(!(indexedValue instanceof $T))", ObjectNode.class);
-        applyBuilder.addStatement("current.remove(\"_\")");
-        applyBuilder.endControlFlow();
-        applyBuilder.addStatement("$L_list.set(i, current)", type.getName());
-      } else {
+        applyBuilder.addStatement(
+            "$T.migrateArrayChildren(root, $L_list, supplier)",
+            MigrationVisitor.class,
+            type.getName());
+      } else if (resolvedType.ext().get("migration") != null) {
+        applyBuilder.beginControlFlow("for(int i=0; i < $L_list.size(); i++)", type.getName());
+        applyBuilder.addStatement(
+            "$T indexedValue =  $L_list.get(i)", JsonNode.class, type.getName());
+        applyBuilder.addStatement("$T current = null", ObjectNode.class);
         resolvedType.setName(type.getName() + "_member");
         doMigrationSteps(resolvedType, false);
         applyBuilder.addStatement("current = mapper.createObjectNode()", ObjectNode.class);
@@ -141,9 +136,8 @@ public class StructureMigration {
         applyBuilder.addStatement("migrate_$L(root, current)", resolvedType.getName());
         applyBuilder.addStatement(
             "$L_list.set(i, current.get($S))", type.getName(), resolvedType.getName());
+        applyBuilder.endControlFlow();
       }
-
-      applyBuilder.endControlFlow();
       applyBuilder.endControlFlow();
     }
   }
@@ -180,7 +174,8 @@ public class StructureMigration {
   }
 
   private void writeListNested(ClassName className) {
-    applyBuilder.addStatement("new $T().apply(root, current)", className);
+    applyBuilder.addStatement(
+        "$T<$T> supplier = $T::new", Supplier.class, MigrationVisitor.class, className);
   }
 
   private void visitNested(BaseType baseType) {
@@ -230,12 +225,6 @@ public class StructureMigration {
 
   private void doMigrationSteps(BaseType type, boolean apply) {
     if (!type.ext().containsKey("migration")) {
-      typeBuilder.addMethod(
-          MethodSpec.methodBuilder("migrate_" + type.getName())
-              .addModifiers(Modifier.PUBLIC)
-              .addParameter(ParameterSpec.builder(ObjectNode.class, ROOT).build())
-              .addParameter(ParameterSpec.builder(JsonNode.class, LOCAL).build())
-              .build());
       return;
     }
     try {
