@@ -1,6 +1,8 @@
 dependencies {
     api project(":xddl-core")
     implementation 'com.squareup:javapoet:1.11.1'
+    implementation 'com.github.javaparser:javaparser-symbol-solver-core:3.15.6'
     testImplementation 'org.jooq:joor-java-8:0.9.12'
     testCompile project(":java-testutils")
+    testCompile 'javax.persistence:javax.persistence-api:2.2'
 }

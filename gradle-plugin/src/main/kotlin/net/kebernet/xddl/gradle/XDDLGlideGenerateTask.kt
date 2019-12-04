@@ -52,6 +52,7 @@ open class XDDLGlideGenerateTask : DefaultTask() {
         }
         files.forEach {
             f ->
+            logger.lifecycle("Generating " + plugin + " for " + f.absolutePath)
             GenerateRunner
                     .builder()
                     .vals(vals)

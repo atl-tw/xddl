@@ -22,6 +22,7 @@ import static net.kebernet.xddl.java.Resolver.resolvePackageName;
 import static net.kebernet.xddl.model.ModelUtil.firstOf;
 import static net.kebernet.xddl.model.Utils.*;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.base.CaseFormat;
 import com.squareup.javapoet.ClassName;
@@ -50,11 +51,7 @@ import net.kebernet.xddl.plugins.Context;
 
 public class StructureClass implements Writable {
 
-  private static final String INITIALIZER = "initializer";
-  private static final String EQUALS_HASHCODE_WRAPPER = "equalsHashCodeWrapper";
   private static final String NONE = "none";
-  private static final String COMPARE_TO_INCLUDE_PROPERTIES = "compareToIncludeProperties";
-  private static final String IMPLEMENTS = "implements";
   private static final String[] THIS_THAT = new String[] {"this", "that"};
   private static final String[] THAT_THIS = new String[] {"that", "this"};
   private final Context ctx;
@@ -63,6 +60,7 @@ public class StructureClass implements Writable {
   private final ClassName className;
   private TypeName comparableParameter;
   private LinkedHashSet<String> comparableProperties;
+  private JavaExtension extension;
 
   @SuppressWarnings("WeakerAccess")
   public StructureClass(Context context, Structure structure, ClassName name) {
@@ -197,34 +195,29 @@ public class StructureClass implements Writable {
   }
 
   private String resolveListEqualityType(List left) {
-    return ofNullable(left.ext().get("java"))
-        .filter(node -> node.has(EQUALS_HASHCODE_WRAPPER))
-        .map(node -> node.get(EQUALS_HASHCODE_WRAPPER).asText())
+    return ofNullable(extension)
+        .map(JavaExtension::getEqualsHashCodeWrapper)
         .orElse(ArrayList.class.getCanonicalName());
   }
 
   private void doExtension(JsonNode jsonNode) {
-    if (jsonNode.has(IMPLEMENTS)) {
-      JsonNode impl = jsonNode.get(IMPLEMENTS);
-      for (JsonNode iface : impl) {
-        String text = iface.asText();
-        TypeName name = parse(text, packageName);
-        if (name instanceof ParameterizedTypeName) {
-          ParameterizedTypeName parameterizedTypeName = (ParameterizedTypeName) name;
-          if (parameterizedTypeName.rawType.equals(ClassName.get(Comparable.class))) {
-            this.comparableParameter = parameterizedTypeName.typeArguments.get(0);
-          }
-        }
-        typeBuilder.addSuperinterface(name);
-      }
+    try {
+      this.extension = this.ctx.getMapper().treeToValue(jsonNode, JavaExtension.class);
+    } catch (JsonProcessingException e) {
+      throw ctx.stateException("Couldn't parse Java extension ", jsonNode.toPrettyString());
     }
-    if (jsonNode.has(COMPARE_TO_INCLUDE_PROPERTIES)) {
-      JsonNode compareTo = jsonNode.get(COMPARE_TO_INCLUDE_PROPERTIES);
-      LinkedHashSet<String> include = new LinkedHashSet<>();
-      for (JsonNode propName : compareTo) {
-        include.add(propName.asText());
+    for (String iface : neverNull(extension.getImplementsList())) {
+      TypeName name = parse(iface, packageName);
+      if (name instanceof ParameterizedTypeName) {
+        ParameterizedTypeName parameterizedTypeName = (ParameterizedTypeName) name;
+        if (parameterizedTypeName.rawType.equals(ClassName.get(Comparable.class))) {
+          this.comparableParameter = parameterizedTypeName.typeArguments.get(0);
+        }
       }
-      this.comparableProperties = include;
+      typeBuilder.addSuperinterface(name);
+    }
+    if (!neverNull(extension.getCompareToIncludeProperties()).isEmpty()) {
+      this.comparableProperties = new LinkedHashSet<>(extension.getCompareToIncludeProperties());
     }
   }
 
@@ -320,9 +313,13 @@ public class StructureClass implements Writable {
   }
 
   private Optional<String> readInitializer(BaseType type) {
-    return ofNullable((JsonNode) type.ext().get("java"))
-        .filter(n -> n.has(INITIALIZER))
-        .map(n -> n.get(INITIALIZER).asText());
+    try {
+      JavaExtension java =
+          ctx.getMapper().treeToValue((JsonNode) type.ext().get("java"), JavaExtension.class);
+      return Optional.ofNullable(java).map(JavaExtension::getInitializer);
+    } catch (JsonProcessingException e) {
+      throw ctx.stateException("Couldn't parse", type.ext().get("java"));
+    }
   }
 
   private FieldSpec doReferenceTo(BaseType resolvedType, String referenceName) {

@@ -127,8 +127,7 @@ public abstract class Resolver {
     throw context.stateException("Unable to resolve Java type for ", type);
   }
 
-  @VisibleForTesting
-  static TypeName parse(String name, String defaultPackage) {
+  public static TypeName parse(String name, String defaultPackage) {
     List<TypeName> parameterNames = null;
     Matcher paramMatcher = parameterPattern.matcher(name);
     if (paramMatcher.matches()) {
