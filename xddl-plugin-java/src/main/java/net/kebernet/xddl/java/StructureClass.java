@@ -25,6 +25,8 @@ import static net.kebernet.xddl.model.Utils.*;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.base.CaseFormat;
+import com.google.common.base.Strings;
+import com.squareup.javapoet.AnnotationSpec;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.FieldSpec;
 import com.squareup.javapoet.JavaFile;
@@ -41,6 +43,7 @@ import java.util.LinkedHashSet;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import javax.lang.model.element.Modifier;
+import net.kebernet.xddl.java.annotation.Parser;
 import net.kebernet.xddl.model.BaseType;
 import net.kebernet.xddl.model.List;
 import net.kebernet.xddl.model.PatchDelete;
@@ -71,7 +74,20 @@ public class StructureClass implements Writable {
 
     ifNotNullOrEmpty(structure.getDescription(), d -> typeBuilder.addJavadoc(d));
 
-    context.hasPlugin("java", structure, this::doExtension, (node) -> {});
+    this.extension =
+        context
+            .readPluginAs("java", structure, JavaExtension.class)
+            .map(this::doExtension)
+            .orElse(null);
+
+    if (this.extension != null && !Strings.isNullOrEmpty(this.extension.getAnnotations())) {
+      typeBuilder.addAnnotations(
+          new Parser(ctx)
+              .parse(new ArrayList<>(neverNull(extension.getImports())), extension.getAnnotations())
+                  .stream()
+                  .map(AnnotationSpec.Builder::build)
+                  .collect(Collectors.toList()));
+    }
 
     java.util.List<Pair<BaseType, FieldSpec>> allProperties =
         neverNull(structure.getProperties()).stream()
@@ -195,17 +211,20 @@ public class StructureClass implements Writable {
   }
 
   private String resolveListEqualityType(List left) {
-    return ofNullable(extension)
+    return ofNullable(left.ext().get("java"))
+        .map(
+            n -> {
+              try {
+                return ctx.getMapper().treeToValue(n, JavaExtension.class);
+              } catch (JsonProcessingException e) {
+                throw new RuntimeException(e);
+              }
+            })
         .map(JavaExtension::getEqualsHashCodeWrapper)
         .orElse(ArrayList.class.getCanonicalName());
   }
 
-  private void doExtension(JsonNode jsonNode) {
-    try {
-      this.extension = this.ctx.getMapper().treeToValue(jsonNode, JavaExtension.class);
-    } catch (JsonProcessingException e) {
-      throw ctx.stateException("Couldn't parse Java extension ", jsonNode.toPrettyString());
-    }
+  private JavaExtension doExtension(JavaExtension extension) {
     for (String iface : neverNull(extension.getImplementsList())) {
       TypeName name = parse(iface, packageName);
       if (name instanceof ParameterizedTypeName) {
@@ -219,6 +238,7 @@ public class StructureClass implements Writable {
     if (!neverNull(extension.getCompareToIncludeProperties()).isEmpty()) {
       this.comparableProperties = new LinkedHashSet<>(extension.getCompareToIncludeProperties());
     }
+    return extension;
   }
 
   public StructureClass(Context context, Structure structure) {
@@ -299,6 +319,32 @@ public class StructureClass implements Writable {
       TypeSpec type = struct.builder().addModifiers(Modifier.PUBLIC, Modifier.STATIC).build();
       typeBuilder.addType(type);
       result = FieldSpec.builder(name, resolvedType.getName(), Modifier.PRIVATE).build();
+    }
+    if (resolvedType.ext().get("java") != null) {
+      try {
+        JavaExtension je =
+            ctx.getMapper()
+                .treeToValue((JsonNode) resolvedType.ext().get("java"), JavaExtension.class);
+        if (!Strings.isNullOrEmpty(je.getAnnotations())) {
+          ArrayList<String> imports = new ArrayList<>();
+          imports.addAll(neverNull(je.getImports()));
+          imports.addAll(neverNull(this.extension.getImports()));
+          result =
+              result == null
+                  ? null
+                  : result
+                      .toBuilder()
+                      .addAnnotations(
+                          new Parser(ctx)
+                              .parse(imports, je.getAnnotations()).stream()
+                                  .map(AnnotationSpec.Builder::build)
+                                  .collect(Collectors.toList()))
+                      .build();
+        }
+
+      } catch (JsonProcessingException e) {
+        throw ctx.stateException("unabel to read ", resolvedType.ext().get("java"));
+      }
     }
     if (result == null) {
       throw ctx.stateException("Unsupported type ", baseType);

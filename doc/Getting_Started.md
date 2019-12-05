@@ -21,47 +21,24 @@ The core of xDDL is the specification file. It looks something like this:
   "entryRef": "Book",
   "types": [
     {
-      "@type": "Type",
-      "core": "BIG_DECIMAL",
-      "name": "money",
-      "description": "This is a currency value of an accurate floating point value",
+      "@type": "Type", "core": "BIG_DECIMAL",
+      "name": "money","description": "This is a currency value of an accurate floating point value",
       "ext": {
-        "elasticsearch": {
-          "type": "scaled_float",
-          "scaling_factor": "100"
-        }
+        "elasticsearch": {"type": "scaled_float", "scaling_factor": "100"}
       }
     }   
   ],
   "structures": [
     {
-      "@type": "Structure",
-      "name": "Book",
-      "description": "A book for sale",
+      "@type": "Structure", "name": "Book","description": "A book for sale",
       "properties": [
+        { "@type": "Type", "core": "STRING", "name": "title"},
         {
-          "@type": "Type",
-          "core": "STRING",
-          "name": "title"
+          "@type": "List", "name": "authors",
+          "contains": { "@type": "Type","core": "STRING"}
         },
-        {
-          "@type": "List",
-          "name": "authors",
-          "contains": {
-            "@type": "Type",
-            "core": "STRING"
-          }
-        },
-        {
-          "@type": "Reference",
-          "ref": "money",
-          "name": "price"
-        } ,
-        {
-            "@type": "Reference",
-            "ref": "money",
-            "name": "tax"
-          } 
+        {"@type": "Reference","ref": "money","name": "price"} ,
+        {"@type": "Reference","ref": "money","name": "tax"} 
       ]   
     }   
   ]
@@ -187,9 +164,7 @@ The JSON plugin generated a JSON Schema document from out specification in ``sch
   "$ref" : "#/definitions/Book",
   "definitions" : {
     "Book" : {
-      "title" : "Book",
-      "description" : "A book for sale",
-      "type" : "object",
+      "title" : "Book", "description" : "A book for sale", "type" : "object",
       "properties" : {
         "price" : {
           "title" : "price",
@@ -207,25 +182,13 @@ For the Elasticsearch plugin, we got ``my_specification.mappings.json``:
 ```json
 {
   "mappings" : {
-    "_default_" : {
-      "dynamic" : "strict"
-    },
+    "_default_" : { "dynamic" : "strict"},
     "my_specification-1.0" : {
       "properties" : {
-        "title" : {
-          "type" : "keyword"
-        },
-        "authors" : {
-          "type" : "keyword"
-        },
-        "price" : {
-          "type" : "scaled_float",
-          "scaling_factor" : "100"
-        },
-        "tax" : {
-          "type" : "scaled_float",
-          "scaling_factor" : "100"
-        }
+        "title" : {"type" : "keyword"},
+        "authors" : {"type" : "keyword"},
+        "price" : {"type" : "scaled_float", "scaling_factor" : "100"},
+        "tax" : { "type" : "scaled_float", "scaling_factor" : "100"}
       }
     }
   },
@@ -248,15 +211,15 @@ Here you can see the mapping configuration for the ``price`` property was copied
 What exactly you can put into the extensions structure for a plugin will vary by plugin.
 
 The core plugins are:
- * ``markdown``: To generate ``.md`` and ``.html`` documentation.
- * ``graphvis``: To generate ``.dot`` and ``.png`` graphs that show the relationships 
+ * [``markdown``](../xddl-plugin-markdown/README.md): To generate ``.md`` and ``.html`` documentation.
+ * [``graphvis``](../xddl-plugin-graphvis/README.md): To generate ``.dot`` and ``.png`` graphs that show the relationships 
     between your structure types.
- * ``json``: To generate a JSON-Schema file.
- * ``elasticsearch``: To generate an Elasticsearch Mappings structure for indexing your 
+ * [``json``](../xddl-plugin-json-schema/README.md): To generate a JSON-Schema file.
+ * [``elasticsearch``](../xddl-plugin-elasticsearch/README.md): To generate an Elasticsearch Mappings structure for indexing your 
    document structure.
- * ``java``: To generate a set of Java classes suitable for mapping to your specification.
- * ``hive``: Generates table specs for Apache Hive/Amazon Athena
- * ``migrate``: Generates a class to migrate data from one version of the spec to another.
+ * [``java``](../xddl-plugin-java/README.md): To generate a set of Java classes suitable for mapping to your specification.
+ * [``hive``](../xddl-plugin-hive/README.md): Generates table specs for Apache Hive/Amazon Athena
+ * [``migrate``](../xddl-plugin-migrate/README.md): Generates a class to migrate data from one version of the spec to another.
  
 Best Practices
 -------------- 

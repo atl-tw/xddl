@@ -88,6 +88,11 @@ Simple Example
       "@type": "Structure",
       "name": "currency",
       "description": "An expression of a currency value.",
+      "ext": {
+        "java": {
+          "imports": ["javax.persistence.Column"]
+        }     
+      },
       "properties": [
         {
           "@type": "Type",

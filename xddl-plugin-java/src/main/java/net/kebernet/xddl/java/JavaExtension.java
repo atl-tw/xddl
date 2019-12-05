@@ -16,6 +16,9 @@
 package net.kebernet.xddl.java;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
@@ -41,4 +44,16 @@ public class JavaExtension {
   String initializer;
   List<String> compareToIncludeProperties;
   String equalsHashCodeWrapper;
+
+  public static JavaExtension parse(ObjectMapper mapper, JsonNode node) {
+    if (node == null) {
+      return null;
+    } else {
+      try {
+        return mapper.treeToValue(node, JavaExtension.class);
+      } catch (JsonProcessingException e) {
+        throw new IllegalArgumentException("Couldn't parse " + node.toPrettyString());
+      }
+    }
+  }
 }

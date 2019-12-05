@@ -72,7 +72,7 @@ public class ParserTest {
     // Resolve into array types
     assertThat(builders.get(3).build().toString())
         .isEqualTo(
-            "@com.fasterxml.jackson.annotation.JsonTypeInfo({@JsonTypeInfo(use = com.fasterxml.jackson.annotation.JsonTypeInfo.Id.NAME, property = \"@type\"), @JsonTypeInfo(use = com.fasterxml.jackson.annotation.JsonTypeInfo.Id.NAME, property = \"@type\")})");
+            "@com.fasterxml.jackson.annotation.JsonTypeInfo(use = com.fasterxml.jackson.annotation.JsonTypeInfo.Id.NAME, property = \"@type\")");
     // Resolve default value literal.
     assertThat(builders.get(4).build().toString())
         .isEqualTo(

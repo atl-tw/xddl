@@ -27,6 +27,7 @@ import com.github.javaparser.ast.expr.AnnotationExpr;
 import com.github.javaparser.ast.expr.ArrayInitializerExpr;
 import com.github.javaparser.ast.expr.ClassExpr;
 import com.github.javaparser.ast.expr.FieldAccessExpr;
+import com.github.javaparser.ast.expr.LiteralExpr;
 import com.github.javaparser.ast.expr.MemberValuePair;
 import com.github.javaparser.ast.expr.Name;
 import com.github.javaparser.ast.expr.NameExpr;
@@ -44,6 +45,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
+import net.kebernet.xddl.java.JavaExtension;
 import net.kebernet.xddl.java.Resolver;
 import net.kebernet.xddl.plugins.Context;
 
@@ -58,9 +60,12 @@ import net.kebernet.xddl.plugins.Context;
 public class Parser {
 
   private final Context context;
+  private final JavaExtension defaultPackage;
 
   public Parser(Context context) {
     this.context = context;
+    this.defaultPackage =
+        JavaExtension.parse(context.getMapper(), context.getSpecification().ext().get("java"));
   }
 
   public List<AnnotationSpec.Builder> parse(List<String> imports, String annotations) {
@@ -111,9 +116,17 @@ public class Parser {
                 .forEach(
                     c -> {
                       this.resolveNode(replace, replacements, c);
-                      builder.addMember(
-                          "value",
-                          CodeBlock.builder().add(n.toString(), replacements.toArray()).build());
+                      if (c instanceof MemberValuePair) {
+                        MemberValuePair pair = (MemberValuePair) c;
+                        builder.addMember(
+                            pair.getName().getIdentifier(),
+                            CodeBlock.builder()
+                                .add(pair.getValue().toString(), replacements.toArray())
+                                .build());
+                      } else {
+                        throw new RuntimeException(
+                            "Unexpected AST type " + c.getClass() + " " + c.toString());
+                      }
                     });
           }
           builders.add(builder);
@@ -163,6 +176,10 @@ public class Parser {
       ClassExpr expr = (ClassExpr) value;
       didSomething.compareAndSet(
           false, resolveTypeRef(replace, replacements, expr.getType().asClassOrInterfaceType()));
+    } else if (value instanceof LiteralExpr) {
+      // no op
+    } else {
+      throw new RuntimeException("Unexpect expression" + value.getClass() + " " + value.toString());
     }
     return didSomething.get();
   }

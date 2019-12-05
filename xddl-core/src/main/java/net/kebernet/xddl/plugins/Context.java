@@ -162,6 +162,18 @@ public class Context {
     }
   }
 
+  public <E, T extends BaseType> Optional<E> readPluginAs(String extType, T type, Class<E> clazz) {
+    return ofNullable((JsonNode) type.ext().get(extType))
+        .map(
+            n -> {
+              try {
+                return mapper.readValue(n.toString(), clazz);
+              } catch (JsonProcessingException e) {
+                throw stateException("Unable to parse node to " + clazz, n);
+              }
+            });
+  }
+
   public Optional<Type> findType(String refName) {
     return ofNullable(references.get(refName)).filter(t -> t instanceof Type).map(t -> (Type) t);
   }

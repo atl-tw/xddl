@@ -30,6 +30,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import javax.persistence.Entity;
+import javax.persistence.Id;
 import net.kebernet.xddl.javatestutils.JavaTestCompiler;
 import net.kebernet.xddl.model.Specification;
 import net.kebernet.xddl.plugins.Context;
@@ -102,7 +104,7 @@ public class ListTypes {
 
   @Test
   public void listRefStructure()
-      throws IOException, IntrospectionException, ClassNotFoundException {
+      throws IOException, IntrospectionException, ClassNotFoundException, NoSuchFieldException {
     ObjectMapper mapper = new ObjectMapper();
     Specification spec =
         mapper.readValue(
@@ -131,5 +133,19 @@ public class ListTypes {
         .isEqualTo("getListOfChildren");
     assertThat(descriptors.get("listOfChildren").getReadMethod().getGenericReturnType().toString())
         .isEqualTo("java.util.List<xddl.Child>");
+
+    assertThat(
+            loader
+                .loadClass(Resolver.resolvePackageName(ctx) + ".Child")
+                .getAnnotationsByType(Entity.class))
+        .asList()
+        .isNotEmpty();
+    assertThat(
+            loader
+                .loadClass(Resolver.resolvePackageName(ctx) + ".Child")
+                .getDeclaredField("intProperty")
+                .getAnnotationsByType(Id.class))
+        .asList()
+        .isNotEmpty();
   }
 }

@@ -28,6 +28,9 @@ Supported Extensions
       example: ``"compareToIncludeProperties":["familyName", "surname", "!dateOfBirth"]`` will give your the YOUNGEST
       people with matching names first. All properties will for comparison will be accessed via getters.
       If this property is not included, ALL properties will be included in the order listed.
+    * ``imports``: An array of fully qualified class names to "import" to use as simple names.
+    * ``annotations``: A String containing annotations to put on the class. Can reference things
+      from imports as simple names.
  * Property:
     * ``type``: A fully qualified Java type for the property. eg, use ``java.util.Date`` for 
       the ``DATETIME``. For List types, they should be a non-parameterized collection name.
@@ -39,6 +42,9 @@ Supported Extensions
     * ``initializer``:  Contains a Java statement that will be the initializer for the field
         (ex ``"intitializer": "new java.util.ArrayList<>()"`` for an empty list or ``"intitializer": "\"foo\"""``
         to initialize a default String value to ``foo``.
+    * ``imports``: An array of fully qualified class names to "import" to use as simple names.
+    * ``annotations``: A String containing annotations to put on the field. Can reference things
+        from imports on either the property or the structure as simple names.
         
 Complex List Example
 --------------------
