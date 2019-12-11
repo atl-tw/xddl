@@ -1,0 +1,6 @@
+{
+  "deletions": [
+    { "@type": "PATCH_DELETE", "name": "DeletedStructure"},
+    { "@type": "PATCH_DELETE", "name": "deleted_type"}
+  ]
+}

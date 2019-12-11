@@ -1,0 +1,14 @@
+{
+  "types": [
+    {"@type": "Type", "core": "STRING", "name": "retained_type"},
+    {"@type": "Type", "core": "STRING", "name": "deleted_type"}
+  ],
+  "structures": [
+    {
+      "@type": "Structure", "name": "Retained"
+    },
+    {
+      "@type": "Structure", "name": "DeletedStructure"
+    }
+  ]
+}

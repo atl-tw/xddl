@@ -72,4 +72,24 @@ public class PatcherTest {
     assertThat(patched.structures().get(0).ext().get("foo"))
         .isEqualTo(new ObjectMapper().valueToTree("bar"));
   }
+
+  @Test
+  public void testTopLevelDeletions() {
+    Specification specification =
+        Loader.builder()
+            .main(new File("src/test/resources/deletions-original.xddl.json"))
+            .build()
+            .read();
+
+    Specification patch =
+        Loader.builder().main(new File("src/test/resources/deletions.patch.json")).build().read();
+
+    Specification patched =
+        Patcher.builder().specification(specification).patches(patch).build().apply();
+
+    assertThat(patched.structures().stream().map(BaseType::getName).collect(Collectors.toSet()))
+        .containsExactly("Retained");
+    assertThat(patched.types().stream().map(BaseType::getName).collect(Collectors.toSet()))
+        .containsExactly("retained_type");
+  }
 }

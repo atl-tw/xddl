@@ -1,0 +1,11 @@
+{
+  "@type": "Structure",
+  "name": "Name",
+  "properties": [
+    {
+      "@type": "Type",
+      "core": "STRING",
+      "name": "title"
+    }
+  ]
+}

@@ -15,9 +15,13 @@
  */
 package net.kebernet.xddl.glide;
 
+import static com.google.common.truth.Truth.assertThat;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.Collections;
+import net.kebernet.xddl.Loader;
+import net.kebernet.xddl.model.Specification;
 import org.junit.Test;
 
 public class GlideRunnerTest {
@@ -37,5 +41,15 @@ public class GlideRunnerTest {
         .build()
         .run();
     ;
+    Specification specification =
+        Loader.builder().main(new File("build/test/glide/1_0_2.xddl.json")).build().read();
+    assertThat(specification.types()).isEmpty();
+
+    specification =
+        Loader.builder().main(new File("build/test/glide/1_0_1.xddl.json")).build().read();
+    assertThat(specification.types()).isNotEmpty();
+    specification =
+        Loader.builder().main(new File("build/test/glide/baseline.xddl.json")).build().read();
+    assertThat(specification.types()).isNotEmpty();
   }
 }

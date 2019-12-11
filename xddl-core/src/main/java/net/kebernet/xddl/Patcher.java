@@ -21,6 +21,7 @@ import static net.kebernet.xddl.model.Utils.neverNull;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.Builder;
 import net.kebernet.xddl.model.BaseType;
@@ -56,6 +57,16 @@ public class Patcher {
             // just do the patch
             merge(ctx, original, value);
         });
+    Set<String> namesToDelete =
+        patches.deletions().stream().map(d -> d.getName()).collect(Collectors.toSet());
+    specification.setStructures(
+        specification.structures().stream()
+            .filter(s -> !namesToDelete.contains(s.getName()))
+            .collect(Collectors.toList()));
+    specification.setTypes(
+        specification.getTypes().stream()
+            .filter(t -> !namesToDelete.contains(t.getName()))
+            .collect(Collectors.toList()));
     return specification;
   }
 

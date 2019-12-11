@@ -33,6 +33,7 @@ public class Specification implements HasExtensions {
   private String entryRef;
   private List<Type> types;
   private List<Structure> structures;
+  private List<PatchDelete> deletions;
   private Map<String, JsonNode> ext;
   private Map<String, Object> constants;
 
@@ -51,6 +52,11 @@ public class Specification implements HasExtensions {
     return this;
   }
 
+  public synchronized Specification setDeletions(List<PatchDelete> deletions) {
+    this.deletions = deletions;
+    return this;
+  }
+
   public synchronized List<Type> getTypes() {
     return types;
   }
@@ -61,6 +67,11 @@ public class Specification implements HasExtensions {
 
   public synchronized Map<String, JsonNode> getExt() {
     return ext;
+  }
+
+  @SuppressWarnings("unused")
+  public synchronized List<PatchDelete> getDeletions() {
+    return deletions;
   }
 
   /**
@@ -87,6 +98,13 @@ public class Specification implements HasExtensions {
       this.types = new ArrayList<>();
     }
     return this.types;
+  }
+
+  public synchronized List<PatchDelete> deletions() {
+    if (this.deletions == null) {
+      this.deletions = new ArrayList<>();
+    }
+    return this.deletions;
   }
 
   @Override

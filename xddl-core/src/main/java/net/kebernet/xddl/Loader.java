@@ -74,6 +74,7 @@ public class Loader {
       scanDirectories("xddl", neverNull(this.includes), MAPPER, spec, false);
       if (scrubPatchesFromBaseline) {
         spec.getStructures().forEach(this::visitStructure);
+        spec.setDeletions(null);
       }
 
       if (!isNullOrEmpty(patches)) {
@@ -142,6 +143,11 @@ public class Loader {
         read.setSourceFile(xddl);
         read.setPatch(isPatch);
         specification.types().add(read);
+      } else if (type instanceof PatchDelete) {
+        PatchDelete read = (PatchDelete) type;
+        read.setSourceFile(xddl);
+        read.setPatch(true);
+        specification.deletions().add(read);
       }
     } catch (IOException e) {
       throw new RuntimeException(
