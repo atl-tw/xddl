@@ -9,6 +9,7 @@ dependencies {
     api project(':xddl-plugin-java')
     api project(':xddl-plugin-hive')
     api project(':xddl-plugin-migrate')
+    api project(':xddl-plugin-plantuml')
 }
 
 application {

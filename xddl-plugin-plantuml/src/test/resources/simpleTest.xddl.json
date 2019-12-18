@@ -1,0 +1,19 @@
+{
+  "structures": [
+    {
+      "@type": "Structure",
+      "name": "Foo",
+      "properties": [
+        {"@type": "Type", "core": "INTEGER", "name": "intProperty"},
+        {"@type": "Type", "core": "STRING", "name": "someEnum",
+          "required": true,
+          "allowable": [
+            {"value": "BAR"},
+            {"value": "BAZ"},
+            {"value": "QUUX"}
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "structures": [
+    {
+      "@type": "Structure",
+      "name": "Foo",
+      "properties": [
+        {"@type": "List", "name": "listOfStrings",
+          "contains": {"@type": "Type", "core": "STRING"}
+        }
+      ]
+    }
+  ]
+}

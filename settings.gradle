@@ -15,4 +15,5 @@ include 'xddl-plugin-migrate-lib'
 include 'java-testutils'
 include 'graph-walker'
 include 'editor-core'
+include 'xddl-plugin-plantuml'
 

@@ -86,4 +86,8 @@ public abstract class Utils {
       }
     };
   }
+
+  public static boolean unboxOrFalse(Boolean b) {
+    return b == null ? false : b;
+  }
 }
