@@ -16,7 +16,6 @@
 package net.kebernet.xddl;
 
 import static java.lang.Boolean.TRUE;
-import static net.kebernet.xddl.model.Utils.neverNull;
 
 import java.util.List;
 import java.util.Map;
@@ -24,12 +23,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.Builder;
-import net.kebernet.xddl.model.BaseType;
-import net.kebernet.xddl.model.PatchDelete;
-import net.kebernet.xddl.model.Reference;
-import net.kebernet.xddl.model.Specification;
-import net.kebernet.xddl.model.Structure;
-import net.kebernet.xddl.model.Type;
+import net.kebernet.xddl.model.*;
 import net.kebernet.xddl.plugins.Context;
 
 @Builder
@@ -71,7 +65,7 @@ public class Patcher {
   }
 
   private void merge(Context ctx, Structure original, Structure patch) {
-    if (neverNull(original.getProperties()).isEmpty())
+    if (Utils.neverNull(original.getProperties()).isEmpty())
       throw ctx.stateException("Structure has no properties", original);
     List<BaseType> missingNames =
         original.getProperties().stream()
@@ -80,7 +74,7 @@ public class Patcher {
     if (!missingNames.isEmpty())
       throw ctx.stateException("Missing 'name' properties", missingNames);
     Map<String, BaseType> props =
-        neverNull(original.getProperties()).stream()
+        Utils.neverNull(original.getProperties()).stream()
             .filter(Objects::nonNull)
             .collect(Collectors.toMap(BaseType::getName, b -> b));
     original.ext().putAll(patch.ext());

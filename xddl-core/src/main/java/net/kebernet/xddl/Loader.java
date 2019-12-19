@@ -16,7 +16,6 @@
 package net.kebernet.xddl;
 
 import static net.kebernet.xddl.model.Utils.isNullOrEmpty;
-import static net.kebernet.xddl.model.Utils.neverNull;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -30,11 +29,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import lombok.Builder;
-import net.kebernet.xddl.model.BaseType;
-import net.kebernet.xddl.model.PatchDelete;
-import net.kebernet.xddl.model.Specification;
-import net.kebernet.xddl.model.Structure;
-import net.kebernet.xddl.model.Type;
+import net.kebernet.xddl.model.*;
 import net.kebernet.xddl.ognl.OgnlTemplater;
 
 @Builder
@@ -71,7 +66,7 @@ public class Loader {
     try {
       spec = MAPPER.readValue(main, Specification.class);
 
-      scanDirectories("xddl", neverNull(this.includes), MAPPER, spec, false);
+      scanDirectories("xddl", Utils.neverNull(this.includes), MAPPER, spec, false);
       if (scrubPatchesFromBaseline) {
         spec.getStructures().forEach(this::visitStructure);
         spec.setDeletions(null);
@@ -109,7 +104,7 @@ public class Loader {
       ObjectMapper mapper,
       Specification specification,
       boolean isPatch) {
-    neverNull(files)
+    Utils.neverNull(files)
         .forEach(
             f -> {
               if (!f.isDirectory()) {
@@ -156,7 +151,7 @@ public class Loader {
   }
 
   private void visitStructure(Structure structure) {
-    new ArrayList<>(neverNull(structure.getProperties()))
+    new ArrayList<>(Utils.neverNull(structure.getProperties()))
         .forEach(
             p -> {
               if (p instanceof PatchDelete) {

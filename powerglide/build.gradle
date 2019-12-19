@@ -1,0 +1,8 @@
+dependencies {
+    implementation 'com.beust:jcommander:1.72'
+    implementation 'javax.inject:javax.inject:1'
+    api project(":xddl-core")
+    api project(":xddl-plugin-migrate-lib")
+    api project(":xddl-plugin-migrate")
+    api 'org.elasticsearch.client:elasticsearch-rest-high-level-client:7.5.0'
+}

@@ -60,4 +60,9 @@ public class SemanticVersionTest {
   public void subWhatever() {
     assertThat(new SemanticVersion("2.0.2")).isGreaterThan(new SemanticVersion("2.0.1"));
   }
+
+  @Test
+  public void testIsGreaterThan() {
+    assertThat(new SemanticVersion("2.0").isGreaterThan(new SemanticVersion("1.0"))).isTrue();
+  }
 }

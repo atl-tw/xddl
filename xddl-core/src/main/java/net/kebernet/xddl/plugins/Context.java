@@ -16,7 +16,6 @@
 package net.kebernet.xddl.plugins;
 
 import static java.util.Optional.ofNullable;
-import static net.kebernet.xddl.model.Utils.neverNull;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -27,11 +26,7 @@ import java.util.Optional;
 import java.util.function.Consumer;
 import lombok.Getter;
 import lombok.Setter;
-import net.kebernet.xddl.model.BaseType;
-import net.kebernet.xddl.model.Reference;
-import net.kebernet.xddl.model.Specification;
-import net.kebernet.xddl.model.Structure;
-import net.kebernet.xddl.model.Type;
+import net.kebernet.xddl.model.*;
 
 @Getter
 @Setter
@@ -49,7 +44,7 @@ public class Context {
   }
 
   private void validateReferences(Structure structure) {
-    neverNull(structure.getProperties())
+    Utils.neverNull(structure.getProperties())
         .forEach(
             p -> {
               if (p instanceof Reference) {

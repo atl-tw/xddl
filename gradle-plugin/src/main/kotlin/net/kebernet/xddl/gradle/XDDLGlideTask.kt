@@ -20,7 +20,6 @@ import net.kebernet.xddl.SemanticVersion
 import net.kebernet.xddl.glide.GlideCommand
 import net.kebernet.xddl.glide.GlideRunner
 import net.kebernet.xddl.model.Specification
-import net.kebernet.xddl.model.Utils.neverNull
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFile

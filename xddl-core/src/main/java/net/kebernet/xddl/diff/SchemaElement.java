@@ -16,7 +16,6 @@
 package net.kebernet.xddl.diff;
 
 import static net.kebernet.xddl.model.Utils.isNullOrEmpty;
-import static net.kebernet.xddl.model.Utils.neverNull;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -29,10 +28,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-import net.kebernet.xddl.model.BaseType;
-import net.kebernet.xddl.model.CoreType;
-import net.kebernet.xddl.model.Type;
-import net.kebernet.xddl.model.Value;
+import net.kebernet.xddl.model.*;
 
 @SuppressWarnings("WeakerAccess")
 public class SchemaElement {
@@ -59,7 +55,7 @@ public class SchemaElement {
         resolved.getClass(),
         resolved instanceof Type ? ((Type) resolved).getCore() : null,
         resolved instanceof Type
-            ? neverNull(((Type) resolved).getAllowable()).stream()
+            ? Utils.neverNull(((Type) resolved).getAllowable()).stream()
                 .map(Value::getValue)
                 .collect(Collectors.toSet())
             : null);
@@ -77,7 +73,7 @@ public class SchemaElement {
 
   public String allowableValues() {
     return "["
-        + neverNull(allowableValues).stream()
+        + Utils.neverNull(allowableValues).stream()
             .map(this::writeValueAsString)
             .collect(Collectors.joining(","))
         + "]";
@@ -108,8 +104,8 @@ public class SchemaElement {
         && Objects.equal(resolvedType, that.resolvedType)
         && coreType == that.coreType
         && Objects.equal(
-            new HashSet<>(neverNull(allowableValues)),
-            new HashSet<>(neverNull(that.allowableValues)));
+            new HashSet<>(Utils.neverNull(allowableValues)),
+            new HashSet<>(Utils.neverNull(that.allowableValues)));
   }
 
   @Override

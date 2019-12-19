@@ -30,6 +30,7 @@ import lombok.Builder;
 import lombok.Getter;
 import net.kebernet.xddl.Loader;
 import net.kebernet.xddl.model.Specification;
+import net.kebernet.xddl.model.Utils;
 import net.kebernet.xddl.plugins.Context;
 import net.kebernet.xddl.plugins.Plugin;
 
@@ -59,7 +60,7 @@ public class GenerateRunner {
     Iterable<Plugin> implementations = neverNull(ServiceLoader.load(Plugin.class));
     Set<String> known =
         Streams.stream(implementations).map(Plugin::getName).collect(Collectors.toSet());
-    for (String name : neverNull(plugins)) {
+    for (String name : Utils.neverNull(plugins)) {
       if (!known.contains(name)) {
         throw context.stateException("Unknown plugin: " + name + " known plugins: " + known, null);
       }

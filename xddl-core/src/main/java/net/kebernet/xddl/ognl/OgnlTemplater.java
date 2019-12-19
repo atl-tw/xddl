@@ -17,7 +17,6 @@ package net.kebernet.xddl.ognl;
 
 import static net.kebernet.xddl.model.ModelUtil.forEach;
 import static net.kebernet.xddl.model.ModelUtil.neverNegative;
-import static net.kebernet.xddl.model.Utils.neverNull;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -38,6 +37,7 @@ import java.util.stream.Collectors;
 import net.kebernet.xddl.Loader;
 import net.kebernet.xddl.model.BaseType;
 import net.kebernet.xddl.model.Specification;
+import net.kebernet.xddl.model.Utils;
 import ognl.Ognl;
 
 public class OgnlTemplater implements BeanWalker.PropertyVisitor {
@@ -160,7 +160,7 @@ public class OgnlTemplater implements BeanWalker.PropertyVisitor {
    * @return String value of the resulting applied template.
    */
   public String fillTemplate(String template) {
-    template = neverNull(template);
+    template = Utils.neverNull(template);
     StringBuilder result = new StringBuilder();
 
     Matcher matcher = PATTERN.matcher(template);

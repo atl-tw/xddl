@@ -15,14 +15,13 @@
  */
 package net.kebernet.xddl;
 
-import static net.kebernet.xddl.model.Utils.neverNull;
-
 import com.google.common.base.Joiner;
 import com.google.common.base.Objects;
 import com.google.common.base.Splitter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+import net.kebernet.xddl.model.Utils;
 
 public class SemanticVersion implements Comparable<SemanticVersion> {
   List<Integer> versions;
@@ -51,6 +50,10 @@ public class SemanticVersion implements Comparable<SemanticVersion> {
     return pairs.stream().map(IntegerPair::compare).filter(p -> p != 0).findFirst().orElse(0);
   }
 
+  public boolean isGreaterThan(SemanticVersion o) {
+    return this.compareTo(o) >= 0;
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) return true;
@@ -74,7 +77,7 @@ public class SemanticVersion implements Comparable<SemanticVersion> {
     }
 
     int compare() {
-      return neverNull(left).compareTo(neverNull(right));
+      return Utils.orZero(left).compareTo(Utils.orZero(right));
     }
   }
 }

@@ -16,4 +16,5 @@ include 'java-testutils'
 include 'graph-walker'
 include 'editor-core'
 include 'xddl-plugin-plantuml'
+include 'powerglide'
 

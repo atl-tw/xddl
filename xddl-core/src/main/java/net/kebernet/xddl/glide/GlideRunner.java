@@ -15,8 +15,6 @@
  */
 package net.kebernet.xddl.glide;
 
-import static net.kebernet.xddl.model.Utils.neverNull;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
@@ -26,6 +24,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import lombok.Builder;
 import net.kebernet.xddl.SemanticVersion;
+import net.kebernet.xddl.model.Utils;
 import net.kebernet.xddl.unify.UnifyCommand;
 import net.kebernet.xddl.unify.UnifyRunner;
 
@@ -50,7 +49,7 @@ public class GlideRunner {
         .build()
         .run();
     List<File> versions =
-        Arrays.asList(neverNull(command.getPatches().listFiles(File::isDirectory)));
+        Arrays.asList(Utils.neverNull(command.getPatches().listFiles(File::isDirectory)));
     File lastUnified = baseline;
     HashMap<SemanticVersion, File> versionLookup = new HashMap<>();
     List<SemanticVersion> ordered =
