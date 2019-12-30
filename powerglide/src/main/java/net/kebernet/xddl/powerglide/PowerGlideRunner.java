@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Robert Cooper, ThoughtWorks
+ * Copyright 2019, 2020 Robert Cooper, ThoughtWorks
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,12 +28,10 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import javax.inject.Inject;
-import lombok.Builder;
 import net.kebernet.xddl.Loader;
 import net.kebernet.xddl.SemanticVersion;
 import net.kebernet.xddl.migrate.MigrationVisitor;
 
-@Builder
 public class PowerGlideRunner {
 
   private static final Logger LOGGER = Logger.getLogger(PowerGlideRunner.class.getCanonicalName());
@@ -44,7 +42,6 @@ public class PowerGlideRunner {
   private ElasticSearchClient client;
   private Map<SemanticVersion, String> versionsToMigrationVisitorClassNames;
 
-  @Builder
   public PowerGlideRunner(PowerGlideCommand command, MigrationState state) {
     this.command = command;
     this.state = state;
@@ -76,7 +73,22 @@ public class PowerGlideRunner {
     ElasticSearchClient.Batch batch =
         client.readBatch(current.currentVersion, state.getScrollId(), command.batchSize);
 
-    return state;
+    if (!isNullOrEmpty(batch.errors)) {
+      LOGGER.warning("There were " + batch.errors.size() + " errors reading the batch from ES.");
+    }
+    if (nextVersion == null || nextVersion.getName() == null) {
+      throw new IllegalStateException("Couldn't determine the next version from " + current);
+    }
+
+    List<ElasticSearchClient.ErrorResult> results =
+        client.insertBatch(nextVersion.getName(), state.getItemName(), batch);
+
+    return MigrationState.builder()
+        .scrollId(batch.nextScrollId)
+        .successfulRecords(batch.documents.size() - batch.errors.size() - results.size())
+        .failedRecords(batch.errors.size())
+        .exceptions(new Exceptions().from(batch.errors).addAll(new Exceptions().from(results)))
+        .build();
   }
 
   private MigrationVisitor visitorFactory(SemanticVersion nextVersion) {
@@ -95,13 +107,13 @@ public class PowerGlideRunner {
     List<SemanticVersion> higherVersions =
         current.deployedVersions.stream()
             .map(
-                s -> {
-                  Matcher versionMatcher = TRAILING_VERSION_PATTERN.matcher(s);
+                name -> {
+                  Matcher versionMatcher = TRAILING_VERSION_PATTERN.matcher(name);
                   if (!versionMatcher.matches()) {
-                    LOGGER.info("Could not determine a version number for " + s);
+                    LOGGER.info("Could not determine a version number for " + name);
                     return null;
                   }
-                  return new SemanticVersion(versionMatcher.group(1));
+                  return new SemanticVersion(versionMatcher.group(1), name);
                 })
             .filter(Objects::nonNull)
             .filter(v -> v.isGreaterThan(currentVersion))

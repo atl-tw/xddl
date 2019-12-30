@@ -1,5 +1,5 @@
 /**
- * Copyright 2019 Robert Cooper, ThoughtWorks
+ * Copyright 2019, 2020 Robert Cooper, ThoughtWorks
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ import net.kebernet.xddl.SemanticVersion
 import net.kebernet.xddl.glide.GlideCommand
 import net.kebernet.xddl.glide.GlideRunner
 import net.kebernet.xddl.model.Specification
+import net.kebernet.xddl.model.Utils.neverNull
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFile

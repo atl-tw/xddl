@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Robert Cooper, ThoughtWorks
+ * Copyright 2019, 2020 Robert Cooper, ThoughtWorks
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 package net.kebernet.xddl.powerglide;
 
 import static net.kebernet.xddl.model.Utils.isNullOrEmpty;
+import static net.kebernet.xddl.model.Utils.stackTraceAsString;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -23,7 +24,14 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URLDecoder;
-import java.util.*;
+import java.util.AbstractMap;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -42,7 +50,11 @@ import org.elasticsearch.action.bulk.BulkItemResponse;
 import org.elasticsearch.action.bulk.BulkRequest;
 import org.elasticsearch.action.bulk.BulkResponse;
 import org.elasticsearch.action.index.IndexRequest;
-import org.elasticsearch.action.search.*;
+import org.elasticsearch.action.search.ClearScrollRequest;
+import org.elasticsearch.action.search.ClearScrollResponse;
+import org.elasticsearch.action.search.SearchRequest;
+import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.action.search.SearchScrollRequest;
 import org.elasticsearch.client.GetAliasesResponse;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestClient;
@@ -129,7 +141,7 @@ public class ElasticSearchClient {
         errors);
   }
 
-  public List<ErrorResult> insertBatch(String indexName, String itemType, Batch batch) {
+  public @Nonnull List<ErrorResult> insertBatch(String indexName, String itemType, Batch batch) {
     try {
       BulkRequest request = new BulkRequest();
       if (isNullOrEmpty(batch.documents)) {
@@ -244,14 +256,30 @@ public class ElasticSearchClient {
   public static class ErrorResult {
     final String documentId;
     final String error;
-    final Throwable exception;
+    final String stackTrace;
     final JsonNode source;
 
     public ErrorResult(String documentId, String error, Throwable exception, JsonNode source) {
       this.documentId = documentId;
       this.error = error;
-      this.exception = exception;
+      this.stackTrace = stackTraceAsString(exception);
       this.source = source;
+    }
+
+    @Override
+    public String toString() {
+      return "ErrorResult{"
+          + "documentId='"
+          + documentId
+          + '\''
+          + ", error='"
+          + error
+          + '\''
+          + ", stackTrace="
+          + stackTrace
+          + ", source="
+          + source
+          + '}';
     }
   }
 

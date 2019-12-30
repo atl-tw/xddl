@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Robert Cooper, ThoughtWorks
+ * Copyright 2019, 2020 Robert Cooper, ThoughtWorks
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,16 +21,28 @@ import com.google.common.base.Splitter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import net.kebernet.xddl.model.Utils;
 
 public class SemanticVersion implements Comparable<SemanticVersion> {
-  List<Integer> versions;
+  private final List<Integer> versions;
+  private final String name;
 
-  public SemanticVersion(String versions) {
+  public SemanticVersion(@Nonnull String version) {
     this.versions =
-        Splitter.on('.').trimResults().omitEmptyStrings().splitToList(versions).stream()
+        Splitter.on('.').trimResults().omitEmptyStrings().splitToList(version).stream()
             .map(Integer::valueOf)
             .collect(Collectors.toList());
+    this.name = null;
+  }
+
+  public SemanticVersion(@Nonnull String version, @Nullable String name) {
+    this.versions =
+        Splitter.on('.').trimResults().omitEmptyStrings().splitToList(version).stream()
+            .map(Integer::valueOf)
+            .collect(Collectors.toList());
+    this.name = name;
   }
 
   @Override
@@ -39,7 +51,7 @@ public class SemanticVersion implements Comparable<SemanticVersion> {
   }
 
   @Override
-  public int compareTo(SemanticVersion o) {
+  public int compareTo(@Nonnull SemanticVersion o) {
     ArrayList<IntegerPair> pairs = new ArrayList<>();
     int max = Math.max(this.versions.size(), o.versions.size());
     for (int i = 0; i < max; i++) {
@@ -50,7 +62,7 @@ public class SemanticVersion implements Comparable<SemanticVersion> {
     return pairs.stream().map(IntegerPair::compare).filter(p -> p != 0).findFirst().orElse(0);
   }
 
-  public boolean isGreaterThan(SemanticVersion o) {
+  public boolean isGreaterThan(@Nonnull SemanticVersion o) {
     return this.compareTo(o) >= 0;
   }
 
@@ -65,6 +77,11 @@ public class SemanticVersion implements Comparable<SemanticVersion> {
   @Override
   public int hashCode() {
     return Objects.hashCode(toString());
+  }
+
+  @Nullable
+  public String getName() {
+    return this.name;
   }
 
   private static class IntegerPair {

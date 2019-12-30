@@ -1,0 +1,13 @@
+{
+  "structures": [
+    {
+      "@type": "Structure",
+      "name": "SimpleTest",
+      "properties": [
+        {"@type": "Type", "core": "INTEGER", "name": "intProperty"},
+        {"@type": "Type", "core": "INTEGER", "name": "requiredIntProperty", "required": "true"},
+        {"@type": "Type", "core": "STRING", "name": "stringProperty"}
+      ]
+    }
+  ]
+}

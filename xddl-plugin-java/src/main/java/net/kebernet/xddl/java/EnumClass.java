@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Robert Cooper, ThoughtWorks
+ * Copyright 2019, 2020 Robert Cooper, ThoughtWorks
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,12 +35,12 @@ import net.kebernet.xddl.model.Type;
 import net.kebernet.xddl.plugins.Context;
 
 public class EnumClass implements Writable {
-  private final BaseType base;
+  private final BaseType<?> base;
   private final Type resolved;
   private final String packageName;
   private final String parentClassName;
 
-  public EnumClass(Context ctx, BaseType base, Type resolved, String parentClassName) {
+  public EnumClass(Context ctx, BaseType<?> base, Type resolved, String parentClassName) {
     this.base = base;
     this.resolved = resolved;
     this.packageName = Resolver.resolvePackageName(ctx);
@@ -125,7 +125,7 @@ public class EnumClass implements Writable {
 
   @SuppressWarnings("RegExpRedundantEscape")
   private static String makeJavaNameFriendly(String value) {
-    value = value.replaceAll("[-\\+ ]", "_");
+    value = value.replaceAll("[-\\+ .]", "_");
     char c = value.charAt(0);
     if (Character.isAlphabetic(c) || c == '_') {
       return value.toUpperCase();

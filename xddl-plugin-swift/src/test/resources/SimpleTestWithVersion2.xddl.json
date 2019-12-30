@@ -1,0 +1,15 @@
+{
+  "title": "My Library",
+  "version": "1.1",
+  "structures": [
+    {
+      "@type": "Structure",
+      "name": "SimpleTest",
+      "properties": [
+        {"@type": "PATCH_DELETE", "name": "intProperty"},
+        {"@type": "Type", "core": "INTEGER", "name": "requiredIntProperty", "required": "true"},
+        {"@type": "Type", "core": "STRING", "name": "stringProperty"}
+      ]
+    }
+  ]
+}

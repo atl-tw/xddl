@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Robert Cooper, ThoughtWorks
+ * Copyright 2019, 2020 Robert Cooper, ThoughtWorks
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -157,8 +157,9 @@ public class Context {
     }
   }
 
-  public <E, T extends BaseType> Optional<E> readPluginAs(String extType, T type, Class<E> clazz) {
-    return ofNullable((JsonNode) type.ext().get(extType))
+  public <E, T extends HasExtensions> Optional<E> readPluginAs(
+      String extType, T type, Class<E> clazz) {
+    return ofNullable(type.ext().get(extType))
         .map(
             n -> {
               try {

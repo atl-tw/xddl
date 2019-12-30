@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Robert Cooper, ThoughtWorks
+ * Copyright 2019, 2020 Robert Cooper, ThoughtWorks
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,6 @@
  */
 package net.kebernet.xddl.powerglide;
 
-import java.util.List;
 import lombok.Builder;
 import lombok.Data;
 
@@ -26,13 +25,7 @@ public class MigrationState {
   private String scrollId;
   private int successfulRecords;
   private int failedRecords;
-  private List<Exceptions> exceptions;
+  @Builder.Default private Exceptions exceptions = new Exceptions();
   private String visitorClassName;
-
-  @Data
-  @Builder
-  public static class Exceptions {
-    private String stackTrace;
-    private int count;
-  }
+  private String itemName;
 }

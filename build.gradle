@@ -80,6 +80,7 @@ subprojects {
         testImplementation 'junit:junit:4.12'
         testImplementation 'org.mockito:mockito-core:2.28.2'
         spotbugsPlugins 'com.h3xstream.findsecbugs:findsecbugs-plugin:1.10.1'
+        compileOnly 'com.google.code.findbugs:annotations:3.0.1'
     }
 
     task sourceJar(type: Jar) {
@@ -160,6 +161,7 @@ subprojects {
             retirejs {
                 enabled = false
             }
+            assemblyEnabled = false
         }
     }
 

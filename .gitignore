@@ -10,7 +10,6 @@ activemq-data
 *.iml
 .gradle
 .project
-.settings
 .classpath
 nbactions.xml
 /out
@@ -31,3 +30,10 @@ out
 /*.iws
 local.properties
 fabric.properties
+
+.DS_Store
+.swiftpm
+/.build
+/Packages
+/*.xcodeproj
+xcuserdata/

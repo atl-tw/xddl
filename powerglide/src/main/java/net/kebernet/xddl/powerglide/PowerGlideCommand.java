@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Robert Cooper, ThoughtWorks
+ * Copyright 2019, 2020 Robert Cooper, ThoughtWorks
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,6 +45,11 @@ public class PowerGlideCommand {
       names = {"--active-alias", "-a"},
       description = "The name of the alias that represents the active version.")
   private String activeAlias;
+
+  @Parameter(
+      names = {"--item-type", "-i"},
+      description = "The name of items in the new index to insert (for ES < 7.0).")
+  private String itemName;
 
   @Parameter(
       names = {"--switch-active-on-completion", "-switch"},

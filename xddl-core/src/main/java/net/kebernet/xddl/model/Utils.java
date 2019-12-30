@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Robert Cooper, ThoughtWorks
+ * Copyright 2019, 2020 Robert Cooper, ThoughtWorks
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,9 +15,12 @@
  */
 package net.kebernet.xddl.model;
 
+import static com.google.common.base.Charsets.UTF_8;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.base.Strings;
-import java.io.File;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import java.io.*;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
@@ -102,5 +105,17 @@ public abstract class Utils {
       return Stream.empty();
     }
     return Arrays.stream(array);
+  }
+
+  @SuppressFBWarnings("ERRMSG")
+  public static String stackTraceAsString(Throwable t) {
+    try (ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        PrintWriter pw = new PrintWriter(new OutputStreamWriter(baos, UTF_8))) {
+      t.printStackTrace(pw);
+      pw.flush();
+      return new String(baos.toByteArray(), UTF_8);
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
   }
 }

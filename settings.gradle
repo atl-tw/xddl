@@ -17,4 +17,5 @@ include 'graph-walker'
 include 'editor-core'
 include 'xddl-plugin-plantuml'
 include 'powerglide'
+include 'xddl-plugin-swift'
 

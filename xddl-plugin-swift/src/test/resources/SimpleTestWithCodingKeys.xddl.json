@@ -1,0 +1,22 @@
+{
+  "structures": [
+    {
+      "@type": "Structure",
+      "name": "SimpleTestWithCodingKeys",
+      "properties": [
+        {"@type": "Type", "core": "INTEGER", "name": "intProperty"},
+        {"@type": "Type", "core": "INTEGER", "name": "requiredIntProperty", "required": "true"},
+        {
+          "@type": "Type", "core": "INTEGER", "name": "int8Property",
+          "ext": {
+            "swift": {
+              "type": "Int8",
+              "fieldName": "intEightProperty"
+            }
+          }
+        },
+        {"@type": "Type", "core": "STRING", "name": "stringProperty"}
+      ]
+    }
+  ]
+}
