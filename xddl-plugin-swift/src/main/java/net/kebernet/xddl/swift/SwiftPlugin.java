@@ -145,6 +145,7 @@ public class SwiftPlugin implements Plugin {
         .append((")"))
         .outdent()
         .append("],")
+        .append("dependencies: [],")
         .append("targets:[");
     targetNames.forEach(
         targetName -> {
@@ -156,8 +157,8 @@ public class SwiftPlugin implements Plugin {
               .outdent()
               .outdent();
         });
-    lb.append("]").append("dependencies: [],");
-    lb.outdent();
+    lb.append("]").outdent();
+
     lb.append(")");
 
     writeFile("Package.swift", outputDirectory, lb.toString());
