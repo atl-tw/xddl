@@ -25,15 +25,16 @@ import org.junit.Test;
 public class SwiftPluginTest {
 
   @Test
-  public void testSimple() throws IOException {
+  public void testSimple() throws IOException, InterruptedException {
     Specification spec =
         Loader.builder().main(new File("src/test/resources/SimpleTest.xddl.json")).build().read();
     File output = new File("build/swift/SimpleTest/");
     new SwiftPlugin().generateArtifacts(new Context(Loader.mapper(), spec), output);
+    SwiftPM.buildDir(output);
   }
 
   @Test
-  public void testSimpleWithCoding() throws IOException {
+  public void testSimpleWithCoding() throws IOException, InterruptedException {
     Specification spec =
         Loader.builder()
             .main(new File("src/test/resources/SimpleTestWithCodingKeys.xddl.json"))
@@ -41,10 +42,11 @@ public class SwiftPluginTest {
             .read();
     File output = new File("build/swift/SimpleTestWithCodingKey");
     new SwiftPlugin().generateArtifacts(new Context(Loader.mapper(), spec), output);
+    SwiftPM.buildDir(output);
   }
 
   @Test
-  public void testSimpleWithVersion() throws IOException {
+  public void testSimpleWithVersion() throws IOException, InterruptedException {
     Specification spec =
         Loader.builder()
             .main(new File("src/test/resources/SimpleTestWithVersion.xddl.json"))
@@ -52,10 +54,11 @@ public class SwiftPluginTest {
             .read();
     File output = new File("build/swift/SimpleTestWithVersion");
     new SwiftPlugin().generateArtifacts(new Context(Loader.mapper(), spec), output);
+    SwiftPM.buildDir(output);
   }
 
   @Test
-  public void testSimpleWithTwoVersions() throws IOException {
+  public void testSimpleWithTwoVersions() throws IOException, InterruptedException {
     Specification spec =
         Loader.builder()
             .main(new File("src/test/resources/SimpleTestWithVersion.xddl.json"))
@@ -69,29 +72,66 @@ public class SwiftPluginTest {
             .build()
             .read();
     new SwiftPlugin().generateArtifacts(new Context(Loader.mapper(), spec), output);
+    SwiftPM.buildDir(output);
   }
 
   @Test
-  public void nestedEnum() throws IOException {
+  public void nestedEnum() throws IOException, InterruptedException {
     Specification spec =
         Loader.builder().main(new File("src/test/resources/nestedEnum.json")).build().read();
     File output = new File("build/swift/NestedEnum/");
     new SwiftPlugin().generateArtifacts(new Context(Loader.mapper(), spec), output);
+    SwiftPM.buildDir(output);
   }
 
   @Test
-  public void nestedStructure() throws IOException {
+  public void nestedStructure() throws IOException, InterruptedException {
     Specification spec =
         Loader.builder().main(new File("src/test/resources/nestedStructure.json")).build().read();
     File output = new File("build/swift/NestedStructure/");
     new SwiftPlugin().generateArtifacts(new Context(Loader.mapper(), spec), output);
+    SwiftPM.buildDir(output);
   }
 
   @Test
-  public void enumReference() throws IOException {
+  public void enumReference() throws IOException, InterruptedException {
     Specification spec =
         Loader.builder().main(new File("src/test/resources/enumReference.json")).build().read();
     File output = new File("build/swift/EnumReference/");
     new SwiftPlugin().generateArtifacts(new Context(Loader.mapper(), spec), output);
+    SwiftPM.buildDir(output);
+  }
+
+  @Test
+  public void referenceList() throws IOException, InterruptedException {
+    Specification spec =
+        Loader.builder().main(new File("src/test/resources/referenceList.json")).build().read();
+    File output = new File("build/swift/referenceList");
+    new SwiftPlugin().generateArtifacts(new Context(Loader.mapper(), spec), output);
+    SwiftPM.buildDir(output);
+  }
+
+  @Test
+  public void referenceToStructureList() throws IOException, InterruptedException {
+    Specification spec =
+        Loader.builder()
+            .main(new File("src/test/resources/referenceToStructureList.json"))
+            .build()
+            .read();
+    File output = new File("build/swift/referenceToStructureList");
+    new SwiftPlugin().generateArtifacts(new Context(Loader.mapper(), spec), output);
+    SwiftPM.buildDir(output);
+  }
+
+  @Test
+  public void structureReference() throws IOException, InterruptedException {
+    Specification spec =
+        Loader.builder()
+            .main(new File("src/test/resources/structureReference.json"))
+            .build()
+            .read();
+    File output = new File("build/swift/structureReference");
+    new SwiftPlugin().generateArtifacts(new Context(Loader.mapper(), spec), output);
+    SwiftPM.buildDir(output);
   }
 }

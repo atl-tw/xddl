@@ -4,7 +4,7 @@ swift
 Purpose
 -------
 
-The Swift plugin generates a SwiftPM library that contains all the same targets as the Java module. They will be in
+The Swift plugin generates a net.kebernet.xddl.swift.SwiftPM library that contains all the same targets as the Java module. They will be in
 the format of "Specification Name"-> "SpecificationNameV1_1"
 
 Extensions

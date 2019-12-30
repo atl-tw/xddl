@@ -1,0 +1,48 @@
+{
+  "title": "Sample Specification",
+  "entryRef": "Parent",
+  "description": "This is my sample specification.\n\nThere are many like it but this one is mine.",
+  "comment": "Some comment with < and > and stuff.",
+  "structures": [
+    {
+      "@type": "Structure",
+      "name": "Parent",
+      "properties": [
+        {
+          "@type": "List",
+          "name": "listOfChildren",
+          "contains": {
+            "@type": "Reference",
+            "ref": "Child"
+          }
+        }
+      ]
+    },
+    {
+      "@type": "Structure",
+      "name": "Child",
+      "ext": {
+        "java": {
+          "imports": ["javax.persistence.Entity",
+            "javax.persistence.Id",
+            "javax.persistence.GeneratedValue",
+            "javax.persistence.GenerationType"
+          ],
+          "annotations": "@Entity"
+        }
+      },
+      "properties": [
+        {
+          "@type": "Type",
+          "core": "INTEGER",
+          "name": "intProperty",
+          "ext": {
+            "java": {
+              "annotations": "@Id @GeneratedValue(strategy=GenerationType.IDENTITY)"
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

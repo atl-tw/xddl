@@ -229,6 +229,14 @@ public class SwiftPlugin implements Plugin {
       Type type = (Type) finalType;
       return doTypeField(struct, baseType, extension, resolved, type);
     } else if (finalType instanceof Structure) {
+      if (resolved instanceof Reference) {
+        return new Struct.Field(
+            baseType.getName(),
+            ((Reference) resolved).getRef(),
+            baseType.getRequired(),
+            baseType instanceof List,
+            extension);
+      }
       Struct nested = doStructure((Structure) finalType);
       nested.setName(
           CaseFormat.LOWER_CAMEL.to(CaseFormat.UPPER_CAMEL).apply(baseType.getName()) + "Type");
