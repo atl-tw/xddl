@@ -4,8 +4,14 @@ install: true
 os: linux
 dist: trusty
 jdk: oraclejdk8
+sudo: required
 
 script:
+  - git clone https://github.com/kylef/swiftenv.git ~/.swiftenv
+  - export SWIFTENV_ROOT="$HOME/.swiftenv
+  - export PATH="$SWIFTENV_ROOT/bin:$PATH"
+  - eval "$(swiftenv init -)"
+  - swiftenv install 3.0
   - ./gradlew build --scan -s
 
 
