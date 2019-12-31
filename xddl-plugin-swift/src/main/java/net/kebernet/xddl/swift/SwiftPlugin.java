@@ -31,7 +31,10 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Optional;
 import java.util.function.Consumer;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
+import net.kebernet.xddl.Loader;
 import net.kebernet.xddl.migrate.format.CaseFormat;
 import net.kebernet.xddl.model.*;
 import net.kebernet.xddl.plugins.Context;
@@ -103,6 +106,12 @@ public class SwiftPlugin implements Plugin {
             })
         .forEach(writeTypeFile(sourcesDirectory));
 
+    try (OutputStreamWriter writer =
+        new OutputStreamWriter(
+            new FileOutputStream(new File(sourcesDirectory, ".xddl.json")), Charsets.UTF_8)) {
+      Loader.mapper().writeValue(writer, spec);
+    }
+
     createPackageStructure(libraryName, outputDirectory);
 
     return "OK";
@@ -119,7 +128,6 @@ public class SwiftPlugin implements Plugin {
   }
 
   private void createPackageStructure(String libraryName, File outputDirectory) throws IOException {
-
     File[] files = new File(outputDirectory, "Sources").listFiles(File::isDirectory);
     java.util.List<File> targets = files == null ? Collections.emptyList() : Arrays.asList(files);
     java.util.List<String> targetNames =
@@ -145,10 +153,48 @@ public class SwiftPlugin implements Plugin {
         .append((")"))
         .outdent()
         .append("],")
-        .append("dependencies: [],")
-        .append("targets:[");
-    targetNames.forEach(
-        targetName -> {
+        .append("dependencies: [");
+
+    HashMap<String, SpecificationExtension.Dependency> allDeps = new HashMap<>();
+    targets.stream()
+        .sorted(new VersionExtensionComparator())
+        .forEach(
+            target -> {
+              Specification spec;
+              try {
+                spec =
+                    Loader.mapper().readValue(new File(target, ".xddl.json"), Specification.class);
+              } catch (IOException e) {
+                Logger.getAnonymousLogger()
+                    .log(
+                        Level.WARNING,
+                        "Failed to read xddl file in " + target.getAbsolutePath(),
+                        e);
+                spec = null;
+              }
+              ofNullable(spec)
+                  .flatMap(s -> context.readPluginAs("swift", s, SpecificationExtension.class))
+                  .map(SpecificationExtension::getDependencies)
+                  .orElse(Collections.emptyList())
+                  .forEach(d -> allDeps.put(d.getUrl(), d));
+            });
+    allDeps
+        .values()
+        .forEach(
+            d -> {
+              lb.indent().append(".package( url:$S,", d.getUrl()).indent();
+              if (d.getTo() != null) {
+                lb.append("$S.." + (d.isExclusive() ? "<" : ".") + "$S),", d.getFrom(), d.getTo());
+              } else {
+                lb.append("from:$S),", d.getFrom());
+              }
+              lb.outdent().outdent();
+            });
+
+    lb.append("],").append("targets:[");
+    targets.forEach(
+        target -> {
+          String targetName = "\"" + target.getName() + "\"";
           lb.indent()
               .append(".target(")
               .indent()

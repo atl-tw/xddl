@@ -61,7 +61,7 @@ public class SwiftPluginTest {
   public void testSimpleWithTwoVersions() throws IOException, InterruptedException {
     Specification spec =
         Loader.builder()
-            .main(new File("src/test/resources/SimpleTestWithVersion.xddl.json"))
+            .main(new File("src/test/resources/SimpleTestWithVersion1.xddl.json"))
             .build()
             .read();
     File output = new File("build/swift/SimpleTestWithTwoVersions");

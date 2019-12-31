@@ -214,10 +214,13 @@ The core plugins are:
  * [``markdown``](../xddl-plugin-markdown/README.md): To generate ``.md`` and ``.html`` documentation.
  * [``graphvis``](../xddl-plugin-graphvis/README.md): To generate ``.dot`` and ``.png`` graphs that show the relationships 
     between your structure types.
+ * [``plantuml``](../xddl-plugin-plantuml/README.md): To generate ``.puml`` diagram that show the relationships 
+    between your structure types. 
  * [``json``](../xddl-plugin-json-schema/README.md): To generate a JSON-Schema file.
  * [``elasticsearch``](../xddl-plugin-elasticsearch/README.md): To generate an Elasticsearch Mappings structure for indexing your 
    document structure.
  * [``java``](../xddl-plugin-java/README.md): To generate a set of Java classes suitable for mapping to your specification.
+ * [``swift``](../xddl-plugin-swift/README.md): To generate a SwiftPM library suitable for mapping your specification.
  * [``hive``](../xddl-plugin-hive/README.md): Generates table specs for Apache Hive/Amazon Athena
  * [``migrate``](../xddl-plugin-migrate/README.md): Generates a class to migrate data from one version of the spec to another.
  

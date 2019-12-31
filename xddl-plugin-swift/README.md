@@ -5,7 +5,8 @@ Purpose
 -------
 
 The Swift plugin generates a net.kebernet.xddl.swift.SwiftPM library that contains all the same targets as the Java module. They will be in
-the format of "Specification Name"-> "SpecificationNameV1_1"
+the format of "Specification Name"-> "SpecificationNameV1_1". It should be suitable to tagging and publishing to a 
+git repository.
 
 Extensions
 ----------
@@ -17,8 +18,10 @@ Extensions
     * ``from`` -- the lowest acceptable version
     * ``to`` -- the highest acceptable version
     * ``exclusive`` -- if the highest acceptable version should be excluded ("..<")
+    * Understand that if there are multiple versions of a spec being built into a library, the dependencies delcared
+      in the highest version, win.
  * Type (any type)
-   * ``imports`` -- a string list of targets to import to support the type.
+   * ``imports`` -- a string list of imports to support the type.
  * Property
    * ``type`` -- the native type of the field (must be Codable)
    * ``fieldName`` -- the encoded (JSON) name of the field.

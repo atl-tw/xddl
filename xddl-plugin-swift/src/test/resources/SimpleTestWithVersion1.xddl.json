@@ -1,6 +1,13 @@
 {
   "title": "My Library",
   "version": "1.0",
+  "ext": {
+    "swift": {
+      "dependencies": [
+        { "url":"https://github.com/apple/example-package-playingcard.git", "from": "3.0.0" }
+      ]
+    }
+  },
   "structures": [
     {
       "@type": "Structure",
