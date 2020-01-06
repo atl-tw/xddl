@@ -305,9 +305,70 @@ TBLPROPERTIES ('has_encrypted_data'='false');
 Referencing Other Data
 ----------------------
 
+Field values in xDDL can be interpreted as [OGNL](https://commons.apache.org/proper/commons-ognl/) expressions, which
+allows you to reference values from within and without of the specification. Lets look at an example.
 
+In our previous specification file, we hard coded the ``version`` to be "1.0", but this might not be specific enough.
+Surely our project is being built on a server somewhere and we might want to be more specific. In this case we can say:
 
+```json
+{
+  "title": "My Specification",
+  "version": "1.0.${vals.buildNumber}",
+  "entryRef": "OrganizationalUnit"
+}
+```
 
+Now we can create a ``values.json`` file that looks like:
+
+```json
+{"buildNumber": "1234" }
+```
+
+And use the "unify" command to generate a version of our spec that will have the external value escaped it it...
+
+```bash
+xddl unify -i step5.xddl.json -d step4includes -v values.json -o current.xddl.json
+```
+
+... giving us:
+
+```json
+{
+  "title" : "My Specification",
+  "version" : "1.0.1234",
+  "entryRef" : "OrganizationalUnit",
+  "types" : [ {
+    "@type" : "Type",
+    "name" : "human_name",
+    "core" : "STRING",
+    "patch" : false,
+```
+.. and so forth.
+
+Let's look at a VERY common case:
+
+```json
+{
+  "@type": "Type",
+  "core": "STRING",
+  "name": "version",
+  "description": "The version",
+  "required": true,
+  "ext": {
+    "java": {
+      "initializer": "\"${specification.version}\""
+    }
+  }
+}
+```
+
+Here we are copying the version from the specification file to the the initializer of the Java variable. You can see 
+now the two major context object you have access to from OGNL:
+
+ 1. ``specification`` -- the actual specification itself
+ 1. ``vals`` -- the external values object, this can be read from a JSON file as we are doing here, or can be defined 
+    in the build.gradle file if you are using the Gradle plugin. 
 
 Using Command Line Tools
 ------------------------
@@ -326,9 +387,8 @@ Output:
 ```
 Usage: unify [options]
   Options:
-    --evaluate-ognl, -eval
-      Should we evaluate the OGNL in the file (default true)
-      Default: true
+    --no-evaluate-ognl, -no-eval
+      Disables OGNL evaluation.
     --help
       Show this help text
     --include-dir, -d
