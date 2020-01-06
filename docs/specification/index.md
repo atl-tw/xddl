@@ -7,6 +7,16 @@ Before We Start
 In this document, we are using the command line version of xddl, [available from JCenter](
 https://jcenter.bintray.com/net/kebernet/xddl/xddl/0.9.0/xddl-0.9.0-distribution.zip).
 
+Table on Contents
+-----------------
+
+ 1. [Core Concepts](#core)
+ 1. [Conventions and Practices](#conv)
+ 1. [Referencing Other Data](#data)
+ 1. [Using Command Line Tools](#cli)
+ 
+ 
+<a name="core"></a>
 
 Core Concepts
 -------------
@@ -209,6 +219,9 @@ Now we see the values from our ``ext: { json:`` tree copied into the JSON schema
 each of these is referenced as ``human_name``, we don't need to duplicate the extended configuration multiple places. 
 You also now have a JSON Schema document with which you can used to validate OrganizationalUnit documents.
 
+
+<a name="conv"></a>
+
 Conventions and Practices
 -------------------------
 
@@ -301,6 +314,7 @@ LOCATION ''
 TBLPROPERTIES ('has_encrypted_data'='false');
 ```
 
+<a name="data"></a>
 
 Referencing Other Data
 ----------------------
@@ -369,6 +383,8 @@ now the two major context object you have access to from OGNL:
  1. ``specification`` -- the actual specification itself
  1. ``vals`` -- the external values object, this can be read from a JSON file as we are doing here, or can be defined 
     in the build.gradle file if you are using the Gradle plugin. 
+
+<a name="cli"></a>
 
 Using Command Line Tools
 ------------------------
