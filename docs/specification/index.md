@@ -86,7 +86,7 @@ information about any level of the specification to plugins to be used for gener
 
 Now we can use the "generate" command to create a JSON Schema equivalent for our specification:
 
-```shell script
+```bash
 xddl generate --input-file ./step2.xddl.json --format json --output-directory .
 ```
 
@@ -161,7 +161,7 @@ have marked a few properties as ``required``, and we have create in the ``types`
 which we use as a ``Reference`` for firstName and lastName.
 
 
-```shell script
+```bash
 xddl generate --input-file ./step3.xddl.json --format json --output-directory .
 ```
 

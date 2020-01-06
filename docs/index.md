@@ -1,4 +1,4 @@
-tl;dr: A Swiss Army Knife for data specifications
+tl;dr: A Swiss Army Knife for Data Specifications
 =================================================
 
 
