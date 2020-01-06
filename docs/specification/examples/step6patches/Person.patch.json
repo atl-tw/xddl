@@ -1,0 +1,6 @@
+{ "@type": "Structure", "name": "Person",
+  "properties": [
+    {"@type": "PATCH_DELETE",  "name": "firstName"},
+    {"@type": "Reference", "ref": "human_name", "name": "givenName", "required": true}
+  ]
+}
