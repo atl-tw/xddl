@@ -13,10 +13,9 @@ dependencies {
 }
 
 sourceSets {
-    functional {
-        groovy.srcDir file('src/functional/groovy')
-        java.srcDirs([file("${project.buildDir}/xddl-functional"), file('src/functional/java')])
-        resources.srcDir file('src/functional/resources')
+    integration {
+        java.srcDirs([file("${project.buildDir}/xddl-integration"), file('src/integration/java')])
+        resources.srcDir file('src/integration/resources')
         compileClasspath += sourceSets.main.output + configurations.testRuntimeClasspath
         runtimeClasspath += output + compileClasspath
     }
@@ -24,19 +23,19 @@ sourceSets {
 
 
 task glide(type: XDDLGlide){
-    includeDirectories = [file("src/functional/xddl/includes")]
-    patchesDirectory = file("src/functional/xddl/patches")
-    sourceFile = file("src/functional/xddl/Specification.xddl.json")
+    includeDirectories = [file("src/integration/xddl/includes")]
+    patchesDirectory = file("src/integration/xddl/patches")
+    sourceFile = file("src/integration/xddl/Specification.xddl.json")
 }
 
 task glideJava(type: XDDLGlideGenerate, dependsOn: glide){
     plugin "java"
-    outputDirectory file("${project.buildDir}/xddl-functional")
+    outputDirectory file("${project.buildDir}/xddl-integration")
 }
 
 task glideMigration(type: XDDLGlideGenerate, dependsOn: glide){
     plugin "migrate"
-    outputDirectory file("${project.buildDir}/xddl-functional")
+    outputDirectory file("${project.buildDir}/xddl-integration")
 }
 
 
@@ -45,21 +44,22 @@ task elasticsearch(type: XDDLGlideGenerate, dependsOn: glide) {
 }
 
 
-compileFunctionalJava.dependsOn glideJava
-compileFunctionalJava.dependsOn glideMigration
+compileIntegrationJava.dependsOn glideJava
+compileIntegrationJava.dependsOn glideMigration
 
-tasks.spotbugsFunctional.enabled = false;
+tasks.spotbugsIntegration.enabled = false
+
 spotless {
     java {
         target file("src/main/java")
     }
 }
 
-task functional(type: Test, dependsOn: elasticsearch) {
+task integration(type: Test, dependsOn: elasticsearch) {
     description = 'Runs the functional tests against an actual elastic search instance'
     group = 'verification'
-    testClassesDirs = sourceSets.functional.output.classesDirs
-    classpath = sourceSets.functional.runtimeClasspath
+    testClassesDirs = sourceSets.integration.output.classesDirs
+    classpath = sourceSets.integration.runtimeClasspath
     mustRunAfter test //, integrationTest
     testLogging {
         showStandardStreams = true

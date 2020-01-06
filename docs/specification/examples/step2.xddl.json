@@ -1,0 +1,17 @@
+{
+  "structures": [
+    { "@type": "Structure", "name": "Person",
+      "properties": [
+        {"@type": "Type", "core": "STRING", "name": "firstName"},
+        {"@type": "Type", "core": "STRING", "name": "lastName"}
+      ]
+    },
+    { "@type": "Structure", "name": "OrganizationalUnit",
+      "properties": [
+        {"@type": "Type", "core": "STRING", "name": "name"},
+        {"@type": "List", "name": "members",
+          "contains": { "@type": "Reference", "ref": "Person"}}
+      ]
+    }
+  ]
+}

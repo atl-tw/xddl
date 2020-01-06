@@ -1,0 +1,27 @@
+{
+  "entryRef": "OrganizationalUnit",
+  "types": [
+    {"@type": "Type", "name": "human_name", "core": "STRING",
+      "ext": {
+        "json": {
+          "minLength": 1, "maxLength": 255, "pattern": "[A-z-']*"
+        }
+      }
+    }
+  ],
+  "structures": [
+    { "@type": "Structure", "name": "Person",
+      "properties": [
+        {"@type": "Reference", "ref": "human_name", "name": "firstName", "required": true},
+        {"@type": "Reference", "ref": "human_name", "name": "lastName", "required": true}
+      ]
+    },
+    { "@type": "Structure", "name": "OrganizationalUnit",
+      "properties": [
+        {"@type": "Type", "core": "STRING", "name": "name","required": true},
+        {"@type": "List", "name": "members",
+          "contains": { "@type": "Reference", "ref": "Person"}}
+      ]
+    }
+  ]
+}

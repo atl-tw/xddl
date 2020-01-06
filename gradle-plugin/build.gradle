@@ -27,7 +27,7 @@ dependencies {
 
 
 sourceSets {
-    functionalTest {
+    functional {
         groovy.srcDir file('src/functional/groovy')
         java.srcDir file('src/functional/java')
         resources.srcDir file('src/functional/resources')
@@ -40,11 +40,11 @@ dokka {
     outputFormat = 'html'
 }
 
-task functionalTest(type: Test) {
+task functional(type: Test) {
     description = 'Runs the functional tests.'
     group = 'verification'
-    testClassesDirs = sourceSets.functionalTest.output.classesDirs
-    classpath = sourceSets.functionalTest.runtimeClasspath
+    testClassesDirs = sourceSets.functional.output.classesDirs
+    classpath = sourceSets.functional.runtimeClasspath
     mustRunAfter test //, integrationTest
     testLogging {
         showStandardStreams = true
@@ -56,7 +56,7 @@ task functionalTest(type: Test) {
     }
 }
 
-check.dependsOn functionalTest
+check.dependsOn functional
 
 
 if(project.hasProperty("kebernet_bintray")) {
@@ -116,6 +116,6 @@ gradlePlugin {
     }
 }
 
-tasks.functionalTest.dependsOn clean
+tasks.functional.dependsOn clean
 
 
