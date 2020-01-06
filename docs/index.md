@@ -16,7 +16,7 @@ There are a lot of things you can do with it. To get started, pick a case that b
 <p style="text-align: center;">
  xDDL is a project of ThoughtWorks, Atlanta.
 
- <img src="./georgia.jpg" width="192" height=""134" />    
+ <![Georgia](georgia.jpg)>    
    
 </p>
 
