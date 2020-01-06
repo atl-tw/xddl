@@ -1,0 +1,7 @@
+{ "@type": "Structure", "name": "OrganizationalUnit",
+  "properties": [
+    {"@type": "Type", "core": "STRING", "name": "name","required": true},
+    {"@type": "List", "name": "members",
+      "contains": { "@type": "Reference", "ref": "Person"}}
+  ]
+}

@@ -1,0 +1,7 @@
+{"@type": "Type", "name": "human_name", "core": "STRING",
+  "ext": {
+    "json": {
+      "minLength": 1, "maxLength": 255, "pattern": "[A-z-']*"
+    }
+  }
+}

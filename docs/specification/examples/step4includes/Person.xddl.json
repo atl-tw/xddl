@@ -1,0 +1,6 @@
+{ "@type": "Structure", "name": "Person",
+  "properties": [
+    {"@type": "Reference", "ref": "human_name", "name": "firstName", "required": true},
+    {"@type": "Reference", "ref": "human_name", "name": "lastName", "required": true}
+  ]
+}

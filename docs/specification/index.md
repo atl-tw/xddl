@@ -209,8 +209,8 @@ Now we see the values from our ``ext: { json:`` tree copied into the JSON schema
 each of these is referenced as ``human_name``, we don't need to duplicate the extended configuration multiple places. 
 You also now have a JSON Schema document with which you can used to validate OrganizationalUnit documents.
 
-Important Conventions
----------------------
+Conventions and Practices
+-------------------------
 
 While it is not *required* that you do so, you are encouraged to follow these naming conventions within your xDDL 
 specification. Doing so will give you the best possible results when generating artifacts from the various plugins.
@@ -219,5 +219,184 @@ specification. Doing so will give you the best possible results when generating 
  * Property names should be lowerCameCase.
  * Specification-level types should be lower_snake_case.
  
+As you can imagine, keeping all your definitions in a single file can become overwhelming if your definition is large.
+You can break this up by using the `` --include-dir`` options on the command line. This will scan a directory of files
+named *.xddl.json and place them into the types or structures groups where appropriate. You can then break your specification
+down to:
+
+```json
+{
+  "title": "My Specification", 
+  "version": "1.0",
+  "entryRef": "OrganizationalUnit"
+}
+```
+ 
+And separate your files into, for example...
+
+``human_name.xddl.json``
+```json
+{"@type": "Type", "name": "human_name", "core": "STRING",
+  "ext": {
+    "json": {
+      "minLength": 1, "maxLength": 255, "pattern": "[A-z-']*"
+    }
+  }
+}
+```
+ 
+This makes developing and updating you specifications in an IDE much easier since you might not have to search withing
+a hundreds (or thousands) of lines specification to locate what you need to edit.
+
+Looking at the help text for the ``generate`` command, we see:
+```bash
+xddl generate --help
+```
+```
+Usage: generate [options]
+  Options:
+  * --format, -f
+      The output plugin to generate
+    --help
+      Show this help text
+    --include-dir, -d
+      Directory(ies) to scan for *.xddl.json files to include.
+  * --input-file, -i
+      The specification file.
+  * --output-directory, -o
+      The directory to output generated artifacts to.
+    --stacktrace
+      Show the stacktrace of an error
+      Default: false
+    --vals-file, -v
+      JSON file of values
+```
+ 
+ 
+So if we run
+
+```bash
+xddl generate -i step4.xddl.json -d step4includes -f json -o . 
+``` 
+
+Then because we have provided a title and version to our specification document, we now get 
+``My_Speciifcation_1.0.schema.json``. This naming convention is common among plugins. If we wanted to generate a 
+tabled definition for [Apache Hive](https://hive.apache.org/) we could run...
+
+```bash
+xddl generate -i step4.xddl.json -d step4includes -f hive -o . 
+``` 
+
+...and we will generate a file called ``My_Specification_1.0.hive`` with our Hive table definition.
+
+```hiveql
+CREATE EXTERNAL TABLE IF NOT EXISTS My_Specification_1.0 (
+  name varchar(255),
+  members ARRAY<STRUCT<firstName:varchar(255), lastName:varchar(255)>>
+)
+ROW FORMAT SERDE 'org.openx.data.jsonserde.JsonSerDe'
+WITH SERDEPROPERTIES ('serialization.format' = '1',  'ignore.malformed.json' = 'true')
+LOCATION ''
+
+TBLPROPERTIES ('has_encrypted_data'='false');
+```
+
+
+Referencing Other Data
+----------------------
+
+
+
+
+
+Using Command Line Tools
+------------------------
+
+While most people use the Gradle plugins, the xDDL Command Line is fully featured and can be used to integrated the
+functionality with whatever build chain you might have. Here we have mostly used the ``generate`` command to create
+artifacts using the xDDL plugins. The other commands are:
+
+ * ``unify`` -- Takes a collection of includes and/or patches, and generate a single xddl file that contains all the 
+   defined structures.
+```
+xddl unify --help
+Usage: unify [options]
+  Options:
+    --evaluate-ognl, -eval
+      Should we evaluate the OGNL in the file (default true)
+      Default: true
+    --help
+      Show this help text
+    --include-dir, -d
+      Directory(ies) to scan for *.xddl.json files to include.
+  * --input-file, -i
+      The specification file.
+    --new-version, -nb
+      The version string of the unified file
+  * --output-file, -o
+      The file to output generated artifacts to.
+    --patches-dir, -p
+      Directory(ies) to scan for *.patch.json files to include.
+    --scrub-patch, -s
+      scrubs patch-delete operations from the original
+      Default: false
+    --stacktrace
+      Show the stacktrace of an error
+      Default: false
+    --vals-file, -v
+      JSON file of values
+
+```   
+   
+ * ``glide`` -- Takes a specification and a directory of versioned patches and generates each of the interim xddl files
+ for each version. (You can learn more about this in the models or elasticsearch documentation).
+ 
+```
+xddl glide --help
+Usage: glide [options]
+  Options:
+    --glide-patches, -g
+      Directory(ies) to scan for 'vXXXX' directories containing *.patch.json 
+      files to include.
+    --help
+      Show this help text
+    --include-dir, -d
+      Directory(ies) to scan for *.xddl.json files to include.
+  * --input-file, -i
+      The specification file.
+  * --output-directory, -o
+      The file to output generated artifacts to.
+    --stacktrace
+      Show the stacktrace of an error
+      Default: false
+    --vals-file, -v
+      JSON file of values
+
+``` 
+
+   
+ * ``diff`` -- Outputs the diff between different xddl specs.   
+ 
+ ```s
+xddl diff --help
+Usage: diff [options]
+  Options:
+    --comparision
+      Show comparision rather than just missing fields
+      Default: false
+    --help
+      Show this help text
+  * --left-file, -l
+      The left hand file.
+    --left-include-dir, -ld
+      Directory(ies) to scan for *.xddl.json files to include.
+  * --right-file, -r
+      The left hand file.
+    --right-include-dir, -rd
+      Directory(ies) to scan for *.xddl.json files to include.
+    --stacktrace
+      Show the stacktrace of an error
+      Default: false
+```
  
  
