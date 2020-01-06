@@ -16,10 +16,7 @@ There are a lot of things you can do with it. To get started, pick a case that b
 
 
 ----------
-<p style="text-align: center;">
- xDDL is a project of ThoughtWorks, Atlanta.
-
- ![Georgia](https://github.com/atl-tw/xddl/raw/master/docs/georgia.jpg)
-   
+<p align="center">
+ xDDL is a project of ThoughtWorks, Atlanta. <br/><br/> <img src="https://github.com/atl-tw/xddl/raw/master/docs/georgia.jpg">
 </p>
 
