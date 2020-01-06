@@ -47,11 +47,6 @@ public class PowerGlideCommand {
   private String activeAlias;
 
   @Parameter(
-      names = {"--item-type", "-i"},
-      description = "The name of items in the new index to insert (for ES < 7.0).")
-  private String itemName;
-
-  @Parameter(
       names = {"--switch-active-on-completion", "-switch"},
       description =
           "Should the active alias be pointed to a new version on completion (default: true)")

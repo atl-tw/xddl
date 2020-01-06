@@ -1,4 +1,5 @@
 package com.my.project;
 
-public class HasId {
+public interface HasId {
+  String getId();
 }

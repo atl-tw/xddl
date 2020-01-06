@@ -71,8 +71,12 @@ subprojects {
         mavenCentral()
     }
 
+    def jacksonVersion = "2.+"
     dependencies {
-        api 'com.fasterxml.jackson.core:jackson-databind:2.10.0'
+        api "com.fasterxml.jackson.core:jackson-databind:${jacksonVersion}"
+        api "com.fasterxml.jackson.module:jackson-module-parameter-names:${jacksonVersion}"
+        api "com.fasterxml.jackson.datatype:jackson-datatype-jdk8:${jacksonVersion}"
+        api "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:${jacksonVersion}"
         implementation 'org.projectlombok:lombok:1.18.8'
         implementation 'com.google.guava:guava:28.0-jre'
         annotationProcessor 'org.projectlombok:lombok:1.18.8'
@@ -172,7 +176,7 @@ subprojects {
         mapping("java", "SLASHSTAR_STYLE")
         exclude "**/*.json"
         exclude "**/*.mustache"
-
+        exclude "com/my/**"
     }
 
 

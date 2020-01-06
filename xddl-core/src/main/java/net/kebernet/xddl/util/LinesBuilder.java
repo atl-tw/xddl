@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.kebernet.xddl.swift.model;
+package net.kebernet.xddl.util;
 
 import com.google.common.escape.CharEscaper;
 import com.google.common.escape.CharEscaperBuilder;

@@ -15,6 +15,8 @@
  */
 package net.kebernet.xddl.swift.model;
 
+import net.kebernet.xddl.util.LinesBuilder;
+
 public interface SwiftType {
 
   String getName();

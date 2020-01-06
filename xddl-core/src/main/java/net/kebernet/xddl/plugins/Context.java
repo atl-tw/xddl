@@ -73,7 +73,7 @@ public class Context {
   public String createBaseFilename() {
     return (ofNullable(specification.getTitle()).orElse("xddl")
             + "_"
-            + ofNullable(specification.getVersion()).orElse("v1"))
+            + ofNullable(specification.getVersion()).orElse("0"))
         .replaceAll(" ", "_");
   }
 

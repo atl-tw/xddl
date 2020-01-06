@@ -15,9 +15,11 @@
  */
 package net.kebernet.xddl.powerglide;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+import static java.util.Optional.ofNullable;
 import static net.kebernet.xddl.model.Utils.isNullOrEmpty;
-import static net.kebernet.xddl.model.Utils.streamOrEmpty;
 
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.annotations.VisibleForTesting;
 import java.io.IOException;
 import java.util.List;
@@ -27,72 +29,95 @@ import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import javax.inject.Inject;
+import javax.annotation.Nonnull;
 import net.kebernet.xddl.Loader;
 import net.kebernet.xddl.SemanticVersion;
 import net.kebernet.xddl.migrate.MigrationVisitor;
+import net.kebernet.xddl.powerglide.metadata.GlideMetadataReader;
+import net.kebernet.xddl.powerglide.metadata.PackageMetadata;
 
 public class PowerGlideRunner {
 
   private static final Logger LOGGER = Logger.getLogger(PowerGlideRunner.class.getCanonicalName());
   private static final Pattern TRAILING_VERSION_PATTERN =
       Pattern.compile("[A-z0-9- _.][A-z _.]*([\\d.]*)$");
-  private final PowerGlideCommand command;
-  private final MigrationState state;
+  private MigrationState state;
   private ElasticSearchClient client;
-  private Map<SemanticVersion, String> versionsToMigrationVisitorClassNames;
 
-  public PowerGlideRunner(PowerGlideCommand command, MigrationState state) {
-    this.command = command;
-    this.state = state;
+  public PowerGlideRunner(@Nonnull PowerGlideCommand command) throws IOException {
     this.client =
         new ElasticSearchClient(null, Loader.mapper())
             .initClient(command.getElasticSearchUrl(), command.getAuth(), command.getAuthType());
-  }
+    Map<SemanticVersion, PackageMetadata> packageMetadata =
+        new GlideMetadataReader().readGlideFolder(command.getGlideDirectory());
 
-  @Inject
-  public PowerGlideRunner(
-      PowerGlideCommand command, MigrationState state, ElasticSearchClient client) {
-    this.command = command;
-    this.state = state;
-    this.client = client;
-  }
+    ElasticSearchClient.IndexVersions current =
+        client.lookupSchemaVersions(command.getActiveAlias(), command.isWriteIndex());
 
-  private void init() {
-    // TODO not done
-    if (this.command.getGlideDirectory() != null) {
-      streamOrEmpty(command.getGlideDirectory().listFiles())
-          .map(f -> Loader.builder().main(f).build().read());
+    SemanticVersion nextVersion = resolveNextVersion(current);
+    if (nextVersion == null || nextVersion.getName() == null) {
+      throw new IllegalStateException("Couldn't determine the next version from " + current);
     }
+    state =
+        MigrationState.builder()
+            .itemName(packageMetadata.get(nextVersion).getBaseFilename())
+            .currentIndex(current.currentVersion)
+            .nextIndex(nextVersion.getName())
+            .visitorClassName(packageMetadata.get(nextVersion).migrationVisitor())
+            .batchSize(command.getBatchSize())
+            .build();
+  }
+
+  public PowerGlideRunner(@Nonnull ElasticSearchClient client, @Nonnull MigrationState state) {
+    checkNotNull(client, "You must provide an ElasticSearchClient.");
+    checkNotNull(state, "You must provide an initial MigrationState.");
+    this.client = client;
+    this.state = state;
   }
 
   public MigrationState runSingleBatch() throws IOException {
-    ElasticSearchClient.IndexVersions current =
-        client.lookupSchemaVersions(command.getActiveAlias(), command.isWriteIndex());
-    SemanticVersion nextVersion = resolveNextVersion(current);
+
     ElasticSearchClient.Batch batch =
-        client.readBatch(current.currentVersion, state.getScrollId(), command.batchSize);
+        client.readBatch(
+            state.getCurrentIndex(),
+            ofNullable(state).map(MigrationState::getScrollId).orElse(null),
+            state.getBatchSize());
 
     if (!isNullOrEmpty(batch.errors)) {
       LOGGER.warning("There were " + batch.errors.size() + " errors reading the batch from ES.");
     }
-    if (nextVersion == null || nextVersion.getName() == null) {
-      throw new IllegalStateException("Couldn't determine the next version from " + current);
-    }
+
+    MigrationVisitor visitor = visitorFactory(state.getVisitorClassName());
+
+    batch.documents.values().forEach(v -> visitor.apply((ObjectNode) v, v));
 
     List<ElasticSearchClient.ErrorResult> results =
-        client.insertBatch(nextVersion.getName(), state.getItemName(), batch);
+        client.insertBatch(state.getNextIndex(), state.getItemName(), batch);
 
     return MigrationState.builder()
         .scrollId(batch.nextScrollId)
-        .successfulRecords(batch.documents.size() - batch.errors.size() - results.size())
-        .failedRecords(batch.errors.size())
-        .exceptions(new Exceptions().from(batch.errors).addAll(new Exceptions().from(results)))
+        .visitorClassName(state.getVisitorClassName())
+        .itemName(state.getItemName())
+        .nextIndex(state.getNextIndex())
+        .currentIndex(state.getCurrentIndex())
+        .successfulRecords(
+            state.getSuccessfulRecords()
+                + (batch.documents.size() - batch.errors.size() - results.size()))
+        .failedRecords(state.getFailedRecords() + batch.errors.size() + results.size())
+        .exceptions(
+            state
+                .getExceptions()
+                .addAll(new Exceptions().from(batch.errors).addAll(new Exceptions().from(results))))
         .build();
   }
 
-  private MigrationVisitor visitorFactory(SemanticVersion nextVersion) {
-    return null;
+  private MigrationVisitor visitorFactory(String className) {
+    try {
+      return (MigrationVisitor) Class.forName(className).newInstance();
+    } catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
+      throw new CriticalPowerglideException(
+          "Unable to create migration visitor for " + className, e);
+    }
   }
 
   @VisibleForTesting
@@ -122,5 +147,12 @@ public class PowerGlideRunner {
     return isNullOrEmpty(higherVersions) ? null : higherVersions.get(0);
   }
 
-  public void run() {}
+  public MigrationState run() throws IOException {
+    for (state = this.runSingleBatch();
+        state.getScrollId() != null;
+        state = this.runSingleBatch()) {
+      LOGGER.info("Executed batch: " + state);
+    }
+    return state;
+  }
 }

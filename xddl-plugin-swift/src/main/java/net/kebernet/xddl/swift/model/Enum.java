@@ -25,6 +25,7 @@ import lombok.Builder;
 import lombok.Data;
 import net.kebernet.xddl.migrate.format.CaseFormat;
 import net.kebernet.xddl.model.Value;
+import net.kebernet.xddl.util.LinesBuilder;
 
 @Data
 @Builder

@@ -1,8 +1,68 @@
+plugins {
+    id 'net.kebernet.xddl' version '0.9.0'
+}
+
 dependencies {
     implementation 'com.beust:jcommander:1.72'
     implementation 'javax.inject:javax.inject:1'
     api project(":xddl-core")
     api project(":xddl-plugin-migrate-lib")
     api project(":xddl-plugin-migrate")
-    api 'org.elasticsearch.client:elasticsearch-rest-high-level-client:7.5.0'
+    api project(":xddl-plugin-java")
+    api 'org.elasticsearch.client:elasticsearch-rest-high-level-client:6.5.2'
 }
+
+sourceSets {
+    functional {
+        groovy.srcDir file('src/functional/groovy')
+        java.srcDirs([file("${project.buildDir}/xddl-functional"), file('src/functional/java')])
+        resources.srcDir file('src/functional/resources')
+        compileClasspath += sourceSets.main.output + configurations.testRuntimeClasspath
+        runtimeClasspath += output + compileClasspath
+    }
+}
+
+
+task glide(type: XDDLGlide){
+    includeDirectories = [file("src/functional/xddl/includes")]
+    patchesDirectory = file("src/functional/xddl/patches")
+    sourceFile = file("src/functional/xddl/Specification.xddl.json")
+}
+
+task glideJava(type: XDDLGlideGenerate, dependsOn: glide){
+    plugin "java"
+    outputDirectory file("${project.buildDir}/xddl-functional")
+}
+
+task glideMigration(type: XDDLGlideGenerate, dependsOn: glide){
+    plugin "migrate"
+    outputDirectory file("${project.buildDir}/xddl-functional")
+}
+
+
+task elasticsearch(type: XDDLGlideGenerate, dependsOn: glide) {
+    plugin "elasticsearch"
+}
+
+
+compileFunctionalJava.dependsOn glideJava
+compileFunctionalJava.dependsOn glideMigration
+
+tasks.spotbugsFunctional.enabled = false;
+
+task functional(type: Test, dependsOn: elasticsearch) {
+    description = 'Runs the functional tests.'
+    group = 'verification'
+    testClassesDirs = sourceSets.functional.output.classesDirs
+    classpath = sourceSets.functional.runtimeClasspath
+    mustRunAfter test //, integrationTest
+    testLogging {
+        showStandardStreams = true
+    }
+    jacoco {
+        enabled = true
+        append = true
+        destinationFile = file("${buildDir}/jacoco/test.exec")
+    }
+}
+

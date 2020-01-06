@@ -40,9 +40,9 @@ import net.kebernet.xddl.model.*;
 import net.kebernet.xddl.plugins.Context;
 import net.kebernet.xddl.plugins.Plugin;
 import net.kebernet.xddl.swift.model.Enum;
-import net.kebernet.xddl.swift.model.LinesBuilder;
 import net.kebernet.xddl.swift.model.Struct;
 import net.kebernet.xddl.swift.model.SwiftType;
+import net.kebernet.xddl.util.LinesBuilder;
 
 public class SwiftPlugin implements Plugin {
 

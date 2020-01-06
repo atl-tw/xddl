@@ -60,6 +60,7 @@ import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestClient;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.cluster.metadata.AliasMetaData;
+import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
@@ -71,6 +72,11 @@ public class ElasticSearchClient {
   private RestHighLevelClient client;
   private final ObjectMapper objectMapper;
   private final RequestOptions options = RequestOptions.DEFAULT;
+  private long scrollTimeout = 5;
+
+  public ElasticSearchClient(@Nonnull ObjectMapper mapper) {
+    this.objectMapper = mapper;
+  }
 
   @Inject
   public ElasticSearchClient(
@@ -79,29 +85,33 @@ public class ElasticSearchClient {
     this.objectMapper = objectMapper;
   }
 
+  public void setScrollTimeout(long scrollTimeout) {
+    this.scrollTimeout = scrollTimeout;
+  }
+
   public Batch readBatch(String indexName, String lastScrollId, int pageSize) throws IOException {
 
-    SearchRequest searchRequest = new SearchRequest(indexName);
-    searchRequest.scroll(lastScrollId);
-    SearchSourceBuilder searchSourceBuilder =
-        new SearchSourceBuilder().query(QueryBuilders.matchAllQuery()).size(pageSize);
-    searchRequest.source(searchSourceBuilder);
     SearchHit[] searchHits;
     String scrollId;
 
     if (lastScrollId == null) {
+      SearchRequest searchRequest = new SearchRequest(indexName);
+      SearchSourceBuilder searchSourceBuilder =
+          new SearchSourceBuilder().query(QueryBuilders.matchAllQuery()).size(pageSize);
+      searchRequest.scroll(TimeValue.timeValueMinutes(this.scrollTimeout));
+      searchRequest.source(searchSourceBuilder);
       SearchResponse searchResponse = client.search(searchRequest, RequestOptions.DEFAULT);
       scrollId = searchResponse.getScrollId();
       searchHits = searchResponse.getHits().getHits();
     } else {
       SearchScrollRequest scrollRequest = new SearchScrollRequest(lastScrollId);
-      scrollRequest.scroll(lastScrollId);
+      scrollRequest.scroll(TimeValue.timeValueMinutes(this.scrollTimeout));
       SearchResponse searchResponse = client.scroll(scrollRequest, RequestOptions.DEFAULT);
       scrollId = searchResponse.getScrollId();
       searchHits = searchResponse.getHits().getHits();
     }
 
-    if (searchHits == null || searchHits.length == 0) {
+    if ((searchHits == null || searchHits.length == 0) && scrollId != null) {
       ClearScrollRequest clearScrollRequest = new ClearScrollRequest();
       clearScrollRequest.addScrollId(scrollId);
       ClearScrollResponse clearScrollResponse =
@@ -182,6 +192,7 @@ public class ElasticSearchClient {
       this.client =
           new RestHighLevelClient(
               RestClient.builder(new HttpHost(uri.getHost(), uri.getPort(), uri.getScheme())));
+      return this;
     }
 
     switch (authType) {
@@ -220,6 +231,9 @@ public class ElasticSearchClient {
     String current = null;
     List<String> deployed = new ArrayList<>(aliases.size());
     for (Map.Entry<String, Set<AliasMetaData>> entry : aliases.entrySet()) {
+      if (!entry.getKey().startsWith(aliasName)) {
+        continue;
+      }
       deployed.add(entry.getKey());
       if (Utils.neverNull(entry.getValue()).stream()
           .anyMatch(

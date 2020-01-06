@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 import lombok.Data;
 import net.kebernet.xddl.swift.PropertyExtension;
+import net.kebernet.xddl.util.LinesBuilder;
 
 @Data
 public class Struct implements SwiftType {

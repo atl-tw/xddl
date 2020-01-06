@@ -40,7 +40,7 @@ xDDL is based on on couple of simple ideas:
 Getting Started
 ---------------
 
-Please see the [Getting Started Guide](./doc/Getting_Started.md).
+Please see the [Getting Started Guide](docs/Getting_Started.md).
 
 Gradle
 ------

@@ -63,7 +63,7 @@ public class SemanticVersion implements Comparable<SemanticVersion> {
   }
 
   public boolean isGreaterThan(@Nonnull SemanticVersion o) {
-    return this.compareTo(o) >= 0;
+    return this.compareTo(o) > 0;
   }
 
   @Override

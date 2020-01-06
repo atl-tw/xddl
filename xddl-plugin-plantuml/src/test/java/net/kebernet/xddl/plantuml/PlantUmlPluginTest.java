@@ -40,8 +40,7 @@ public class PlantUmlPluginTest {
     String result = instance.generateArtifacts(context, new File("build/test-gen/simpleTest"));
     assertThat(result).isEqualTo("OK");
     assertThat(
-            CharStreams.toString(
-                new FileReader(new File("build/test-gen/simpleTest/xddl_v1.puml"))))
+            CharStreams.toString(new FileReader(new File("build/test-gen/simpleTest/xddl_0.puml"))))
         .isEqualTo(
             "@startuml\n"
                 + "\n"
@@ -73,7 +72,7 @@ public class PlantUmlPluginTest {
     assertThat(result).isEqualTo("OK");
     assertThat(
             CharStreams.toString(
-                new FileReader(new File("build/test-gen/listOfBaseTypes/xddl_v1.puml"))))
+                new FileReader(new File("build/test-gen/listOfBaseTypes/xddl_0.puml"))))
         .isEqualTo(
             "@startuml\n"
                 + "\n"
@@ -98,7 +97,7 @@ public class PlantUmlPluginTest {
     assertThat(
             CharStreams.toString(
                 new FileReader(
-                    new File("build/test-gen/referenceList/Sample_Specification_v1.puml"))))
+                    new File("build/test-gen/referenceList/Sample_Specification_0.puml"))))
         .isEqualTo(
             "@startuml\n"
                 + "\n"

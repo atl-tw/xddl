@@ -7,6 +7,12 @@
     },
     "swift": {
       "libraryName": "ProjectModel"
+    },
+    "elasticsearch" : {
+      "index.mapper.dynamic" : false,
+      "index.mapping.total_fields.limit" : 2000,
+      "number_of_shards" : "2",
+      "number_of_replicas" : "1"
     }
   }
 }

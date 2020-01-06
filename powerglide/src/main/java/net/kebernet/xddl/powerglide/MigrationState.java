@@ -28,4 +28,7 @@ public class MigrationState {
   @Builder.Default private Exceptions exceptions = new Exceptions();
   private String visitorClassName;
   private String itemName;
+  private String currentIndex;
+  private String nextIndex;
+  private int batchSize;
 }
