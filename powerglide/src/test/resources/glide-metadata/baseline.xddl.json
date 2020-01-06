@@ -1,0 +1,54 @@
+{
+  "version" : "1.0",
+  "entryRef" : "Team",
+  "structures" : [ {
+    "@type" : "Structure",
+    "name" : "Name",
+    "ext" : {
+      "java" : {
+        "implements" : [ "com.my.project.HasId" ]
+      }
+    },
+    "patch" : false,
+    "sourceFile" : "/Users/rcooper/Documents/xddl-glide/src/main/xddl/includes/Name.xddl.json",
+    "properties" : [ {
+      "@type" : "Type",
+      "name" : "id",
+      "core" : "STRING"
+    }, {
+      "@type" : "Type",
+      "name" : "value",
+      "core" : "TEXT"
+    } ]
+  }, {
+    "@type" : "Structure",
+    "name" : "Team",
+    "patch" : false,
+    "sourceFile" : "/Users/rcooper/Documents/xddl-glide/src/main/xddl/includes/Team.xddl.json",
+    "properties" : [ {
+      "@type" : "Type",
+      "name" : "version",
+      "core" : "STRING",
+      "ext" : {
+        "java" : {
+          "initializer" : "\"${specification.version}\""
+        }
+      }
+    }, {
+      "@type" : "List",
+      "name" : "members",
+      "contains" : {
+        "@type" : "Reference",
+        "ref" : "Name"
+      }
+    } ]
+  } ],
+  "ext" : {
+    "java" : {
+      "package" : "com.my.project.model"
+    },
+    "swift" : {
+      "libraryName" : "ProjectModel"
+    }
+  }
+}

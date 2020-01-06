@@ -1,0 +1,15 @@
+{
+  "@type": "Structure",
+  "name": "Team",
+  "properties": [
+    {
+      "@type": "Type", "core": "STRING", "name": "version",
+      "ext": {
+        "java": {
+          "initializer": "\"${specification.version}\""
+        }
+      }
+    },
+    {"@type": "List", "name": "members", "contains": {"@type": "Reference", "ref": "Name"}}
+  ]
+}
