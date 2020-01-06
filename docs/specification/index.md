@@ -162,9 +162,7 @@ which we use as a ``Reference`` for firstName and lastName.
 
 
 ```shell script
-
 xddl generate --input-file ./step3.xddl.json --format json --output-directory .
-
 ```
 
 This gives us:
