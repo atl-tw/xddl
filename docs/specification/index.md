@@ -322,6 +322,7 @@ artifacts using the xDDL plugins. The other commands are:
 ```bash
 xddl unify --help
 ```   
+
 ```
 Usage: unify [options]
   Options:
@@ -382,9 +383,11 @@ Usage: glide [options]
 
    
  * ``diff`` -- Outputs the diff between different xddl specs.   
+ 
  ```bash
  xddl diff --help
 ```
+
 ```
 Usage: diff [options]
   Options:
