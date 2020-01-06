@@ -1,5 +1,5 @@
-tl;dr: xDDL is a Swiss Army Knife for data specifications
-=========================================================
+tl;dr: A Swiss Army Knife for data specifications
+=================================================
 
 
 xDDL is a format and system for generating artifacts based on a Data Definition Language that is not unlike JSON Schema.
