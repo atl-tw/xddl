@@ -318,8 +318,11 @@ artifacts using the xDDL plugins. The other commands are:
 
  * ``unify`` -- Takes a collection of includes and/or patches, and generate a single xddl file that contains all the 
    defined structures.
-```
+   
+```bash
 xddl unify --help
+```   
+```
 Usage: unify [options]
   Options:
     --evaluate-ognl, -eval
@@ -351,8 +354,11 @@ Usage: unify [options]
  * ``glide`` -- Takes a specification and a directory of versioned patches and generates each of the interim xddl files
  for each version. (You can learn more about this in the models or elasticsearch documentation).
  
-```
+```bash
 xddl glide --help
+``` 
+ 
+```
 Usage: glide [options]
   Options:
     --glide-patches, -g
@@ -376,9 +382,10 @@ Usage: glide [options]
 
    
  * ``diff`` -- Outputs the diff between different xddl specs.   
- 
- ```s
-xddl diff --help
+ ```bash
+ xddl diff --help
+```
+```
 Usage: diff [options]
   Options:
     --comparision
