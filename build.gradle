@@ -152,9 +152,11 @@ subprojects {
         }
         java {
             googleJavaFormat()
+            paddedCell()
         }
         kotlin {
             ktlint().userData(['indent_size': '4', 'continuation_indent_size': '4'])
+            paddedCell()
         }
     }
 

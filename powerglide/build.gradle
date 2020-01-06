@@ -49,9 +49,14 @@ compileFunctionalJava.dependsOn glideJava
 compileFunctionalJava.dependsOn glideMigration
 
 tasks.spotbugsFunctional.enabled = false;
+spotless {
+    java {
+        target file("src/main/java")
+    }
+}
 
 task functional(type: Test, dependsOn: elasticsearch) {
-    description = 'Runs the functional tests.'
+    description = 'Runs the functional tests against an actual elastic search instance'
     group = 'verification'
     testClassesDirs = sourceSets.functional.output.classesDirs
     classpath = sourceSets.functional.runtimeClasspath

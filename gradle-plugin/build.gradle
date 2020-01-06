@@ -16,6 +16,7 @@ dependencies {
     api project(':xddl-plugin-migrate')
     api project(':xddl-plugin-plantuml')
     api project(':xddl-plugin-swift')
+    api project(':powerglide')
     api 'ognl:ognl:3.0.4'
     api 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
     testImplementation('org.spockframework:spock-core:1.1-groovy-2.4') {
