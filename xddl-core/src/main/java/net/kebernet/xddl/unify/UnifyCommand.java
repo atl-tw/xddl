@@ -51,7 +51,8 @@ public class UnifyCommand implements HasStacktrace {
   @Parameter(
       names = {"--scrub-patch", "-s"},
       description = "scrubs patch-delete operations from the original")
-  private boolean scrubPatch;
+  @Builder.Default
+  private boolean scrubPatch = false;
 
   @Parameter(
       names = {"--new-version", "-nb"},
@@ -72,8 +73,8 @@ public class UnifyCommand implements HasStacktrace {
   private File valsFile;
 
   @Parameter(
-      names = {"--evaluate-ognl", "-eval"},
-      description = "Should we evaluate the OGNL in the file (default true)")
+      names = {"--no-evaluate-ognl", "-no-eval"},
+      description = "Disables OGNL evaluation.")
   @Builder.Default
   private boolean evaluateOgnl = true;
 }

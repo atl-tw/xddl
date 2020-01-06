@@ -8,6 +8,8 @@ In this document, we are using the command line version of xddl, [available from
 https://jcenter.bintray.com/net/kebernet/xddl/xddl/0.9.0/xddl-0.9.0-distribution.zip). You might need to change the
 version numbers.
 
+This document was created based on the 0.9.0 version of the project.
+
 Table on Contents
 -----------------
 
