@@ -1,11 +1,12 @@
-The xDDL Specification
-======================
+Writing an xDDL Specification
+=============================
 
 Before We Start
 ---------------
 
 In this document, we are using the command line version of xddl, [available from JCenter](
-https://jcenter.bintray.com/net/kebernet/xddl/xddl/0.9.0/xddl-0.9.0-distribution.zip).
+https://jcenter.bintray.com/net/kebernet/xddl/xddl/0.9.0/xddl-0.9.0-distribution.zip). You might need to change the
+version numbers.
 
 Table on Contents
 -----------------
@@ -13,6 +14,7 @@ Table on Contents
  1. [Core Concepts](#core)
  1. [Conventions and Practices](#conv)
  1. [Referencing Other Data](#data)
+ 1. [Patching Between Versions](#patch)
  1. [Using Command Line Tools](#cli)
  
  
@@ -383,6 +385,65 @@ now the two major context object you have access to from OGNL:
  1. ``specification`` -- the actual specification itself
  1. ``vals`` -- the external values object, this can be read from a JSON file as we are doing here, or can be defined 
     in the build.gradle file if you are using the Gradle plugin. 
+    
+
+<a name="patch"></a>
+
+Patching Between Versions
+-------------------------
+
+With the ``unify`` command, in addition to our "includes" directory, we have the option to specify a "patches" directory.
+This is a directory that contains *.patch.json or *.xddl.json files that we will use to modify an existing specification.
+
+These are simply more individual structure files that contain **only the changes** between versions. For example, if
+we wanted to rename the "firstName" field on our "Person" structure, we could create ``Person.patch.json``
+
+```json
+{ "@type": "Structure", "name": "Person",
+  "properties": [
+    {"@type": "PATCH_DELETE",  "name": "firstName"},
+    {"@type": "Reference", "ref": "human_name", "name": "givenName", "required": true}
+  ]
+}
+```
+
+Now we can specify a patches directory and a new version on the command line:    
+
+```bash
+xddl unify -i step5.xddl.json -d step4includes  -o current.xddl.json  -p ./step6patches --new-version 2.0
+```
+
+Giving us:
+
+```json
+{
+  "title" : "My Specification",
+  "version" : "2.0",
+  "entryRef" : "OrganizationalUnit",
+  // ...
+  "structures" : [ 
+  // ...
+ {
+    "@type" : "Structure",
+    "name" : "Person",
+    "properties" : [ {
+      "@type" : "Reference",
+      "name" : "lastName",
+      "required" : true,
+      "ref" : "human_name"
+    }, {
+      "@type" : "Reference",
+      "name" : "givenName",
+      "required" : true,
+      "ref" : "human_name"
+    } ]
+  } ]
+}
+```    
+ 
+With our new version from the command line populated, and the "givenName" field added to the Person structure. This is 
+part of a larger conversation about data migration between versions. For that, you should consult the section on 
+ElasticSearch migrations.
 
 <a name="cli"></a>
 
