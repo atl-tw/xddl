@@ -23,11 +23,6 @@ dependencies {
 task glide(type: XDDLGlide){
 }
 
-task javaSources(type: XDDLGlideGenerate){
-    plugin "java"
-    outputDirectory file("${project.buildDir}/xddl-java")
-}
-
 task migrationSources(type: XDDLGlideGenerate){
     plugin "migrate"
     outputDirectory file("${project.buildDir}/xddl-java")
