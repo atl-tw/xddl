@@ -23,6 +23,7 @@ import net.kebernet.xddl.model.Specification
 import net.kebernet.xddl.model.Utils.neverNull
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.InputDirectory
 import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.Optional
@@ -51,7 +52,7 @@ open class XDDLGlideTask : DefaultTask() {
     var valsFile: File? = if (project.file("src/main/xddl/vals.json").exists()) project.file("src/main/xddl/vals.json") else null
 
     @Optional
-    @InputFiles
+    @InputDirectory
     var patchesDirectory: File = project.file("src/main/xddl/patches")
 
     @InputFile

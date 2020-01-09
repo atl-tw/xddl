@@ -357,10 +357,7 @@ xddl unify -i step5.xddl.json -d step4includes -v values.json -o current.xddl.js
   "version" : "1.0.1234",
   "entryRef" : "OrganizationalUnit",
   "types" : [ {
-    "@type" : "Type",
-    "name" : "human_name",
-    "core" : "STRING",
-    "patch" : false,
+    "@type" : "Type", "name" : "human_name", "core" : "STRING"
 ```
 .. and so forth.
 

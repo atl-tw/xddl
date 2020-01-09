@@ -25,6 +25,9 @@ open class XDDLPlugin : Plugin<Project> {
             project.extensions.extraProperties.set("XDDLGlide", XDDLGlideTask::class.java)
             project.extensions.extraProperties.set("XDDLGlideGenerate", XDDLGlideGenerateTask::class.java)
             project.extensions.extraProperties.set("XDDLUnify", XDDLUnifyTask::class.java)
+            project.extensions.extraProperties.set("XDDLPowerGlide", XDDLPowerGlideTask::class.java)
+            project.extensions.extraProperties.set("XDDLElasticSearchIndex", XDDLElasticSearchIndexTask::class.java)
+            project.extensions.extraProperties.set("XDDLElasticSearchLoad", XDDLElasticSearchLoadTask::class.java)
         }
     }
 }

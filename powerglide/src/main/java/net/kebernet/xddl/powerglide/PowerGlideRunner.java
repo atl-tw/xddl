@@ -20,7 +20,6 @@ import static java.util.Optional.ofNullable;
 import static net.kebernet.xddl.model.Utils.isNullOrEmpty;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.google.common.annotations.VisibleForTesting;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
@@ -120,31 +119,35 @@ public class PowerGlideRunner {
     }
   }
 
-  @VisibleForTesting
-  static SemanticVersion resolveNextVersion(ElasticSearchClient.IndexVersions current) {
+  public static SemanticVersion resolveNextVersion(ElasticSearchClient.IndexVersions current) {
     Matcher currentVersionMatcher = TRAILING_VERSION_PATTERN.matcher(current.currentVersion);
     if (!currentVersionMatcher.matches()) {
       throw new IllegalStateException(
           "Could not determine a current active version from the resolved version information: "
               + current);
     }
-    SemanticVersion currentVersion = new SemanticVersion(currentVersionMatcher.group(1));
-    List<SemanticVersion> higherVersions =
-        current.deployedVersions.stream()
-            .map(
-                name -> {
-                  Matcher versionMatcher = TRAILING_VERSION_PATTERN.matcher(name);
-                  if (!versionMatcher.matches()) {
-                    LOGGER.info("Could not determine a version number for " + name);
-                    return null;
-                  }
-                  return new SemanticVersion(versionMatcher.group(1), name);
-                })
-            .filter(Objects::nonNull)
-            .filter(v -> v.isGreaterThan(currentVersion))
-            .sorted()
-            .collect(Collectors.toList());
+    List<SemanticVersion> higherVersions = higherThanCurrentVersions(current);
     return isNullOrEmpty(higherVersions) ? null : higherVersions.get(0);
+  }
+
+  public static List<SemanticVersion> higherThanCurrentVersions(
+      ElasticSearchClient.IndexVersions current) {
+    SemanticVersion currentVersion = parseSemVer(current.currentVersion);
+    return current.deployedVersions.stream()
+        .map(PowerGlideRunner::parseSemVer)
+        .filter(Objects::nonNull)
+        .filter(v -> v.isGreaterThan(currentVersion))
+        .sorted()
+        .collect(Collectors.toList());
+  }
+
+  public static SemanticVersion parseSemVer(String name) {
+    Matcher versionMatcher = TRAILING_VERSION_PATTERN.matcher(name);
+    if (!versionMatcher.matches()) {
+      LOGGER.info("Could not determine a version number for " + name);
+      return null;
+    }
+    return new SemanticVersion(versionMatcher.group(1), name);
   }
 
   public MigrationState run() throws IOException {

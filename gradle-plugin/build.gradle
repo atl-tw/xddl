@@ -34,7 +34,16 @@ sourceSets {
         compileClasspath += sourceSets.main.output + configurations.testRuntimeClasspath
         runtimeClasspath += output + compileClasspath
     }
+
+    integration {
+        groovy.srcDir file('src/integration/groovy')
+        java.srcDir file('src/integration/java')
+        resources.srcDir file('src/integration/resources')
+        compileClasspath += sourceSets.main.output + sourceSets.functional.output +  configurations.testRuntimeClasspath
+        runtimeClasspath += output + compileClasspath
+    }
 }
+
 
 dokka {
     outputFormat = 'html'
@@ -46,6 +55,22 @@ task functional(type: Test) {
     testClassesDirs = sourceSets.functional.output.classesDirs
     classpath = sourceSets.functional.runtimeClasspath
     mustRunAfter test //, integrationTest
+    testLogging {
+        showStandardStreams = true
+    }
+    jacoco {
+        enabled = true
+        append = true
+        destinationFile = file("${buildDir}/jacoco/test.exec")
+    }
+}
+
+task integration(type: Test) {
+    description = 'Runs the integration tests.'
+    group = 'verification'
+    testClassesDirs = sourceSets.integration.output.classesDirs
+    classpath = sourceSets.integration.runtimeClasspath
+    mustRunAfter test
     testLogging {
         showStandardStreams = true
     }

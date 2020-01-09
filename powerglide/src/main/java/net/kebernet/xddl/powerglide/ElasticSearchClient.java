@@ -45,7 +45,9 @@ import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.CredentialsProvider;
 import org.apache.http.impl.client.BasicCredentialsProvider;
+import org.elasticsearch.action.admin.indices.alias.IndicesAliasesRequest;
 import org.elasticsearch.action.admin.indices.alias.get.GetAliasesRequest;
+import org.elasticsearch.action.admin.indices.create.CreateIndexRequest;
 import org.elasticsearch.action.bulk.BulkItemResponse;
 import org.elasticsearch.action.bulk.BulkRequest;
 import org.elasticsearch.action.bulk.BulkResponse;
@@ -183,6 +185,35 @@ public class ElasticSearchClient {
                       doc.getKey(), "Exception thrown in batch operation.", e, doc.getValue()))
           .collect(Collectors.toList());
     }
+  }
+
+  public void createIndex(String indexName, String source) throws IOException {
+    client
+        .indices()
+        .create(
+            new CreateIndexRequest(indexName).source(source, XContentType.JSON),
+            RequestOptions.DEFAULT);
+  }
+
+  public void updateActiveAliasTo(String aliasName, String versionedIndexName, boolean writeIndex)
+      throws IOException {
+    IndicesAliasesRequest request = new IndicesAliasesRequest();
+    IndexVersions versions = lookupSchemaVersions(aliasName, writeIndex);
+    if (versions.currentVersion != null) {
+      request.addAliasAction(
+          new IndicesAliasesRequest.AliasActions(IndicesAliasesRequest.AliasActions.Type.REMOVE)
+              .index(versions.currentVersion)
+              .alias(aliasName));
+    }
+    IndicesAliasesRequest.AliasActions action =
+        new IndicesAliasesRequest.AliasActions(IndicesAliasesRequest.AliasActions.Type.ADD)
+            .index(versionedIndexName)
+            .alias(aliasName);
+    if (writeIndex) action = action.writeIndex(true);
+
+    request.addAliasAction(action);
+
+    client.indices().updateAliases(request, RequestOptions.DEFAULT);
   }
 
   public ElasticSearchClient initClient(

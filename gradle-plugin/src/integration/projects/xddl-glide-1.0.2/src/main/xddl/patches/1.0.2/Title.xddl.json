@@ -1,0 +1,11 @@
+{
+  "@type": "Structure",
+  "name": "Title",
+  "properties": [
+    {"@type": "Type", "core": "STRING", "name": "academic"},
+    {"@type": "Type", "core": "STRING", "name": "professional"},
+    {"@type": "Type", "core": "STRING", "name": "sovereign"},
+    {"@type": "Type", "core": "STRING", "name": "clerical"},
+    {"@type": "Type", "core": "STRING", "name": "family"}
+  ]
+}

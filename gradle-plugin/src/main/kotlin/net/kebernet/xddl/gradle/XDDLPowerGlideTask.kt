@@ -16,15 +16,16 @@
 package net.kebernet.xddl.gradle
 
 import net.kebernet.xddl.powerglide.PowerGlideCommand
-import org.gradle.api.DefaultTask
+import net.kebernet.xddl.powerglide.PowerGlideRunner
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.TaskAction
 import java.io.File
-import java.net.URI
+import java.net.URLEncoder
+import java.util.Base64
 
-open class XDDLPowerGlideTask : DefaultTask() {
+open class XDDLPowerGlideTask : ElasticSearchTask() {
 
     @Optional
     @OutputDirectory
@@ -35,25 +36,44 @@ open class XDDLPowerGlideTask : DefaultTask() {
     var glideDirectory: File = File(project.buildDir, "glide")
 
     @Input
-    lateinit var elasticSearchUrl: URI
+    lateinit var activeAlias: String
 
-    @Input
     @Optional
-    var elasticSearchAuthType: PowerGlideCommand.AuthType? = null
+    @Input
+    var batchSize = 500
 
-    @Input
     @Optional
-    var username: String? = null
+    @Input
+    var switchActiveOnCompletion = false
 
-    @Input
     @Optional
-    var password: String? = null
-
     @Input
-    @Optional
-    var bearerToken: String? = null
+    var writeIndex = false
 
     @TaskAction
     fun apply() {
+        var auth: String? = null
+        if (elasticSearchAuthType == PowerGlideCommand.AuthType.BASIC) {
+            auth = Base64.getEncoder().encodeToString(
+                    "${URLEncoder.encode(username, "UTF-8")}:${URLEncoder.encode(password, "UTF-8")}"
+                            .toByteArray(Charsets.UTF_8)
+            )
+        } else if (elasticSearchAuthType == PowerGlideCommand.AuthType.BEARER) {
+            auth = bearerToken
+        }
+        val command = PowerGlideCommand.builder()
+                .activeAlias(activeAlias)
+                .authType(elasticSearchAuthType)
+                .auth(auth)
+                .elasticSearchUrl(elasticSearchUrl.toASCIIString())
+                .glideDirectory(glideDirectory)
+                .batchSize(batchSize)
+                .reportDirectory(outputDirectory)
+                .switchActiveOnCompletion(switchActiveOnCompletion)
+                .writeIndex(writeIndex)
+                .build()
+
+        val result = PowerGlideRunner(command).run()
+        logger.lifecycle("Completed migration run:\n\t$result")
     }
 }

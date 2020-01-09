@@ -1,0 +1,50 @@
+plugins {
+    id 'net.kebernet.xddl'
+}
+repositories {
+    jcenter()
+}
+
+apply plugin: 'java'
+
+sourceSets {
+    main {
+        java.srcDirs([
+                file("${project.buildDir}/xddl-java"),
+                file("src/main/java")
+        ])
+    }
+}
+
+dependencies {
+    compile "net.kebernet.xddl:xddl-plugin-migrate-lib:+"
+}
+
+task glide(type: XDDLGlide){
+}
+
+task javaSources(type: XDDLGlideGenerate){
+    plugin "java"
+    outputDirectory file("${project.buildDir}/xddl-java")
+}
+
+task migrationSources(type: XDDLGlideGenerate){
+    plugin "migrate"
+    outputDirectory file("${project.buildDir}/xddl-java")
+}
+
+
+task elasticsearch(type: XDDLGlideGenerate){
+    plugin "elasticsearch"
+}
+
+task createIndex(type: XDDLElasticSearchIndex){
+    activeAlias "test_index"
+    elasticSearchUrl URI.create("http://localhost:9200")
+}
+
+
+javaSources.dependsOn glide
+compileJava.dependsOn javaSources 
+compileJava.dependsOn migrationSources
+build.dependsOn elasticsearch
