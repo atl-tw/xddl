@@ -10,7 +10,7 @@ version numbers.
 
 This document was created based on the 0.9.0 version of the project.
 
-Table on Contents
+Table of Contents
 -----------------
 
  1. [Core Concepts](#core)
