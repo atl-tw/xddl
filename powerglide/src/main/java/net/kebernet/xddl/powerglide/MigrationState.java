@@ -31,4 +31,6 @@ public class MigrationState {
   private String currentIndex;
   private String nextIndex;
   private int batchSize;
+  private boolean switchActiveOnCompletion;
+  private String activeAlias;
 }

@@ -163,7 +163,8 @@ Here, we execute the ``glide`` task. This will step through the src/main/xddl/pa
 Next we do ``migrationSources`` which iterates over each of those authoritative versions, and calls the ``migrate`` plugin
 and creates source files in the ``xddl-java`` directory.
 
-Inside there, you will end up with a ``MigrationVisitor`` for our ``Name`` type that looks like this:
+Inside there, you will end up with a ``MigrationVisitor`` for our ``Name`` type (this will be created in the "migration"
+subpackage of your Java package, that looks like this:
 
 ```java
 public class Name implements MigrationVisitor {
@@ -212,5 +213,6 @@ to the new version.
 
 Creating Some Test Data
 -----------------------
+
 
 

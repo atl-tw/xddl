@@ -40,10 +40,12 @@ public class PowerGlideRunner {
   private static final Logger LOGGER = Logger.getLogger(PowerGlideRunner.class.getCanonicalName());
   private static final Pattern TRAILING_VERSION_PATTERN =
       Pattern.compile("[A-z0-9- _.][A-z _.]*([\\d.]*)$");
+  private final ClassLoader loader;
   private MigrationState state;
   private ElasticSearchClient client;
 
-  public PowerGlideRunner(@Nonnull PowerGlideCommand command) throws IOException {
+  public PowerGlideRunner(@Nonnull PowerGlideCommand command, ClassLoader loader)
+      throws IOException {
     this.client =
         new ElasticSearchClient(null, Loader.mapper())
             .initClient(command.getElasticSearchUrl(), command.getAuth(), command.getAuthType());
@@ -64,7 +66,10 @@ public class PowerGlideRunner {
             .nextIndex(nextVersion.getName())
             .visitorClassName(packageMetadata.get(nextVersion).migrationVisitor())
             .batchSize(command.getBatchSize())
+            .switchActiveOnCompletion(command.isSwitchActiveOnCompletion())
+            .activeAlias(command.getActiveAlias())
             .build();
+    this.loader = loader == null ? Thread.currentThread().getContextClassLoader() : loader;
   }
 
   public PowerGlideRunner(@Nonnull ElasticSearchClient client, @Nonnull MigrationState state) {
@@ -72,6 +77,7 @@ public class PowerGlideRunner {
     checkNotNull(state, "You must provide an initial MigrationState.");
     this.client = client;
     this.state = state;
+    this.loader = Thread.currentThread().getContextClassLoader();
   }
 
   public MigrationState runSingleBatch() throws IOException {
@@ -93,12 +99,19 @@ public class PowerGlideRunner {
     List<ElasticSearchClient.ErrorResult> results =
         client.insertBatch(state.getNextIndex(), state.getItemName(), batch);
 
+    if (batch.nextScrollId == null && state.isSwitchActiveOnCompletion()) {
+      LOGGER.info("Updating alias " + state.getActiveAlias() + " to " + state.getNextIndex());
+      client.updateActiveAliasTo(state.getActiveAlias(), state.getNextIndex(), false);
+    }
+
     return MigrationState.builder()
         .scrollId(batch.nextScrollId)
         .visitorClassName(state.getVisitorClassName())
         .itemName(state.getItemName())
         .nextIndex(state.getNextIndex())
         .currentIndex(state.getCurrentIndex())
+        .switchActiveOnCompletion(state.isSwitchActiveOnCompletion())
+        .activeAlias(state.getActiveAlias())
         .successfulRecords(
             state.getSuccessfulRecords()
                 + (batch.documents.size() - batch.errors.size() - results.size()))
@@ -112,7 +125,7 @@ public class PowerGlideRunner {
 
   private MigrationVisitor visitorFactory(String className) {
     try {
-      return (MigrationVisitor) Class.forName(className).newInstance();
+      return (MigrationVisitor) loader.loadClass(className).newInstance();
     } catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
       throw new CriticalPowerglideException(
           "Unable to create migration visitor for " + className, e);

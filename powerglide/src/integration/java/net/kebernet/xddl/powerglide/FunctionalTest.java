@@ -125,12 +125,12 @@ public class FunctionalTest {
     PowerGlideCommand command =
         PowerGlideCommand.builder()
             .batchSize(500)
-            .activeAlias("es_client_test")
+            .activeAlias ("es_client_test")
             .glideDirectory(new File("build/glide"))
             .elasticSearchUrl("http://localhost:9200")
             .switchActiveOnCompletion(false)
             .build();
-    PowerGlideRunner runner = new PowerGlideRunner(command);
+    PowerGlideRunner runner = new PowerGlideRunner(command, null);
     MigrationState result = runner.run();
     assertThat(result.getSuccessfulRecords()).isEqualTo(1000);
   }

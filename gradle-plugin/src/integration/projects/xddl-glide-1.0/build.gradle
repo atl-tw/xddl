@@ -23,10 +23,6 @@ dependencies {
 task glide(type: XDDLGlide){
 }
 
-task javaSources(type: XDDLGlideGenerate){
-    plugin "java"
-    outputDirectory file("${project.buildDir}/xddl-java")
-}
 
 task migrationSources(type: XDDLGlideGenerate){
     plugin "migrate"
@@ -43,8 +39,11 @@ task createIndex(type: XDDLElasticSearchIndex){
     elasticSearchUrl URI.create("http://localhost:9200")
 }
 
+task loadData(type: XDDLElasticSearchLoad){
+    activeAlias "test_index"
+    elasticSearchUrl URI.create("http://localhost:9200")
+}
 
-javaSources.dependsOn glide
-compileJava.dependsOn javaSources 
+migrationSources.dependsOn glide
 compileJava.dependsOn migrationSources
 build.dependsOn elasticsearch

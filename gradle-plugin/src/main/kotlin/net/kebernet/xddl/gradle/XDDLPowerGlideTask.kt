@@ -22,6 +22,7 @@ import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.TaskAction
 import java.io.File
+import java.net.URLClassLoader
 import java.net.URLEncoder
 import java.util.Base64
 
@@ -44,7 +45,7 @@ open class XDDLPowerGlideTask : ElasticSearchTask() {
 
     @Optional
     @Input
-    var switchActiveOnCompletion = false
+    var switchActiveOnCompletion = true
 
     @Optional
     @Input
@@ -61,6 +62,12 @@ open class XDDLPowerGlideTask : ElasticSearchTask() {
         } else if (elasticSearchAuthType == PowerGlideCommand.AuthType.BEARER) {
             auth = bearerToken
         }
+        val ccp = project.configurations.getByName("compileClasspath").files
+
+        val loader = URLClassLoader(
+                arrayOf(File(project.buildDir, "classes/java/main").toURL()),
+                Thread.currentThread().contextClassLoader)
+
         val command = PowerGlideCommand.builder()
                 .activeAlias(activeAlias)
                 .authType(elasticSearchAuthType)
@@ -73,7 +80,7 @@ open class XDDLPowerGlideTask : ElasticSearchTask() {
                 .writeIndex(writeIndex)
                 .build()
 
-        val result = PowerGlideRunner(command).run()
+        val result = PowerGlideRunner(command, loader).run()
         logger.lifecycle("Completed migration run:\n\t$result")
     }
 }

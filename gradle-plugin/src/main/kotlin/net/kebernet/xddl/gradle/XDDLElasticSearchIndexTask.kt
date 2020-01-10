@@ -54,6 +54,13 @@ open class XDDLElasticSearchIndexTask : ElasticSearchTask() {
         val deployed = client.lookupSchemaVersions(activeAlias, writeIndex)
         val current = if (deployed.currentVersion != null) PowerGlideRunner.parseSemVer(deployed.currentVersion) else null
         val deployVersion: SemanticVersion
+
+        val allDeployed = deployed.deployedVersions.stream()
+                .map { name: String? -> PowerGlideRunner.parseSemVer(name) }
+                .filter { obj: SemanticVersion? -> Objects.nonNull(obj) }
+                .sorted()
+                .collect(Collectors.toList())
+
         if (current != null) {
             val higherVersionsDeployed = PowerGlideRunner.higherThanCurrentVersions(deployed)
             val higherVersionsNotDeployed = packageMetadata.keys.stream()
@@ -74,17 +81,19 @@ open class XDDLElasticSearchIndexTask : ElasticSearchTask() {
                     deployVersion = only
                 }
             } else {
-                deployVersion = higherVersionsNotDeployed.first()
+                var selected = if (!higherVersionsDeployed.isEmpty()) higherVersionsDeployed.first() else null
+                if (selected == null) {
+                    selected = if (!higherVersionsNotDeployed.isEmpty()) higherVersionsNotDeployed.last() else null
+                }
+                if (selected == null) {
+                    selected = allDeployed.last()
+                }
+                deployVersion = selected!!
             }
         } else {
             logger.lifecycle("There isn't a currently active version.")
             val currentVersion = SemanticVersion("0")
-            val allDeployed = deployed.deployedVersions.stream()
-                    .map { name: String? -> PowerGlideRunner.parseSemVer(name) }
-                    .filter { obj: SemanticVersion? -> Objects.nonNull(obj) }
-                    .filter { v: SemanticVersion -> v.isGreaterThan(currentVersion) }
-                    .sorted()
-                    .collect(Collectors.toList())
+
             val higherVersionsNotDeployed = packageMetadata.keys.stream()
                     .filter { !allDeployed.contains(it) }
                     .sorted()

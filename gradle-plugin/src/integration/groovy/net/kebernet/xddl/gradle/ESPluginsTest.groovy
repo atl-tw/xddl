@@ -38,7 +38,7 @@ class ESPluginsTest extends Specification {
         when:
         def result = GradleRunner.create()
                 .withProjectDir(new File("build/integration/projects/xddl-glide-1.0"))
-                .withArguments('build', "createIndex", "--stacktrace")
+                .withArguments('clean', 'build', "createIndex", "loadData", "--stacktrace")
                 .withPluginClasspath()
                 .withDebug(true)
                 .forwardStdOutput(new OutputStreamWriter(System.out))
@@ -46,6 +46,21 @@ class ESPluginsTest extends Specification {
         then:
         result.task(":build").outcome == SUCCESS
         result.task(":createIndex").outcome == SUCCESS
+    }
+
+    def "1.0.1 "() {
+        Thread.sleep(2000)
+        when:
+        def result = GradleRunner.create()
+                .withProjectDir(new File("build/integration/projects/xddl-glide-1.0.1"))
+                .withArguments('clean','build', "migrate", "--stacktrace")
+                .withPluginClasspath()
+                .withDebug(true)
+                .forwardStdOutput(new OutputStreamWriter(System.out))
+                .build()
+        then:
+        result.task(":build").outcome == SUCCESS
+        result.task(":migrate").outcome == SUCCESS
     }
 
 }

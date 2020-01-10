@@ -33,13 +33,20 @@ task elasticsearch(type: XDDLGlideGenerate){
     plugin "elasticsearch"
 }
 
+
 task createIndex(type: XDDLElasticSearchIndex){
     activeAlias "test_index"
     elasticSearchUrl URI.create("http://localhost:9200")
 }
 
 
-javaSources.dependsOn glide
-compileJava.dependsOn javaSources 
+task migrate(type: XDDLPowerGlide, dependsOn: createIndex){
+    activeAlias "test_index"
+    elasticSearchUrl URI.create("http://localhost:9200")
+}
+
+
+
+migrationSources.dependsOn glide
 compileJava.dependsOn migrationSources
 build.dependsOn elasticsearch
