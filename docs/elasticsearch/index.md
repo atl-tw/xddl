@@ -106,7 +106,8 @@ file.
 ```
 
 Here we are expressing our ``migration`` in two ``stages``. The output from a preceding stage becomes the input for a 
-subsequent stage, so you can kind of imagine this as a data transformation pipeline.
+subsequent stage, so you can kind of imagine this as a data transformation pipeline. You can learn more about
+[the migrate plugin](https://github.com/atl-tw/xddl/tree/master/xddl-plugin-migrate) from the README.
 
 We start with a ``jsonp`` stage. This is a JSON Path expression (based on [Jayway](https://github.com/json-path/JsonPath))
 that selects an initial value for the migration. It has a ``start`` property that is one of:
@@ -129,7 +130,7 @@ Now that we have expressed our migration stages, we need to generate code that w
 Using the Glide Gradle Plugins
 ------------------------------
 
-The ``XDDLGlide`` task essentially craws a directory of ``patches`` folders, and creates interim versions. A common
+The ``XDDLGlide`` task essentially crawls a directory of ``patches`` folders, and creates interim versions. A common
 build.gradle file might look like:
 
 ```groovy
