@@ -38,14 +38,14 @@ class ESPluginsTest extends Specification {
         when:
         def result = GradleRunner.create()
                 .withProjectDir(new File("build/integration/projects/xddl-glide-1.0"))
-                .withArguments('clean', 'build', "createIndex", "loadData", "--stacktrace")
+                .withArguments('loadData', "--stacktrace")
                 .withPluginClasspath()
                 .withDebug(true)
                 .forwardStdOutput(new OutputStreamWriter(System.out))
                 .build()
         then:
-        result.task(":build").outcome == SUCCESS
         result.task(":createIndex").outcome == SUCCESS
+        result.task(":loadData").outcome == SUCCESS
     }
 
     def "1.0.1 "() {

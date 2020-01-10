@@ -148,12 +148,11 @@ dependencies {
 
 task glide(type: XDDLGlide){}
 
-task migrationSources(type: XDDLGlideGenerate){
+task migrationSources(type: XDDLGlideGenerate, dependsOn: glide){
     plugin "migrate"
     outputDirectory file("${project.buildDir}/xddl-java")
 }
 
-javaSources.dependsOn glide
 compileJava.dependsOn migrationSources
 ```
 
@@ -211,8 +210,212 @@ The ``MigrationVisitor`` class is why we require a dependency on``net.kebernet.x
 plugin will generate a bunch of Java classes based on your package name that will migrate a node from the old version 
 to the new version.
 
-Creating Some Test Data
------------------------
+Setting Up a Project
+--------------------
+
+Let's work a complete example now. We can start with our 1.0 version of the specification, creating a gradle project
+with the following structure:
+
+ * src
+   * main
+     * xddl
+       * Specification.xddl.json
+       * includes
+         * Name.xddl.json
+   * elasticsearch
+     * load
+        * a.json
+        * b.json
+        * ...
+        
+And our build script as follows:
+
+```groovy
+plugins {
+    id 'net.kebernet.xddl' version '+'
+}
+repositories {
+    jcenter() // the plugins dependencies are in jcenter
+}
+
+task glide(type: XDDLGlide){}
+
+task elasticsearch(type: XDDLGlideGenerate, dependsOn: glide){
+    plugin "elasticsearch"
+}
+
+task createIndex(type: XDDLElasticSearchIndex, dependsOn: elasticsearch){
+    activeAlias "test_index"
+    elasticSearchUrl URI.create("http://localhost:9200")
+}
+
+task loadData(type: XDDLElasticSearchLoad, dependsOn: createIndex){
+    activeAlias "test_index"
+    elasticSearchUrl URI.create("http://localhost:9200")
+}
+```
+
+So we have four tasks defined here.
+
+1. ``glide`` -- which will unify our xDDL specification by version
+1. ``elasticsearch`` -- which will create out index definitions from mappings
+1. ``createIndex`` -- which will find the version of our index that needs to be created, will create it, then make it 
+   the active alias. So we end up with the alias "test_index" pointing to "test_index_1.0".
+1. ``loadData`` -- which will go through the json documents in ``elasticsearch/load`` and put them into the index. 
+    These are very simple Name types like: ``{ "id": "a", "value": "Cooper, Robert"}``
+
+Now if we run ``gradle loadData`` we see:
+
+```
+> Task :elasticsearch
+Generating elasticsearch for .../build/glide/baseline.xddl.json
+
+> Task :createIndex
+There isn't a currently active version.
+Versions not deployed [1.0]
+Creating index for 1.0
+Reading schema from .../build/xddl/xddl_1.0.mappings.json
+Since there is no active alias, setting it to 1.0
+
+> Task :loadData
+Inserted 4 records to test_index
+```
+
+Now we have our ES instance configured and containing data.
+
+Migrating to a New Version
+--------------------------
+
+Now let's apply our changes as we described above. We start by creating a folder called ``1.0.1`` in 
+``src/main/xddl/patches``, and putting the Name.patch.json file we described above in it. As you already know, the 
+migration is handled by generating Java classes that are used to adapt from one version to the next, so we need to 
+make our ``build.gradle`` a Java-is project...
+
+```groovy
+// ... stuff omitted
+apply plugin: 'java'
+
+sourceSets {
+    main {
+        java.srcDirs([
+                file("${project.buildDir}/xddl-java"),
+                file("src/main/java")
+        ])
+    }
+}
+
+dependencies {
+    // We need this dependency to get the migration library, so our MigrationVisitors will actually compile.
+    compile "net.kebernet.xddl:xddl-plugin-migrate-lib:+"
+}
+
+task glide(type: XDDLGlide){}
+
+task migrationSources(type: XDDLGlideGenerate, dependsOn: glide){
+    plugin "migrate"
+    outputDirectory file("${project.buildDir}/xddl-java")
+}
+// ... stuff omitted
+
+task migrate(type: XDDLPowerGlide, dependsOn: [createIndex, compileJava]){
+    activeAlias "test_index"
+    elasticSearchUrl URI.create("http://localhost:9200")
+}
 
 
+
+compileJava.dependsOn migrationSources
+
+```
+
+So first we need to add the directory where we are going to generate the sources (``xddl-java``)) to our project's ``main``
+SourceSet. Then we add another ``XDDLGlideGenerate`` task, this time calling the "migrate" plugin, and outputting to our
+generated sources directory. Finally, we add an ``XDDLPowerGlide`` task called "migrate" that will look for the latest
+index and migrate our data into it.
+
+Running ``gradle migrate`` we see
+
+```
+> Task :glide
+
+> Task :migrationSources
+Generating migrate for .../build/glide/baseline.xddl.json
+Generating migrate for .../build/glide/1_0_1.xddl.json
+
+> Task :compileJava
+> Task :processResources NO-SOURCE
+> Task :classes
+> Task :jar
+> Task :assemble
+> Task :compileTestJava NO-SOURCE
+> Task :processTestResources NO-SOURCE
+> Task :testClasses UP-TO-DATE
+> Task :test NO-SOURCE
+> Task :check UP-TO-DATE
+> Task :build
+
+> Task :elasticsearch
+Generating elasticsearch for .../build/glide/baseline.xddl.json
+Generating elasticsearch for .../build/glide/1_0_1.xddl.json
+
+> Task :createIndex
+Current active index: 1.0
+Higher index versions already created: []
+Higher index versions not already created:[1.0.1]
+Creating index for 1.0.1
+Reading schema from .../build/xddl/xddl_1.0.1.mappings.json
+
+> Task :migrate
+Completed migration run:
+	MigrationState(scrollId=null, successfulRecords=4, failedRecords=0, exceptions=Histogram: {
+}, visitorClassName=com.my.project.model.v1_0_1.migration.Name, itemName=xddl_1.0.1, currentIndex=test_index_1.0, nextIndex=test_index_1.0.1, batchSize=0, switchActiveOnCompletion=true, activeAlias=test_index)
+
+BUILD SUCCESSFUL in 2s
+```
+
+So we create the index for 1.0.1, and we run ``migrate``. You can see we migrated 4 records successfully, and once the
+migration finished, it moved the ``test_index`` alias to our new version.
+
+So now if we run:
+
+```text
+GET /test_index/_search
+{
+    "query": {
+        "match_all": {}
+    }
+}
+```
+We get:
+```json
+{
+  "took" : 3,
+  "timed_out" : false,
+  "_shards" : {},
+  "hits" : {
+    "total" : 4,
+    "max_score" : 1.0,
+    "hits" : [
+      {
+        "_index" : "test_index_1.0.1",
+        "_type" : "xddl_1.0.1",
+        "_id" : "c",
+        "_score" : 1.0,
+        "_source" : {
+          "id" : "c",
+          "firstName" : "Connor",
+          "lastName" : "Wylie"
+        }
+      },
+```
+
+...and so on.
+
+Why Code Generation? (or How to I build my own migration tool?)
+---------------------------------------------------------------
+
+"This seems like a fairly significant bit of set up", you might be saying to your self, "to get my ``migrate`` task 
+working in Gradle." This is a fair question, but we wanted the PowerGlide code to be as "remixable" (that's what the kids
+are calling or, or were calling it 10 years ago) as possible. Performing your data migration from gradle might not
+be the best solution. You might want to do it from AWS Lambda or as part of your actual application code. 
 

@@ -5,45 +5,18 @@ repositories {
     jcenter()
 }
 
-apply plugin: 'java'
+task glide(type: XDDLGlide){}
 
-sourceSets {
-    main {
-        java.srcDirs([
-                file("${project.buildDir}/xddl-java"),
-                file("src/main/java")
-        ])
-    }
-}
-
-dependencies {
-    compile "net.kebernet.xddl:xddl-plugin-migrate-lib:+"
-}
-
-task glide(type: XDDLGlide){
-}
-
-
-task migrationSources(type: XDDLGlideGenerate){
-    plugin "migrate"
-    outputDirectory file("${project.buildDir}/xddl-java")
-}
-
-
-task elasticsearch(type: XDDLGlideGenerate){
+task elasticsearch(type: XDDLGlideGenerate, dependsOn: glide){
     plugin "elasticsearch"
 }
 
-task createIndex(type: XDDLElasticSearchIndex){
+task createIndex(type: XDDLElasticSearchIndex, dependsOn: elasticsearch){
     activeAlias "test_index"
     elasticSearchUrl URI.create("http://localhost:9200")
 }
 
-task loadData(type: XDDLElasticSearchLoad){
+task loadData(type: XDDLElasticSearchLoad, dependsOn: createIndex){
     activeAlias "test_index"
     elasticSearchUrl URI.create("http://localhost:9200")
 }
-
-migrationSources.dependsOn glide
-compileJava.dependsOn migrationSources
-build.dependsOn elasticsearch

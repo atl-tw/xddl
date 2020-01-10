@@ -18,6 +18,7 @@ package net.kebernet.xddl.gradle
 import net.kebernet.xddl.powerglide.PowerGlideCommand
 import net.kebernet.xddl.powerglide.PowerGlideRunner
 import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.InputDirectory
 import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.TaskAction
@@ -29,12 +30,16 @@ import java.util.Base64
 open class XDDLPowerGlideTask : ElasticSearchTask() {
 
     @Optional
-    @OutputDirectory
-    var outputDirectory: File = File(project.buildDir, "powerglide")
+    @InputDirectory
+    var classesDirectory = File(project.buildDir, "classes/java/main")
 
     @Optional
     @OutputDirectory
-    var glideDirectory: File = File(project.buildDir, "glide")
+    var outputDirectory = File(project.buildDir, "powerglide")
+
+    @Optional
+    @OutputDirectory
+    var glideDirectory = File(project.buildDir, "glide")
 
     @Input
     lateinit var activeAlias: String
@@ -62,10 +67,9 @@ open class XDDLPowerGlideTask : ElasticSearchTask() {
         } else if (elasticSearchAuthType == PowerGlideCommand.AuthType.BEARER) {
             auth = bearerToken
         }
-        val ccp = project.configurations.getByName("compileClasspath").files
 
         val loader = URLClassLoader(
-                arrayOf(File(project.buildDir, "classes/java/main").toURL()),
+                arrayOf(classesDirectory.toURL()),
                 Thread.currentThread().contextClassLoader)
 
         val command = PowerGlideCommand.builder()

@@ -20,33 +20,31 @@ dependencies {
     compile "net.kebernet.xddl:xddl-plugin-migrate-lib:+"
 }
 
-task glide(type: XDDLGlide){
-}
+task glide(type: XDDLGlide){}
 
-task migrationSources(type: XDDLGlideGenerate){
+task migrationSources(type: XDDLGlideGenerate, dependsOn: glide){
     plugin "migrate"
     outputDirectory file("${project.buildDir}/xddl-java")
 }
 
 
-task elasticsearch(type: XDDLGlideGenerate){
+task elasticsearch(type: XDDLGlideGenerate, dependsOn: glide){
     plugin "elasticsearch"
 }
 
 
-task createIndex(type: XDDLElasticSearchIndex){
+task createIndex(type: XDDLElasticSearchIndex, dependsOn: elasticsearch){
     activeAlias "test_index"
     elasticSearchUrl URI.create("http://localhost:9200")
 }
 
 
-task migrate(type: XDDLPowerGlide, dependsOn: createIndex){
+task migrate(type: XDDLPowerGlide, dependsOn: [createIndex, compileJava]){
     activeAlias "test_index"
     elasticSearchUrl URI.create("http://localhost:9200")
 }
 
 
 
-migrationSources.dependsOn glide
 compileJava.dependsOn migrationSources
-build.dependsOn elasticsearch
+
