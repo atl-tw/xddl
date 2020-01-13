@@ -16,10 +16,10 @@ Table of Contents
  1. [Generation and Plugins](#gen)
  1. [Project Setup](#setup)
  1. [Java Code Generation](#java)
-    a. [Complete List of Java Extension Properties](#alljava)
-    a. [Enums and the Java Plugin](#javaenums)
+   1. [Complete List of Java Extension Properties](#alljava)
+   1. [Enums and the Java Plugin](#javaenums)
  1. [Swift Code Generation](#swift)
-    a.  [Complete List of Swift Extension Properties](#allswift)
+   1.  [Complete List of Swift Extension Properties](#allswift)
 
 
 <a name="gen"></a>
