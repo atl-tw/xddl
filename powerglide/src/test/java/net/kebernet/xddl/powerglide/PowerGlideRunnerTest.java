@@ -18,7 +18,13 @@ package net.kebernet.xddl.powerglide;
 import static com.google.common.truth.Truth.assertThat;
 
 import java.util.Arrays;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 import net.kebernet.xddl.SemanticVersion;
+import org.apache.http.HttpHost;
+import org.elasticsearch.client.RestClient;
+import org.elasticsearch.client.RestClientBuilder;
+import org.elasticsearch.client.RestHighLevelClient;
 import org.junit.Test;
 
 public class PowerGlideRunnerTest {
@@ -29,5 +35,6 @@ public class PowerGlideRunnerTest {
         new ElasticSearchClient.IndexVersions("Foo_v1.0", Arrays.asList("Foo_v1.1", "Foo_v1.2"));
 
     assertThat(PowerGlideRunner.resolveNextVersion(versions)).isEqualTo(new SemanticVersion("1.1"));
+
   }
 }

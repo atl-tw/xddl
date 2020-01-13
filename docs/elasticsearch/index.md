@@ -420,3 +420,34 @@ working in Gradle." This is a fair question, but we wanted the PowerGlide code t
 are calling or, or were calling it 10 years ago) as possible. Performing your data migration from gradle might not
 be the best solution. You might want to do it from AWS Lambda or as part of your actual application code. 
 
+You can package your project as a Jar with all the migration classes in tact and call the PowerGlide runner directly:
+
+```java
+    PowerGlideRunner runner = new PowerGlideRunner(
+        new ElasticSearchClient(
+            new RestHighLevelClient(
+                RestClient.builder(
+                    new HttpHost("localhost", 9200)
+                ) 
+            ),
+            new ObjectMapper()
+        ),
+        MigrationState.builder()
+          .nextIndex("my_index_1.0.1")
+          .currentIndex("my_index_1.0")
+          .itemName("my_item")
+          .visitorClassName("com.my.project.model.v1_0_1.migration.MyItem")
+          .batchSize(1000)
+          .build()
+    );
+    
+    MigrationState nextState = runner.runSingleBatch();
+```
+
+Note that you will probably want to wire these up with your DI framework of choice, but you can see the outline here...
+
+We create the ``PowerGlideRunner`` with an ``ElasticSearchClient`` instance (which needs a configured ``ObjectMapper`` 
+instance) and an initial MigrationState. We can then call ``runSingleBatch()`` to migrate a batch of records to 
+the new index. The ``MigrationState`` that is returned can then be serialized to JSON and passed to a next invocation,
+or you can simply call ``runSingleBatch()`` again, or even ``run()`` to migrate all the records in a continuous loop.
+
