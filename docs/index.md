@@ -19,7 +19,8 @@ There are a lot of things you can do with it. To get started, pick a case that b
 >
 > -- Tony Hoare
 
-We want to make it easy to build something where there are obviously no deficiencies.
+We want to make it easy to build something where there are obviously no deficiencies... at least in your data 
+definitions.
 
 ----------
 <p align="center">

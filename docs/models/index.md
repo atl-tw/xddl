@@ -216,7 +216,7 @@ You can also use the Java extension on the type to import types to use. For exam
    "ext": {
       "java": {
         "imports": ["javax.persistence.Entity", "javax.persistence.Temporal", "javax.persistence.TemporalType"],
-        "annotations": "@Entitiy"
+        "annotations": "@Entity"
       }   
     },
    "properties": [
