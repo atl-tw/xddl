@@ -217,14 +217,14 @@ Setting Up a Project
 Let's work a complete example now. We can start with our 1.0 version of the specification, creating a gradle project
 with the following structure:
 
- * src
-   * main
-     * xddl
+ * src/
+   * main/
+     * xddl/
        * Specification.xddl.json
-       * includes
+       * includes/
          * Name.xddl.json
-   * elasticsearch
-     * load
+   * elasticsearch/
+     * load/
         * a.json
         * b.json
         * ...
@@ -411,6 +411,8 @@ We get:
 ```
 
 ...and so on.
+
+You can find these completed project examples [here](https://github.com/atl-tw/xddl/tree/master/gradle-plugin/src/integration/projects)
 
 Why Code Generation? (or How to I build my own migration tool?)
 ---------------------------------------------------------------
