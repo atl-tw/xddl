@@ -11,18 +11,9 @@
       "name": "ordinal_enum",
       "description": "A referenced enum property value",
       "allowable": [
-        {
-          "value": "1st-value",
-          "description": "The 1st value"
-        },
-        {
-          "value": "SECOND",
-          "description": "THe 2nd value"
-        },
-        {
-          "value": "THIRD",
-          "comment": "Maybe add a 3rd value?"
-        }
+        {"value": "1ST", "description": "The 1st value"},
+        {"value": "SECOND", "description": "THe 2nd value"},
+        {"value": "THIRD", "comment": "Maybe add a 3rd value?"}
       ]
     }
   ],
