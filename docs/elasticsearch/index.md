@@ -44,12 +44,7 @@ might start with...
   "properties": [
     {"@type": "Type", "core": "STRING", "name": "id"},
     {"@type": "Type", "core": "TEXT", "name": "value"}
-  ],
-  "ext": {
-    "java": {
-      "implements": ["com.my.project.HasId"]
-    }
-  }
+  ]
 }
 ```
    
