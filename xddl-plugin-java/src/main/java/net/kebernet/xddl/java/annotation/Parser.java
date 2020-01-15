@@ -107,9 +107,13 @@ public class Parser {
                   : AnnotationSpec.builder((ClassName) Resolver.parse(n.getName().asString(), ""));
           List<ClassName> replacements = new ArrayList<>();
           if (n instanceof SingleMemberAnnotationExpr) {
-            this.resolveNode(replace, replacements, n);
+            SingleMemberAnnotationExpr expr = (SingleMemberAnnotationExpr) n;
+            this.resolveNode(replace, replacements, expr.getMemberValue());
             builder.addMember(
-                "value", CodeBlock.builder().add(n.toString(), replacements.toArray()).build());
+                "value",
+                CodeBlock.builder()
+                    .add(expr.getMemberValue().toString(), replacements.toArray())
+                    .build());
           } else {
             n.getChildNodes().stream()
                 .filter(c -> !(c instanceof Name))
