@@ -24,6 +24,6 @@ definitions.
 
 ----------
 <p align="center">
- xDDL is a project of ThoughtWorks, Atlanta. <br/><br/> <img src="https://github.com/atl-tw/xddl/raw/master/docs/georgia.jpg">
+ xDDL is a project of ThoughtWorks, Atlanta. <br/><br/> <img src="https://github.com/atl-tw/xddl/raw/master/docs/georgia.png">
 </p>
 
