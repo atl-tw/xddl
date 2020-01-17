@@ -12,6 +12,25 @@ We are not going to discuss the details of xDDL specifications here. While we li
 self evident, if you would like to know more, please see the [writing a specification](../specification) documentation 
 for details.
 
+Strategy
+--------
+
+Unlike SQL databases, it is not possible to alter an ElasticSearch index once it has been created, and updating the 
+structure of individual records cannot be done with the flexibility of SQL once created. To deal with this, xDDL's
+ElasticSearch works with index aliases. The idea being that there are indexes based on versions, and then an alias
+that is updated as the data is migrated. The flow goes something like this:
+
+Initial State:
+ * Alias "My_Data" points to "My_Data_1.0".
+Steps:
+ * Create "My_Data_2.0"
+ * Extract records from "My_Data_1.0" and transform them into records usable with 2.0
+ * Insert the records into "My_Data_2.0"
+ * Re-point the "My_Data" alias to "My_Data_2.0"
+ 
+Doing this by hand-coding your migration every time you have a new version is an imposing chore and a lot of set up,
+so the Glide and PowerGlide Gradle plugins look to make this easier by letting you express your record changes as an
+xDDL extension, then it will handle plumbing for you.
 
 Primary Components
 ------------------
