@@ -12,6 +12,22 @@ We are not going to discuss the details of xDDL specifications here. While we li
 self evident, if you would like to know more, please see the [writing a specification](../specification) documentation 
 for details.
 
+
+Table of Contents
+-----------------
+
+ 1. [Strategy](#strat)
+ 1. [Primary Components](#comp)
+ 1. [Creating Migration Patches](#patch)
+    1. [See also the Migrate Plugin](https://github.com/atl-tw/xddl/tree/master/xddl-plugin-migrate)
+ 1. [Using the Glide Gradle Plugins](#gradle)
+ 1. [Setting Up a Project](#setup)
+ 1. [Migrating to a New Version](#migrate)
+ 1. [Why Code Generation? (or How to I build my own migration tool?)](#codegen)
+
+
+<a name="strat"></a>
+
 Strategy
 --------
 
@@ -32,6 +48,8 @@ Doing this by hand-coding your migration every time you have a new version is an
 so the Glide and PowerGlide Gradle plugins look to make this easier by letting you express your record changes as an
 xDDL extension, then it will handle plumbing for you.
 
+<a name="comp"></a>
+
 Primary Components
 ------------------
 
@@ -44,6 +62,8 @@ Working with ElasticSearch in a continuous fashion depends on understanding thre
  1. The ``PowerGlide`` Gradle tasks, which actually apply your changes to an ElasticSearch instance.
  
 We will look at each of these in turn.
+
+<a name="patch"></a>
 
 Creating Migration Patches
 --------------------------
@@ -143,6 +163,8 @@ value for our new field from an existing record.
 
 Now that we have expressed our migration stages, we need to generate code that will actually perform the migration.
 
+<a name="gradle"></a>
+
 Using the Glide Gradle Plugins
 ------------------------------
 
@@ -227,6 +249,8 @@ The ``MigrationVisitor`` class is why we require a dependency on``net.kebernet.x
 plugin will generate a bunch of Java classes based on your package name that will migrate a node from the old version 
 to the new version.
 
+<a name="setup"></a>
+
 Setting Up a Project
 --------------------
 
@@ -299,6 +323,8 @@ Inserted 4 records to test_index
 ```
 
 Now we have our ES instance configured and containing data.
+
+<a name="migrate"></a>
 
 Migrating to a New Version
 --------------------------
@@ -429,6 +455,9 @@ We get:
 ...and so on.
 
 You can find these completed project examples [here](https://github.com/atl-tw/xddl/tree/master/gradle-plugin/src/integration/projects)
+
+
+<a name="codegen"></a>
 
 Why Code Generation? (or How to I build my own migration tool?)
 ---------------------------------------------------------------
