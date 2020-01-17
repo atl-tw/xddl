@@ -409,7 +409,7 @@ let package = Package(
 )
 ```
 
-and ``Sources\xddl\Item.swift``
+and ``Sources/xddl/Item.swift``
 ```swift
 import Foundation
 
